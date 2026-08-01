@@ -1,1 +1,169 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f7f7f5" />
+  <meta name="description" content="Círculos armónicos interactivos para piano y guitarra." />
+  <title>Círculos Music</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <button class="icon-btn" id="scrollTopBtn" type="button" aria-label="Ir al inicio" title="Ir al inicio">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <h2 class="brand">Círculos Music</h2>
+      <div class="header-actions">
+        <button class="icon-btn" id="themeBtn" type="button" aria-label="Cambiar apariencia" title="Cambiar apariencia">
+          <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
 
+  <main class="container">
+    <section class="hero" id="inicio">
+      <div>
+        <p class="eyebrow">Armonía interactiva</p>
+        <h1>Tu círculo, en piano y guitarra.</h1>
+        <p>Elige una tonalidad o escribe los acordes que quieras. La aplicación identifica sus notas, los muestra en el instrumento y puede reproducirlos uno por uno o como progresión.</p>
+      </div>
+      <aside class="hero-status" aria-label="Resumen actual">
+        <div class="status-row"><span class="status-label">Tonalidad</span><strong class="status-value" id="statusKey">DO mayor</strong></div>
+        <div class="status-row"><span class="status-label">Instrumento</span><strong class="status-value" id="statusInstrument">Piano</strong></div>
+        <div class="status-row"><span class="status-label">Acorde activo</span><strong class="status-value" id="statusChord">DO</strong></div>
+      </aside>
+    </section>
+
+    <section class="toolbar" aria-label="Preferencias">
+      <div class="control-card">
+        <span class="control-label">Nomenclatura</span>
+        <div class="segmented">
+          <button class="seg-btn active" data-nomenclature="latin" type="button">Latina</button>
+          <button class="seg-btn" data-nomenclature="english" type="button">Inglesa</button>
+        </div>
+      </div>
+      <div class="control-card">
+        <span class="control-label">Instrumento</span>
+        <div class="segmented">
+          <button class="seg-btn active" data-instrument="piano" type="button">Piano</button>
+          <button class="seg-btn" data-instrument="guitar" type="button">Guitarra</button>
+        </div>
+      </div>
+      <div class="control-card">
+        <span class="control-label">Tipo de círculo</span>
+        <div class="segmented three">
+          <button class="seg-btn" data-circle="3" type="button">3</button>
+          <button class="seg-btn active" data-circle="4" type="button">4</button>
+          <button class="seg-btn" data-circle="7" type="button">7</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="selector">
+      <div class="panel-head">
+        <div>
+          <h3 class="panel-title">Tonalidad principal</h3>
+          <p class="panel-subtitle">Selecciona la tónica para construir el círculo automáticamente.</p>
+        </div>
+      </div>
+      <div class="key-scroller" id="toneSelector" aria-label="Selector de tonalidad"></div>
+    </section>
+
+    <section class="panel" id="personalizado">
+      <div class="panel-head">
+        <div>
+          <h3 class="panel-title">Escribe tu propio círculo</h3>
+          <p class="panel-subtitle">Acepta acordes como DO, LAm, SOL7, C, Am, Fmaj7 o G7.</p>
+        </div>
+      </div>
+      <div class="progression-builder">
+        <input class="text-input" id="customProgression" type="text" autocomplete="off" spellcheck="false" placeholder="Ejemplo: DO – LAm – FA – SOL" aria-label="Progresión personalizada" />
+        <button class="primary-btn" id="applyCustomBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg>
+          Crear círculo
+        </button>
+      </div>
+    </section>
+
+    <section class="panel" id="circulo">
+      <div class="panel-head">
+        <div>
+          <h3 class="panel-title" id="circleTitle">Círculo armónico de DO mayor</h3>
+          <p class="panel-subtitle" id="circleSubtitle">Progresión I – vi – IV – V</p>
+        </div>
+        <button class="secondary-btn" id="resetCircleBtn" type="button" title="Volver al círculo automático">Restablecer</button>
+      </div>
+      <div class="circle-section">
+        <div class="circle-grid" id="circleGrid"></div>
+        <div class="player-bar">
+          <button class="primary-btn" id="playProgressionBtn" type="button" aria-label="Reproducir progresión">
+            <svg id="playProgressionIcon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7Z"/></svg>
+            <span id="playProgressionText">Reproducir</span>
+          </button>
+          <div class="now-playing">
+            <small>Selección actual</small>
+            <strong id="nowPlaying">DO · DO–MI–SOL</strong>
+          </div>
+          <div class="tempo-wrap">
+            <label for="tempoInput">Tempo</label>
+            <input class="number-input" id="tempoInput" type="number" min="40" max="220" value="92" inputmode="numeric" aria-label="Tempo en pulsaciones por minuto" />
+          </div>
+          <button class="ghost-btn" id="copyBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3"/></svg>
+            Copiar
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="instrumento">
+      <div class="panel-head">
+        <div>
+          <h3 class="panel-title" id="visualTitle">Visualización en piano</h3>
+          <p class="panel-subtitle" id="visualSubtitle">Las notas del acorde activo aparecen resaltadas.</p>
+        </div>
+      </div>
+      <div class="visual-wrap">
+        <div class="visual-top">
+          <div class="legend">
+            <span class="legend-item"><i class="dot root"></i> Tónica</span>
+            <span class="legend-item"><i class="dot"></i> Otras notas</span>
+          </div>
+          <button class="secondary-btn" id="playChordBtn" type="button">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7Z"/></svg>
+            Escuchar acorde
+          </button>
+        </div>
+        <div id="pianoView" class="piano-scroll">
+          <div class="piano" id="pianoKeyboard" aria-label="Teclado de piano interactivo"></div>
+        </div>
+        <div id="guitarView" class="fret-scroll hidden">
+          <div class="fretboard" id="guitarFretboard" aria-label="Diapasón de guitarra"></div>
+        </div>
+        <p class="helper" id="instrumentHelper">Pulsa cualquier tecla para escucharla. El resaltado se actualiza al seleccionar otro acorde.</p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-nav" aria-label="Navegación principal">
+    <button class="nav-btn active" data-target="selector" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3v4M21 12h-4M12 21v-4M3 12h4"/></svg>
+      <span>Tonalidad</span>
+    </button>
+    <button class="nav-btn" data-target="circulo" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a8 8 0 1 0-2.1 3"/><path d="m17 14 3 1-1 3"/></svg>
+      <span>Círculo</span>
+    </button>
+    <button class="nav-btn" data-target="instrumento" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V5l10-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/></svg>
+      <span>Instrumento</span>
+    </button>
+  </nav>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js" defer></script>
+</body>
+</html>
