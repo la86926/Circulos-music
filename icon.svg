@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Círculos Music</title>
+  <desc id="desc">Icono circular con teclas de piano y una nota musical</desc>
+  <rect width="512" height="512" rx="116" fill="#f4f4ef"/>
+  <circle cx="256" cy="256" r="172" fill="#171817"/>
+  <path d="M256 116a140 140 0 1 0 112 224" fill="none" stroke="#f4f4ef" stroke-width="34" stroke-linecap="round"/>
+  <path d="M333 137v168.5c-13-8-31-9-47-2-26 11-39 36-29 58 10 23 39 31 65 20 20-9 33-27 33-46V177l61-17v-47z" fill="#8db59f"/>
+  <g transform="translate(116 324)">
+    <rect width="280" height="74" rx="16" fill="#f4f4ef"/>
+    <path d="M56 0v74M112 0v74M168 0v74M224 0v74" stroke="#171817" stroke-width="8"/>
+    <path d="M39 0h30v42H39zM95 0h30v42H95zM207 0h30v42H207z" fill="#171817"/>
+  </g>
+</svg>
