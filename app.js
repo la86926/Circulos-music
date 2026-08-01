@@ -1,540 +1,543 @@
 (() => {
-'use strict';
-const NOTE_NAMES_EN_SHARP = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-const NOTE_NAMES_EN_FLAT = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
-const NOTE_NAMES_LAT_SHARP = ['DO', 'DO#', 'RE', 'RE#', 'MI', 'FA', 'FA#', 'SOL', 'SOL#', 'LA', 'LA#', 'SI'];
-const NOTE_NAMES_LAT_FLAT = ['DO', 'REb', 'RE', 'MIb', 'MI', 'FA', 'SOLb', 'SOL', 'LAb', 'LA', 'SIb', 'SI'];
-const KEYS = [
-{ id: 'C', pc: 0, flat: false }, { id: 'G', pc: 7, flat: false }, { id: 'D', pc: 2, flat: false },
-{ id: 'A', pc: 9, flat: false }, { id: 'E', pc: 4, flat: false }, { id: 'B', pc: 11, flat: false },
-{ id: 'F#', pc: 6, flat: false }, { id: 'Db', pc: 1, flat: true }, { id: 'Ab', pc: 8, flat: true },
-{ id: 'Eb', pc: 3, flat: true }, { id: 'Bb', pc: 10, flat: true }, { id: 'F', pc: 5, flat: true }
-];
-const MAJOR_STEPS = [0, 2, 4, 5, 7, 9, 11];
-const DIATONIC_QUALITIES = ['', 'm', 'm', '', '', 'm', 'dim'];
-const DEGREE_ROMANS = ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'];
-const DEGREE_ROLES = ['Tónica', 'Supertónica', 'Mediante', 'Subdominante', 'Dominante', 'Submediante', 'Sensible'];
-const CIRCLE_PATTERNS = {
-3: { degrees: [0, 3, 4], label: 'I – IV – V' },
-4: { degrees: [0, 5, 3, 4], label: 'I – vi – IV – V' },
-7: { degrees: [0, 1, 2, 3, 4, 5, 6], label: 'I – ii – iii – IV – V – vi – vii°' }
-};
-const CHORD_INTERVALS = {
-'': [0, 4, 7], m: [0, 3, 7], '7': [0, 4, 7, 10], maj7: [0, 4, 7, 11],
-m7: [0, 3, 7, 10], dim: [0, 3, 6], dim7: [0, 3, 6, 9], aug: [0, 4, 8],
-sus2: [0, 2, 7], sus4: [0, 5, 7], '6': [0, 4, 7, 9], m6: [0, 3, 7, 9]
-};
-const GUITAR_OPEN_MIDI = [40, 45, 50, 55, 59, 64];
-const GUITAR_STRING_NAMES = ['E', 'A', 'D', 'G', 'B', 'E'];
-const state = {
-nomenclature: localStorage.getItem('cm_nomenclature') || 'latin',
-instrument: localStorage.getItem('cm_instrument') || 'piano',
-theme: localStorage.getItem('cm_theme') || 'system',
-keyId: localStorage.getItem('cm_key') || 'C',
-circleSize: Number(localStorage.getItem('cm_circle_size')) || 4,
-custom: false,
-progression: [],
-activeIndex: 0,
-isPlaying: false,
-playToken: 0
-};
-const els = {
-html: document.documentElement,
-themeBtn: document.getElementById('themeBtn'),
-themeIcon: document.getElementById('themeIcon'),
-toneSelector: document.getElementById('toneSelector'),
-customProgression: document.getElementById('customProgression'),
-applyCustomBtn: document.getElementById('applyCustomBtn'),
-resetCircleBtn: document.getElementById('resetCircleBtn'),
-circleGrid: document.getElementById('circleGrid'),
-circleTitle: document.getElementById('circleTitle'),
-circleSubtitle: document.getElementById('circleSubtitle'),
-statusKey: document.getElementById('statusKey'),
-statusInstrument: document.getElementById('statusInstrument'),
-statusChord: document.getElementById('statusChord'),
-nowPlaying: document.getElementById('nowPlaying'),
-tempoInput: document.getElementById('tempoInput'),
-playProgressionBtn: document.getElementById('playProgressionBtn'),
-playProgressionText: document.getElementById('playProgressionText'),
-playProgressionIcon: document.getElementById('playProgressionIcon'),
-copyBtn: document.getElementById('copyBtn'),
-playChordBtn: document.getElementById('playChordBtn'),
-pianoView: document.getElementById('pianoView'),
-guitarView: document.getElementById('guitarView'),
-pianoKeyboard: document.getElementById('pianoKeyboard'),
-guitarFretboard: document.getElementById('guitarFretboard'),
-visualTitle: document.getElementById('visualTitle'),
-visualSubtitle: document.getElementById('visualSubtitle'),
-instrumentHelper: document.getElementById('instrumentHelper'),
-toast: document.getElementById('toast')
-};
-let audioContext = null;
-let toastTimer = null;
-function mod(n, m) { return ((n % m) + m) % m; }
-function getAudioContext() {
-if (!audioContext) {
-const AudioCtx = window.AudioContext || window.webkitAudioContext;
-if (!AudioCtx) return null;
-audioContext = new AudioCtx();
-}
-if (audioContext.state === 'suspended') audioContext.resume();
-return audioContext;
-}
-function midiToFrequency(midi) { return 440 * Math.pow(2, (midi - 69) / 12); }
-function playTone(midi, startTime, duration = 1.15, instrument = state.instrument, gainAmount = .08) {
-const ctx = getAudioContext();
-if (!ctx) return;
-const osc = ctx.createOscillator();
-const gain = ctx.createGain();
-const filter = ctx.createBiquadFilter();
-const now = Math.max(ctx.currentTime, startTime || ctx.currentTime);
-osc.frequency.setValueAtTime(midiToFrequency(midi), now);
-osc.type = instrument === 'guitar' ? 'triangle' : 'sine';
-filter.type = 'lowpass';
-filter.frequency.setValueAtTime(instrument === 'guitar' ? 1800 : 3200, now);
-gain.gain.setValueAtTime(.0001, now);
-gain.gain.exponentialRampToValueAtTime(gainAmount, now + (instrument === 'guitar' ? .008 : .025));
-if (instrument === 'guitar') {
-gain.gain.exponentialRampToValueAtTime(.018, now + .2);
-gain.gain.exponentialRampToValueAtTime(.0001, now + duration);
-} else {
-gain.gain.exponentialRampToValueAtTime(.045, now + .12);
-gain.gain.exponentialRampToValueAtTime(.0001, now + duration);
-}
-osc.connect(filter).connect(gain).connect(ctx.destination);
-osc.start(now);
-osc.stop(now + duration + .05);
-}
-function playChord(chord, when = null, duration = 1.25) {
-const ctx = getAudioContext();
-if (!ctx || !chord) return;
-const start = when || ctx.currentTime;
-const baseMidi = state.instrument === 'guitar' ? 48 : 60;
-chord.intervals.forEach((interval, index) => {
-let midi = baseMidi + chord.rootPc + interval;
-while (midi < (state.instrument === 'guitar' ? 45 : 57)) midi += 12;
-while (midi > (state.instrument === 'guitar' ? 67 : 76)) midi -= 12;
-playTone(midi, start + (state.instrument === 'guitar' ? index * .035 : index * .012), duration, state.instrument, state.instrument === 'guitar' ? .065 : .07);
-});
-}
-function getPreferredFlat() {
-if (state.custom && state.progression[state.activeIndex]) return Boolean(state.progression[state.activeIndex].flat);
-return KEYS.find(k => k.id === state.keyId)?.flat || false;
-}
-function noteName(pc, flat = getPreferredFlat(), nomenclature = state.nomenclature) {
-const idx = mod(pc, 12);
-if (nomenclature === 'latin') return (flat ? NOTE_NAMES_LAT_FLAT : NOTE_NAMES_LAT_SHARP)[idx];
-return (flat ? NOTE_NAMES_EN_FLAT : NOTE_NAMES_EN_SHARP)[idx];
-}
-function qualitySuffix(quality) {
-const map = {
-'': '', m: 'm', '7': '7', maj7: 'maj7', m7: 'm7', dim: 'dim', dim7: 'dim7',
-aug: 'aug', sus2: 'sus2', sus4: 'sus4', '6': '6', m6: 'm6'
-};
-return map[quality] ?? quality;
-}
-function chordDisplay(chord) { return noteName(chord.rootPc, chord.flat) + qualitySuffix(chord.quality); }
-function chordNoteNames(chord) {
-return chord.intervals.map(i => noteName(chord.rootPc + i, chord.flat)).join('–');
-}
-function buildChord(rootPc, quality = '', options = {}) {
-const normalizedQuality = CHORD_INTERVALS[quality] ? quality : '';
-return {
-rootPc: mod(rootPc, 12),
-quality: normalizedQuality,
-intervals: CHORD_INTERVALS[normalizedQuality],
-flat: Boolean(options.flat),
-degree: options.degree || '',
-role: options.role || 'Acorde personalizado'
-};
-}
-function buildAutomaticProgression() {
-const key = KEYS.find(k => k.id === state.keyId) || KEYS[0];
-const pattern = CIRCLE_PATTERNS[state.circleSize] || CIRCLE_PATTERNS[4];
-state.progression = pattern.degrees.map(degreeIndex => {
-const rootPc = mod(key.pc + MAJOR_STEPS[degreeIndex], 12);
-return buildChord(rootPc, DIATONIC_QUALITIES[degreeIndex], {
-flat: key.flat,
-degree: DEGREE_ROMANS[degreeIndex],
-role: DEGREE_ROLES[degreeIndex]
-});
-});
-state.activeIndex = Math.min(state.activeIndex, state.progression.length - 1);
-}
-function normalizeToken(raw) {
-return raw.trim().replace(/[()\[\]]/g, '').replace(/♯/g, '#').replace(/♭/g, 'b');
-}
-function parseChordToken(raw) {
-let token = normalizeToken(raw);
-if (!token) return null;
-const latinMatch = token.match(/^(DO|RE|MI|FA|SOL|LA|SI)(#|b)?(.*)$/i);
-const englishMatch = token.match(/^([A-Ga-g])(#|b)?(.*)$/);
-let baseName = '';
-let accidental = '';
-let suffix = '';
-let rootPc = null;
-if (latinMatch) {
-baseName = latinMatch[1].toUpperCase();
-accidental = latinMatch[2] || '';
-suffix = latinMatch[3] || '';
-const baseMap = { DO: 0, RE: 2, MI: 4, FA: 5, SOL: 7, LA: 9, SI: 11 };
-rootPc = baseMap[baseName];
-} else if (englishMatch) {
-baseName = englishMatch[1].toUpperCase();
-accidental = englishMatch[2] || '';
-suffix = englishMatch[3] || '';
-const baseMap = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
-rootPc = baseMap[baseName];
-} else {
-return null;
-}
-if (accidental === '#') rootPc += 1;
-if (accidental === 'b') rootPc -= 1;
-const s = suffix.trim().replace(/^-/, '').toLowerCase();
-const qualityMap = {
-'': '', m: 'm', min: 'm', menor: 'm', '7': '7', maj7: 'maj7', 'm7': 'm7', min7: 'm7',
-dim: 'dim', '°': 'dim', disminuido: 'dim', dim7: 'dim7', aug: 'aug', '+': 'aug',
-sus2: 'sus2', sus4: 'sus4', sus: 'sus4', '6': '6', m6: 'm6'
-};
-const quality = qualityMap[s];
-if (quality === undefined) return null;
-return buildChord(rootPc, quality, { flat: accidental === 'b', role: 'Acorde personalizado' });
-}
-function parseProgression(value) {
-const tokens = value
-.replace(/[|/]+/g, ' ')
-.replace(/[–—,;]+/g, ' ')
-.split(/\s+/)
-.filter(Boolean);
-return { tokens, chords: tokens.map(parseChordToken) };
-}
-function renderToneSelector() {
-els.toneSelector.innerHTML = '';
-KEYS.forEach(key => {
-const btn = document.createElement('button');
-btn.type = 'button';
-btn.className = 'tone-btn' + (key.id === state.keyId ? ' active' : '');
-btn.textContent = noteName(key.pc, key.flat);
-btn.setAttribute('aria-label', 'Tonalidad ' + noteName(key.pc, key.flat));
-btn.addEventListener('click', () => {
-state.keyId = key.id;
-state.custom = false;
-state.activeIndex = 0;
-localStorage.setItem('cm_key', state.keyId);
-buildAutomaticProgression();
-renderAll();
-stopProgression();
-});
-els.toneSelector.appendChild(btn);
-});
-}
-function renderCircle() {
-els.circleGrid.innerHTML = '';
-if (!state.progression.length) {
-els.circleGrid.innerHTML = '<div class="empty-message">No hay acordes para mostrar.</div>';
-return;
-}
-state.progression.forEach((chord, index) => {
-const card = document.createElement('button');
-card.type = 'button';
-card.className = 'chord-card' + (index === state.activeIndex ? ' active' : '');
-card.innerHTML = `
-<span class="degree">${chord.degree || String(index + 1)}</span>
-<span class="play-chip" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7Z"/></svg></span>
-<strong class="chord-name">${escapeHtml(chordDisplay(chord))}</strong>
-<span class="chord-role">${escapeHtml(chord.role)}</span>
-<span class="chord-notes">${escapeHtml(chordNoteNames(chord))}</span>`;
-card.setAttribute('aria-label', `Seleccionar y escuchar ${chordDisplay(chord)}`);
-card.addEventListener('click', () => {
-state.activeIndex = index;
-renderCircle();
-renderInstrumentHighlights();
-renderStatus();
-playChord(chord);
-});
-els.circleGrid.appendChild(card);
-});
-const key = KEYS.find(k => k.id === state.keyId) || KEYS[0];
-if (state.custom) {
-els.circleTitle.textContent = 'Tu círculo personalizado';
-els.circleSubtitle.textContent = state.progression.map(chordDisplay).join(' – ');
-} else {
-els.circleTitle.textContent = `Círculo armónico de ${noteName(key.pc, key.flat)} mayor`;
-els.circleSubtitle.textContent = `Progresión ${CIRCLE_PATTERNS[state.circleSize].label}`;
-}
-}
-function renderStatus() {
-const key = KEYS.find(k => k.id === state.keyId) || KEYS[0];
-const chord = state.progression[state.activeIndex];
-els.statusKey.textContent = state.custom ? 'Personalizada' : `${noteName(key.pc, key.flat)} mayor`;
-els.statusInstrument.textContent = state.instrument === 'piano' ? 'Piano' : 'Guitarra';
-els.statusChord.textContent = chord ? chordDisplay(chord) : '—';
-els.nowPlaying.textContent = chord ? `${chordDisplay(chord)} · ${chordNoteNames(chord)}` : '—';
-}
-function buildPiano() {
-els.pianoKeyboard.innerHTML = '';
-const startMidi = 48;
-const endMidi = 71;
-let whiteCount = 0;
-const blackPositions = [];
-for (let midi = startMidi; midi <= endMidi; midi++) {
-const pc = mod(midi, 12);
-const isBlack = [1, 3, 6, 8, 10].includes(pc);
-if (!isBlack) {
-const key = document.createElement('button');
-key.type = 'button';
-key.className = 'white-key';
-key.dataset.pc = String(pc);
-key.dataset.midi = String(midi);
-key.textContent = noteName(pc, false);
-key.addEventListener('click', () => playTone(midi, null, .9, 'piano', .09));
-els.pianoKeyboard.appendChild(key);
-whiteCount++;
-} else {
-blackPositions.push({ midi, pc, left: whiteCount * 58 - 18 });
-}
-}
-blackPositions.forEach(info => {
-const key = document.createElement('button');
-key.type = 'button';
-key.className = 'black-key';
-key.style.left = `${info.left + 4}px`;
-key.dataset.pc = String(info.pc);
-key.dataset.midi = String(info.midi);
-key.textContent = noteName(info.pc, false);
-key.addEventListener('click', () => playTone(info.midi, null, .9, 'piano', .085));
-els.pianoKeyboard.appendChild(key);
-});
-}
-function buildGuitar() {
-els.guitarFretboard.innerHTML = '';
-const numbers = document.createElement('div');
-numbers.className = 'fret-numbers';
-numbers.innerHTML = '<span></span>' + Array.from({ length: 13 }, (_, fret) => `<span>${fret}</span>`).join('');
-els.guitarFretboard.appendChild(numbers);
-GUITAR_OPEN_MIDI.forEach((openMidi, stringIndex) => {
-const row = document.createElement('div');
-row.className = 'guitar-string';
-row.innerHTML = `<span class="string-name">${GUITAR_STRING_NAMES[stringIndex]}</span>`;
-for (let fret = 0; fret <= 12; fret++) {
-const midi = openMidi + fret;
-const pc = mod(midi, 12);
-const cell = document.createElement('button');
-cell.type = 'button';
-cell.className = 'fret-cell';
-cell.dataset.pc = String(pc);
-cell.dataset.midi = String(midi);
-cell.style.setProperty('--string-size', `${1 + stringIndex * .35}px`);
-cell.setAttribute('aria-label', `Cuerda ${GUITAR_STRING_NAMES[stringIndex]}, traste ${fret}`);
-cell.innerHTML = `<span class="note-marker">${noteName(pc, false)}</span>`;
-cell.addEventListener('click', () => playTone(midi, null, 1.25, 'guitar', .095));
-row.appendChild(cell);
-}
-els.guitarFretboard.appendChild(row);
-});
-}
-function renderInstrumentText() {
-const isPiano = state.instrument === 'piano';
-els.pianoView.classList.toggle('hidden', !isPiano);
-els.guitarView.classList.toggle('hidden', isPiano);
-els.visualTitle.textContent = isPiano ? 'Visualización en piano' : 'Visualización en guitarra';
-els.visualSubtitle.textContent = isPiano
-? 'Las notas del acorde activo aparecen resaltadas en dos octavas.'
-: 'El diapasón muestra todas las ubicaciones del acorde hasta el traste 12.';
-els.instrumentHelper.textContent = isPiano
-? 'Pulsa cualquier tecla para escucharla. El resaltado se actualiza al seleccionar otro acorde.'
-: 'Pulsa una posición del diapasón para escucharla. La tónica aparece con el marcador oscuro.';
-}
-function renderInstrumentLabels() {
-document.querySelectorAll('.white-key, .black-key').forEach(key => {
-key.textContent = noteName(Number(key.dataset.pc), false);
-});
-document.querySelectorAll('.note-marker').forEach(marker => {
-const cell = marker.closest('.fret-cell');
-marker.textContent = noteName(Number(cell.dataset.pc), false);
-});
-}
-function renderInstrumentHighlights() {
-const chord = state.progression[state.activeIndex];
-if (!chord) return;
-const pcs = chord.intervals.map(i => mod(chord.rootPc + i, 12));
-document.querySelectorAll('.white-key, .black-key').forEach(key => {
-const pc = Number(key.dataset.pc);
-key.classList.toggle('active', pcs.includes(pc));
-key.classList.toggle('root-note', pc === chord.rootPc);
-});
-document.querySelectorAll('.fret-cell').forEach(cell => {
-const pc = Number(cell.dataset.pc);
-const marker = cell.querySelector('.note-marker');
-marker.classList.toggle('visible', pcs.includes(pc));
-marker.classList.toggle('root-note', pc === chord.rootPc);
-});
-}
-function renderControls() {
-document.querySelectorAll('[data-nomenclature]').forEach(btn => btn.classList.toggle('active', btn.dataset.nomenclature === state.nomenclature));
-document.querySelectorAll('[data-instrument]').forEach(btn => btn.classList.toggle('active', btn.dataset.instrument === state.instrument));
-document.querySelectorAll('[data-circle]').forEach(btn => btn.classList.toggle('active', Number(btn.dataset.circle) === state.circleSize));
-}
-function renderAll() {
-renderControls();
-renderToneSelector();
-renderCircle();
-renderInstrumentText();
-renderInstrumentLabels();
-renderInstrumentHighlights();
-renderStatus();
-}
-function applyCustomProgression() {
-const value = els.customProgression.value.trim();
-if (!value) {
-showToast('Escribe al menos un acorde.', true);
-els.customProgression.focus();
-return;
-}
-const parsed = parseProgression(value);
-const invalid = parsed.tokens.filter((_, index) => !parsed.chords[index]);
-if (invalid.length) {
-showToast(`No pude reconocer: ${invalid.join(', ')}`, true);
-return;
-}
-if (!parsed.chords.length) {
-showToast('No encontré acordes válidos.', true);
-return;
-}
-stopProgression();
-state.custom = true;
-state.progression = parsed.chords;
-state.activeIndex = 0;
-renderAll();
-document.getElementById('circulo').scrollIntoView({ behavior: 'smooth', block: 'start' });
-showToast('Círculo personalizado creado.');
-}
-function resetAutomatic() {
-stopProgression();
-state.custom = false;
-state.activeIndex = 0;
-buildAutomaticProgression();
-renderAll();
-showToast('Se restauró el círculo automático.');
-}
-function setNomenclature(value) {
-state.nomenclature = value;
-localStorage.setItem('cm_nomenclature', value);
-renderAll();
-}
-function setInstrument(value) {
-state.instrument = value;
-localStorage.setItem('cm_instrument', value);
-renderAll();
-}
-function setCircleSize(value) {
-state.circleSize = value;
-localStorage.setItem('cm_circle_size', String(value));
-state.custom = false;
-state.activeIndex = 0;
-buildAutomaticProgression();
-stopProgression();
-renderAll();
-}
-function stopProgression() {
-state.playToken++;
-state.isPlaying = false;
-els.playProgressionText.textContent = 'Reproducir';
-els.playProgressionIcon.innerHTML = '<path d="M8 5v14l11-7Z"/>';
-}
-async function playProgression() {
-if (state.isPlaying) {
-stopProgression();
-return;
-}
-const ctx = getAudioContext();
-if (!ctx || !state.progression.length) {
-showToast('El navegador no permite reproducir audio.', true);
-return;
-}
-const tempo = Math.max(40, Math.min(220, Number(els.tempoInput.value) || 92));
-els.tempoInput.value = String(tempo);
-const secondsPerChord = 60 / tempo * 2;
-const token = ++state.playToken;
-state.isPlaying = true;
-els.playProgressionText.textContent = 'Detener';
-els.playProgressionIcon.innerHTML = '<path d="M7 7h10v10H7z"/>';
-for (let i = 0; i < state.progression.length; i++) {
-if (token !== state.playToken) break;
-state.activeIndex = i;
-renderCircle();
-renderInstrumentHighlights();
-renderStatus();
-playChord(state.progression[i], ctx.currentTime + .03, Math.max(.7, secondsPerChord * .85));
-await wait(secondsPerChord * 1000);
-}
-if (token === state.playToken) stopProgression();
-}
-function wait(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
-async function copyProgression() {
-const text = state.progression.map(chordDisplay).join(' – ');
-try {
-await navigator.clipboard.writeText(text);
-showToast('Progresión copiada.');
-} catch {
-const temp = document.createElement('textarea');
-temp.value = text;
-temp.style.position = 'fixed';
-temp.style.opacity = '0';
-document.body.appendChild(temp);
-temp.select();
-document.execCommand('copy');
-temp.remove();
-showToast('Progresión copiada.');
-}
-}
-function showToast(message, isError = false) {
-clearTimeout(toastTimer);
-els.toast.textContent = message;
-els.toast.classList.toggle('error', isError);
-els.toast.classList.add('show');
-toastTimer = setTimeout(() => els.toast.classList.remove('show'), 2600);
-}
-function escapeHtml(value) {
-return String(value).replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#039;', '"': '&quot;' }[char]));
-}
-function applyTheme() {
-const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-const resolved = state.theme === 'system' ? (prefersDark ? 'dark' : 'light') : state.theme;
-els.html.dataset.theme = resolved;
-document.querySelector('meta[name="theme-color"]').setAttribute('content', resolved === 'dark' ? '#101110' : '#f7f7f5');
-const icon = resolved === 'dark'
-? '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"/>'
-: '<path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/>';
-els.themeIcon.innerHTML = icon;
-els.themeBtn.title = `Apariencia: ${state.theme === 'system' ? 'sistema' : state.theme === 'dark' ? 'oscura' : 'clara'}`;
-}
-function cycleTheme() {
-state.theme = state.theme === 'system' ? 'light' : state.theme === 'light' ? 'dark' : 'system';
-localStorage.setItem('cm_theme', state.theme);
-applyTheme();
-showToast(`Apariencia: ${state.theme === 'system' ? 'sistema' : state.theme === 'dark' ? 'oscura' : 'clara'}`);
-}
-document.querySelectorAll('[data-nomenclature]').forEach(btn => btn.addEventListener('click', () => setNomenclature(btn.dataset.nomenclature)));
-document.querySelectorAll('[data-instrument]').forEach(btn => btn.addEventListener('click', () => setInstrument(btn.dataset.instrument)));
-document.querySelectorAll('[data-circle]').forEach(btn => btn.addEventListener('click', () => setCircleSize(Number(btn.dataset.circle))));
-document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => {
-document.querySelectorAll('.nav-btn').forEach(item => item.classList.remove('active'));
-btn.classList.add('active');
-document.getElementById(btn.dataset.target)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}));
-els.applyCustomBtn.addEventListener('click', applyCustomProgression);
-els.customProgression.addEventListener('keydown', event => { if (event.key === 'Enter') applyCustomProgression(); });
-els.resetCircleBtn.addEventListener('click', resetAutomatic);
-els.playProgressionBtn.addEventListener('click', playProgression);
-els.playChordBtn.addEventListener('click', () => playChord(state.progression[state.activeIndex]));
-els.copyBtn.addEventListener('click', copyProgression);
-els.themeBtn.addEventListener('click', cycleTheme);
-document.getElementById('scrollTopBtn').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => { if (state.theme === 'system') applyTheme(); });
-applyTheme();
-buildAutomaticProgression();
-buildPiano();
-buildGuitar();
-renderAll();
+  'use strict';
+
+  const KEYS = [
+    { tonic: 'C',  scale: ['C','D','E','F','G','A','B'] },
+    { tonic: 'G',  scale: ['G','A','B','C','D','E','F#'] },
+    { tonic: 'D',  scale: ['D','E','F#','G','A','B','C#'] },
+    { tonic: 'A',  scale: ['A','B','C#','D','E','F#','G#'] },
+    { tonic: 'E',  scale: ['E','F#','G#','A','B','C#','D#'] },
+    { tonic: 'B',  scale: ['B','C#','D#','E','F#','G#','A#'] },
+    { tonic: 'F#', scale: ['F#','G#','A#','B','C#','D#','E#'] },
+    { tonic: 'Db', scale: ['Db','Eb','F','Gb','Ab','Bb','C'] },
+    { tonic: 'Ab', scale: ['Ab','Bb','C','Db','Eb','F','G'] },
+    { tonic: 'Eb', scale: ['Eb','F','G','Ab','Bb','C','D'] },
+    { tonic: 'Bb', scale: ['Bb','C','D','Eb','F','G','A'] },
+    { tonic: 'F',  scale: ['F','G','A','Bb','C','D','E'] }
+  ];
+
+  const QUALITIES = ['major','minor','minor','major','major','minor','diminished'];
+  const DEGREES = ['I','ii','iii','IV','V','vi','vii°'];
+  const FUNCTIONS = ['Tónica','Supertónica','Mediante','Subdominante','Dominante','Superdominante','Sensible'];
+  const PC = { C:0, 'C#':1, Db:1, D:2, 'D#':3, Eb:3, E:4, Fb:4, 'E#':5, F:5, 'F#':6, Gb:6, G:7, 'G#':8, Ab:8, A:9, 'A#':10, Bb:10, B:11, Cb:11 };
+  const SHARP_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  const FLAT_NAMES = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+  const LATIN = { C:'DO', D:'RE', E:'MI', F:'FA', G:'SOL', A:'LA', B:'SI' };
+  const OPEN_VOICINGS = {
+    'C:major': { name:'Abierto tradicional', description:'Forma de DO abierta', frets:[null,3,2,0,1,0] },
+    'G:major': { name:'Abierto tradicional', description:'Forma de SOL abierta', frets:[3,2,0,0,0,3] },
+    'D:major': { name:'Abierto tradicional', description:'Forma de RE abierta', frets:[null,null,0,2,3,2] },
+    'A:major': { name:'Abierto tradicional', description:'Forma de LA abierta', frets:[null,0,2,2,2,0] },
+    'E:major': { name:'Abierto tradicional', description:'Forma de MI abierta', frets:[0,2,2,1,0,0] },
+    'A:minor': { name:'Abierto tradicional', description:'Forma de LA menor', frets:[null,0,2,2,1,0] },
+    'E:minor': { name:'Abierto tradicional', description:'Forma de MI menor', frets:[0,2,2,0,0,0] },
+    'D:minor': { name:'Abierto tradicional', description:'Forma de RE menor', frets:[null,null,0,2,3,1] }
+  };
+
+  const state = {
+    keyIndex: 0,
+    nomenclature: 'latin',
+    instrument: 'piano',
+    selectedDegree: 0,
+    inversion: 0,
+    guitarVoicing: 0,
+    theme: localStorage.getItem('circulos-theme') || 'system',
+    progression: []
+  };
+
+  const el = Object.fromEntries([
+    'toneSelector','scaleTitle','scaleNotes','chordsTitle','diatonicGrid','selectedDegreeLabel','selectedChordTitle',
+    'selectedChordNotes','pianoKeyboard','pianoVoicingText','guitarVoicings','pianoPanel','guitarPanel','statusKey',
+    'statusChord','statusPosition','themeBtn','playChordBtn','playScaleBtn','customProgression','applyProgressionBtn',
+    'playProgressionBtn','progressionChips','tempoInput','toast'
+  ].map(id => [id, document.getElementById(id)]));
+
+  let audioContext = null;
+  let progressionTimer = null;
+
+  function notePc(note) { return PC[note]; }
+  function keyData() { return KEYS[state.keyIndex]; }
+  function currentChords() { return buildDiatonicChords(keyData()); }
+  function selectedChord() { return currentChords()[state.selectedDegree]; }
+
+  function formatNote(note) {
+    if (state.nomenclature === 'english') return note.replace('#','♯').replace('b','♭');
+    const letter = note[0];
+    const accidental = note.slice(1).replace('#','♯').replace('b','♭');
+    return `${LATIN[letter] || letter}${accidental}`;
+  }
+
+  function qualityLabel(quality) {
+    return quality === 'major' ? 'Mayor' : quality === 'minor' ? 'Menor' : 'Disminuido';
+  }
+
+  function chordSymbol(chord) {
+    const root = formatNote(chord.root);
+    if (chord.quality === 'minor') return `${root}m`;
+    if (chord.quality === 'diminished') return `${root}°`;
+    return root;
+  }
+
+  function chordLongName(chord) { return `${formatNote(chord.root)} ${qualityLabel(chord.quality).toLowerCase()}`; }
+
+  function buildDiatonicChords(key) {
+    return key.scale.map((root, i) => ({
+      root,
+      rootPc: notePc(root),
+      quality: QUALITIES[i],
+      degree: DEGREES[i],
+      functionName: FUNCTIONS[i],
+      notes: [key.scale[i], key.scale[(i + 2) % 7], key.scale[(i + 4) % 7]]
+    }));
+  }
+
+  function chromaticName(pc, preferFlat = false) { return (preferFlat ? FLAT_NAMES : SHARP_NAMES)[(pc + 12) % 12]; }
+
+  function renderToneSelector() {
+    el.toneSelector.innerHTML = KEYS.map((key, index) => `
+      <button class="tone-btn ${index === state.keyIndex ? 'active' : ''}" data-key-index="${index}" type="button">
+        ${formatNote(key.tonic)}
+      </button>`).join('');
+    el.toneSelector.querySelectorAll('.tone-btn').forEach(btn => btn.addEventListener('click', () => {
+      state.keyIndex = Number(btn.dataset.keyIndex);
+      state.selectedDegree = 0;
+      state.inversion = 0;
+      state.guitarVoicing = 0;
+      renderAll();
+    }));
+  }
+
+  function renderScale() {
+    const key = keyData();
+    el.scaleTitle.textContent = `Escala de ${formatNote(key.tonic)} mayor`;
+    el.scaleNotes.innerHTML = key.scale.map((note, index) => `
+      <div class="scale-note"><small>Grado ${index + 1}</small><strong>${formatNote(note)}</strong></div>`).join('');
+  }
+
+  function renderDiatonicChords() {
+    const chords = currentChords();
+    el.chordsTitle.textContent = `Los 7 acordes de ${formatNote(keyData().tonic)} mayor`;
+    el.diatonicGrid.innerHTML = chords.map((chord, index) => `
+      <button class="chord-card ${index === state.selectedDegree ? 'active' : ''}" data-degree-index="${index}" type="button">
+        <span class="degree-badge">${chord.degree}</span>
+        <span class="play-dot"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7Z"/></svg></span>
+        <strong class="chord-card-name">${chordSymbol(chord)}</strong>
+        <span class="chord-quality">${qualityLabel(chord.quality)}</span>
+        <span class="chord-function">${chord.functionName}</span>
+        <span class="chord-card-notes">${chord.notes.map(formatNote).join(' · ')}</span>
+      </button>`).join('');
+    el.diatonicGrid.querySelectorAll('.chord-card').forEach(card => card.addEventListener('click', () => {
+      state.selectedDegree = Number(card.dataset.degreeIndex);
+      state.inversion = 0;
+      state.guitarVoicing = 0;
+      renderAll();
+      playSelectedChord();
+      document.getElementById('instrumento').scrollIntoView({ behavior:'smooth', block:'start' });
+    }));
+  }
+
+  function chordIntervals(quality) {
+    return quality === 'major' ? [0,4,7] : quality === 'minor' ? [0,3,7] : [0,3,6];
+  }
+
+  function pianoVoicingMidi(chord, inversion = state.inversion) {
+    const notes = chordIntervals(chord.quality).map(interval => 60 + chord.rootPc + interval);
+    while (notes[0] >= 72) notes.forEach((_, i) => notes[i] -= 12);
+    for (let i = 0; i < inversion; i++) notes.push(notes.shift() + 12);
+    return notes;
+  }
+
+  function buildPiano() {
+    const chord = selectedChord();
+    const voicing = pianoVoicingMidi(chord);
+    const voicingSet = new Set(voicing);
+    const chordPcs = new Set(chord.notes.map(notePc));
+    const rootPc = chord.rootPc;
+    const whitePcs = new Set([0,2,4,5,7,9,11]);
+    const labels = state.nomenclature === 'latin' ? ['DO','DO♯','RE','RE♯','MI','FA','FA♯','SOL','SOL♯','LA','LA♯','SI'] : ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+    const startMidi = 48;
+    const endMidi = 84;
+    const whites = [];
+    for (let midi = startMidi; midi <= endMidi; midi++) if (whitePcs.has(midi % 12)) whites.push(midi);
+    const whiteWidth = 56;
+    el.pianoKeyboard.innerHTML = '';
+
+    whites.forEach((midi, index) => {
+      const pc = midi % 12;
+      const key = document.createElement('button');
+      key.type = 'button';
+      key.className = `white-key${chordPcs.has(pc) ? ' chord-tone' : ''}${voicingSet.has(midi) ? ' voicing-tone' : ''}${pc === rootPc ? ' root-tone' : ''}`;
+      key.textContent = labels[pc];
+      key.dataset.midi = midi;
+      key.addEventListener('click', () => playMidi([midi], .7));
+      el.pianoKeyboard.appendChild(key);
+
+      if ([0,2,5,7,9].includes(pc) && midi + 1 <= endMidi) {
+        const blackMidi = midi + 1;
+        const blackPc = blackMidi % 12;
+        const black = document.createElement('button');
+        black.type = 'button';
+        black.className = `black-key${chordPcs.has(blackPc) ? ' chord-tone' : ''}${voicingSet.has(blackMidi) ? ' voicing-tone' : ''}${blackPc === rootPc ? ' root-tone' : ''}`;
+        black.style.left = `${(index + 1) * whiteWidth - 17}px`;
+        black.textContent = labels[blackPc];
+        black.dataset.midi = blackMidi;
+        black.addEventListener('click', () => playMidi([blackMidi], .7));
+        el.pianoKeyboard.appendChild(black);
+      }
+    });
+    el.pianoKeyboard.style.minWidth = `${whites.length * whiteWidth + 8}px`;
+
+    const orderedNames = voicing.map(midi => formatNote(chromaticName(midi % 12, keyData().tonic.includes('b'))));
+    el.pianoVoicingText.textContent = orderedNames.join(' · ');
+    document.querySelectorAll('[data-inversion]').forEach(btn => btn.classList.toggle('active', Number(btn.dataset.inversion) === state.inversion));
+  }
+
+  function openVoicingFor(chord) {
+    return OPEN_VOICINGS[`${chord.root}:${chord.quality}`] || null;
+  }
+
+  function normalizeFret(fret) { return fret === 0 ? 12 : fret; }
+
+  function barreVoicings(chord) {
+    if (chord.quality === 'diminished') return diminishedVoicings(chord);
+    const rE = normalizeFret((chord.rootPc - 4 + 12) % 12);
+    const rA = normalizeFret((chord.rootPc - 9 + 12) % 12);
+    const isMajor = chord.quality === 'major';
+    const eShape = isMajor ? [rE,rE+2,rE+2,rE+1,rE,rE] : [rE,rE+2,rE+2,rE,rE,rE];
+    const aShape = isMajor ? [null,rA,rA+2,rA+2,rA+2,rA] : [null,rA,rA+2,rA+2,rA+1,rA];
+    return [
+      { name:`Cejilla · forma E`, description:`Raíz en 6.ª cuerda · traste ${rE}`, frets:eShape, barre:{ fret:rE, from:0, to:5 } },
+      { name:`Cejilla · forma A`, description:`Raíz en 5.ª cuerda · traste ${rA}`, frets:aShape, barre:{ fret:rA, from:1, to:5 } }
+    ];
+  }
+
+  function diminishedVoicings(chord) {
+    const rA = normalizeFret((chord.rootPc - 9 + 12) % 12);
+    let rD = normalizeFret((chord.rootPc - 2 + 12) % 12);
+    if (rD < 4) rD += 12;
+    return [
+      { name:'Triada móvil', description:`Raíz en 5.ª cuerda · traste ${rA}`, frets:[null,rA,rA+1,rA+2,rA+1,null] },
+      { name:'Triada aguda', description:`Raíz en 4.ª cuerda · traste ${rD}`, frets:[null,null,rD,rD-2,rD-3,rD-2] }
+    ];
+  }
+
+  function compactTriads(chord) {
+    const target = new Set(chordIntervals(chord.quality).map(i => (chord.rootPc + i) % 12));
+    const tuning = [7,11,4];
+    const found = [];
+    for (let g = 0; g <= 12; g++) for (let b = 0; b <= 12; b++) for (let e = 0; e <= 12; e++) {
+      const frets = [g,b,e];
+      const pcs = frets.map((f, i) => (tuning[i] + f) % 12);
+      if (!pcs.every(pc => target.has(pc)) || new Set(pcs).size !== 3) continue;
+      const span = Math.max(...frets) - Math.min(...frets);
+      if (span > 4) continue;
+      found.push({ frets, span, min:Math.min(...frets), max:Math.max(...frets) });
+    }
+    found.sort((a,b) => (a.span - b.span) || (a.max - b.max));
+    const chosen = [];
+    for (const item of found) {
+      if (chosen.some(c => Math.abs(c.min - item.min) < 3)) continue;
+      chosen.push(item);
+      if (chosen.length === 2) break;
+    }
+    return chosen.map((item, index) => ({
+      name:`Triada compacta ${index + 1}`,
+      description:`Tres cuerdas agudas · zona del traste ${Math.max(1, item.min)}`,
+      frets:[null,null,null,...item.frets]
+    }));
+  }
+
+  function guitarVoicingsFor(chord) {
+    const result = [];
+    const open = openVoicingFor(chord);
+    if (open) result.push(open);
+    result.push(...barreVoicings(chord));
+    result.push(...compactTriads(chord).slice(0, open ? 1 : 2));
+    return result.slice(0, 4);
+  }
+
+  function guitarMidi(voicing) {
+    const tuning = [40,45,50,55,59,64];
+    return voicing.frets.map((fret, index) => fret === null ? null : tuning[index] + fret).filter(Number.isFinite);
+  }
+
+  function diagramSvg(voicing, chord) {
+    const frets = voicing.frets;
+    const positive = frets.filter(f => Number.isFinite(f) && f > 0);
+    let startFret = positive.length ? Math.min(...positive) : 1;
+    if (startFret <= 3 && Math.max(...positive, 0) <= 5) startFret = 1;
+    const endFret = startFret + 4;
+    const width = 220, height = 250, left = 35, top = 38, stringGap = 30, fretGap = 36;
+    const rootPc = chord.rootPc;
+    const tuningPc = [4,9,2,7,11,4];
+    let svg = `<svg class="chord-diagram" viewBox="0 0 ${width} ${height}" role="img" aria-label="Diagrama de ${chordLongName(chord)}">`;
+    for (let s = 0; s < 6; s++) svg += `<line class="diagram-string" x1="${left+s*stringGap}" y1="${top}" x2="${left+s*stringGap}" y2="${top+5*fretGap}"/>`;
+    for (let f = 0; f <= 5; f++) svg += `<line class="${startFret === 1 && f === 0 ? 'diagram-nut' : 'diagram-fret'}" x1="${left}" y1="${top+f*fretGap}" x2="${left+5*stringGap}" y2="${top+f*fretGap}"/>`;
+    if (startFret > 1) svg += `<text class="diagram-label" x="8" y="${top+fretGap*.7}">${startFret}</text>`;
+
+    if (voicing.barre && voicing.barre.fret >= startFret && voicing.barre.fret <= endFret) {
+      const y = top + (voicing.barre.fret - startFret + .5) * fretGap;
+      svg += `<line class="diagram-barre" x1="${left+voicing.barre.from*stringGap}" y1="${y}" x2="${left+voicing.barre.to*stringGap}" y2="${y}"/>`;
+    }
+
+    frets.forEach((fret, s) => {
+      const x = left + s * stringGap;
+      if (fret === null) { svg += `<text class="diagram-label" x="${x}" y="22" text-anchor="middle">×</text>`; return; }
+      if (fret === 0) { svg += `<text class="diagram-label" x="${x}" y="22" text-anchor="middle">○</text>`; return; }
+      if (fret < startFret || fret > endFret) return;
+      const y = top + (fret - startFret + .5) * fretGap;
+      const pc = (tuningPc[s] + fret) % 12;
+      const rootClass = pc === rootPc ? 'diagram-root' : 'diagram-dot';
+      svg += `<circle class="${rootClass}" cx="${x}" cy="${y}" r="10"/>`;
+      if (pc === rootPc) svg += `<text class="diagram-dot-text" x="${x}" y="${y}">R</text>`;
+    });
+    svg += `<text class="diagram-label" x="${left}" y="${height-10}">6.ª</text><text class="diagram-label" x="${left+5*stringGap}" y="${height-10}" text-anchor="end">1.ª</text></svg>`;
+    return svg;
+  }
+
+  function renderGuitar() {
+    const chord = selectedChord();
+    const voicings = guitarVoicingsFor(chord);
+    if (state.guitarVoicing >= voicings.length) state.guitarVoicing = 0;
+    el.guitarVoicings.innerHTML = voicings.map((voicing, index) => `
+      <article class="voicing-card ${index === state.guitarVoicing ? 'active' : ''}" data-voicing-index="${index}">
+        <div class="voicing-card-head">
+          <div><h4>${voicing.name}</h4><p>${voicing.description}</p></div>
+          <button class="voicing-play" data-play-voicing="${index}" type="button" aria-label="Probar esta posición">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7Z"/></svg>
+          </button>
+        </div>
+        ${diagramSvg(voicing, chord)}
+      </article>`).join('');
+    el.guitarVoicings.querySelectorAll('.voicing-card').forEach(card => card.addEventListener('click', event => {
+      if (event.target.closest('.voicing-play')) return;
+      state.guitarVoicing = Number(card.dataset.voicingIndex);
+      renderGuitar();
+      updateStatus();
+    }));
+    el.guitarVoicings.querySelectorAll('[data-play-voicing]').forEach(btn => btn.addEventListener('click', () => {
+      state.guitarVoicing = Number(btn.dataset.playVoicing);
+      renderGuitar();
+      updateStatus();
+      playMidi(guitarMidi(voicings[state.guitarVoicing]), 1.15, true);
+    }));
+  }
+
+  function renderSelectedChord() {
+    const chord = selectedChord();
+    el.selectedDegreeLabel.textContent = `Grado ${chord.degree} · ${chord.functionName}`;
+    el.selectedChordTitle.textContent = chordLongName(chord);
+    el.selectedChordNotes.textContent = `Notas: ${chord.notes.map(formatNote).join(' · ')}`;
+    buildPiano();
+    renderGuitar();
+  }
+
+  function setInstrument(instrument) {
+    state.instrument = instrument;
+    document.querySelectorAll('[data-instrument]').forEach(btn => btn.classList.toggle('active', btn.dataset.instrument === instrument));
+    el.pianoPanel.classList.toggle('hidden', instrument !== 'piano');
+    el.guitarPanel.classList.toggle('hidden', instrument !== 'guitar');
+    updateStatus();
+  }
+
+  function updateStatus() {
+    const chord = selectedChord();
+    el.statusKey.textContent = `${formatNote(keyData().tonic)} mayor`;
+    el.statusChord.textContent = chordLongName(chord);
+    if (state.instrument === 'piano') {
+      el.statusPosition.textContent = ['Fundamental','1.ª inversión','2.ª inversión'][state.inversion];
+    } else {
+      const voicing = guitarVoicingsFor(chord)[state.guitarVoicing];
+      el.statusPosition.textContent = voicing ? voicing.name : 'Guitarra';
+    }
+  }
+
+  function ensureAudio() {
+    if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioContext.state === 'suspended') audioContext.resume();
+    return audioContext;
+  }
+
+  function playMidi(midis, duration = 1, arpeggio = false) {
+    const ctx = ensureAudio();
+    const now = ctx.currentTime;
+    midis.forEach((midi, index) => {
+      const start = now + (arpeggio ? index * .045 : 0);
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.value = 440 * Math.pow(2, (midi - 69) / 12);
+      gain.gain.setValueAtTime(.0001, start);
+      gain.gain.exponentialRampToValueAtTime(Math.max(.035, .13 / Math.sqrt(midis.length)), start + .018);
+      gain.gain.exponentialRampToValueAtTime(.0001, start + duration);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + duration + .03);
+    });
+  }
+
+  function playSelectedChord() {
+    const chord = selectedChord();
+    if (state.instrument === 'guitar') {
+      const voicing = guitarVoicingsFor(chord)[state.guitarVoicing];
+      playMidi(guitarMidi(voicing), 1.2, true);
+    } else {
+      playMidi(pianoVoicingMidi(chord), 1.2);
+    }
+  }
+
+  function playScale() {
+    const key = keyData();
+    const base = 60 + notePc(key.tonic);
+    const midis = key.scale.map(note => {
+      let midi = 60 + notePc(note);
+      while (midi < base) midi += 12;
+      return midi;
+    });
+    midis.push(base + 12);
+    midis.forEach((midi, index) => setTimeout(() => playMidi([midi], .48), index * 340));
+  }
+
+  function parseChordToken(token) {
+    let raw = token.trim().replace(/[–—,;|]+/g, '').replace(/♯/g,'#').replace(/♭/g,'b');
+    if (!raw) return null;
+    const upper = raw.toUpperCase();
+    const latinRoots = [['SOL','G'],['DO','C'],['RE','D'],['MI','E'],['FA','F'],['LA','A'],['SI','B']];
+    let root = null;
+    let rest = raw;
+    for (const [latin, english] of latinRoots) {
+      if (upper.startsWith(latin)) {
+        root = english;
+        rest = raw.slice(latin.length);
+        break;
+      }
+    }
+    if (!root) {
+      const match = raw.match(/^([A-Ga-g])([#b]?)(.*)$/);
+      if (!match) return null;
+      root = match[1].toUpperCase() + match[2];
+      rest = match[3];
+    } else if (/^[#b]/.test(rest)) {
+      root += rest[0];
+      rest = rest.slice(1);
+    }
+    if (!(root in PC)) return null;
+    const suffix = rest.toLowerCase();
+    const quality = suffix.includes('dim') || suffix.includes('°') || suffix === 'o' ? 'diminished' : suffix.startsWith('m') ? 'minor' : 'major';
+    const intervals = chordIntervals(quality);
+    const preferFlat = root.includes('b');
+    return {
+      root,
+      rootPc: notePc(root),
+      quality,
+      degree:'',
+      functionName:'Progresión libre',
+      notes: intervals.map(i => chromaticName(notePc(root) + i, preferFlat))
+    };
+  }
+
+  function applyProgression(showMessage = true) {
+    const tokens = el.customProgression.value.split(/\s+/).map(parseChordToken).filter(Boolean);
+    if (!tokens.length) {
+      showToast('No pude reconocer los acordes. Prueba: DO LAm FA SOL');
+      return;
+    }
+    state.progression = tokens;
+    renderProgression();
+    if (showMessage) showToast(`${tokens.length} acordes preparados`);
+  }
+
+  function renderProgression(activeIndex = -1) {
+    el.progressionChips.innerHTML = state.progression.map((chord, index) => `<span class="progression-chip ${index === activeIndex ? 'playing' : ''}">${chordSymbol(chord)}</span>`).join('');
+  }
+
+  function playProgression() {
+    if (!state.progression.length) applyProgression(false);
+    if (!state.progression.length) return;
+    if (progressionTimer) {
+      clearInterval(progressionTimer);
+      progressionTimer = null;
+      renderProgression();
+      el.playProgressionBtn.lastChild.textContent = ' Reproducir';
+      return;
+    }
+    const bpm = Math.min(220, Math.max(40, Number(el.tempoInput.value) || 92));
+    const beatMs = 60000 / bpm * 2;
+    let index = 0;
+    const tick = () => {
+      const chord = state.progression[index];
+      renderProgression(index);
+      playMidi(pianoVoicingMidi(chord, 0), Math.min(1.4, beatMs / 1000 * .8));
+      index++;
+      if (index >= state.progression.length) {
+        setTimeout(() => renderProgression(), beatMs * .75);
+        clearInterval(progressionTimer);
+        progressionTimer = null;
+        el.playProgressionBtn.lastChild.textContent = ' Reproducir';
+      }
+    };
+    el.playProgressionBtn.lastChild.textContent = ' Detener';
+    tick();
+    progressionTimer = setInterval(tick, beatMs);
+  }
+
+  function applyTheme() {
+    const resolved = state.theme === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : state.theme;
+    document.documentElement.dataset.theme = resolved;
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', resolved === 'dark' ? '#101210' : '#f6f6f3');
+  }
+
+  function cycleTheme() {
+    state.theme = state.theme === 'system' ? 'light' : state.theme === 'light' ? 'dark' : 'system';
+    localStorage.setItem('circulos-theme', state.theme);
+    applyTheme();
+    showToast(`Apariencia: ${state.theme === 'system' ? 'sistema' : state.theme === 'light' ? 'clara' : 'oscura'}`);
+  }
+
+  function showToast(message) {
+    el.toast.textContent = message;
+    el.toast.classList.add('show');
+    clearTimeout(showToast.timer);
+    showToast.timer = setTimeout(() => el.toast.classList.remove('show'), 1900);
+  }
+
+  function renderAll() {
+    renderToneSelector();
+    renderScale();
+    renderDiatonicChords();
+    renderSelectedChord();
+    setInstrument(state.instrument);
+    updateStatus();
+  }
+
+  document.querySelectorAll('[data-nomenclature]').forEach(btn => btn.addEventListener('click', () => {
+    state.nomenclature = btn.dataset.nomenclature;
+    document.querySelectorAll('[data-nomenclature]').forEach(item => item.classList.toggle('active', item === btn));
+    renderAll();
+    renderProgression();
+  }));
+  document.querySelectorAll('[data-instrument]').forEach(btn => btn.addEventListener('click', () => setInstrument(btn.dataset.instrument)));
+  document.querySelectorAll('[data-inversion]').forEach(btn => btn.addEventListener('click', () => {
+    state.inversion = Number(btn.dataset.inversion);
+    buildPiano();
+    updateStatus();
+    playSelectedChord();
+  }));
+  document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-btn').forEach(item => item.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.target)?.scrollIntoView({ behavior:'smooth', block:'start' });
+  }));
+  document.getElementById('scrollTopBtn').addEventListener('click', () => window.scrollTo({ top:0, behavior:'smooth' }));
+  el.themeBtn.addEventListener('click', cycleTheme);
+  el.playChordBtn.addEventListener('click', playSelectedChord);
+  el.playScaleBtn.addEventListener('click', playScale);
+  el.applyProgressionBtn.addEventListener('click', () => applyProgression());
+  el.customProgression.addEventListener('keydown', event => { if (event.key === 'Enter') applyProgression(); });
+  el.playProgressionBtn.addEventListener('click', playProgression);
+  matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => { if (state.theme === 'system') applyTheme(); });
+
+  applyTheme();
+  applyProgression(false);
+  renderAll();
 })();
