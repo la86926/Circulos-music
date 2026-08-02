@@ -42,6 +42,7 @@ html[data-theme="dark"] .white-key.voicing-tone{background:#6fc893!important;col
 html[data-theme="dark"] .white-key.root-tone{background:#b8efca!important;color:#092015!important;box-shadow:inset 0 0 0 3px #397c58!important}
 html[data-theme="dark"] .black-key.voicing-tone{background:#3e8f61!important;color:#fff!important}
 html[data-theme="dark"] .black-key.root-tone{background:#d1f8dd!important;color:#0b2116!important}
+
 html.chrome-ios,html.chrome-ios body{height:var(--app-viewport-height)!important;min-height:0!important;max-height:var(--app-viewport-height)!important;overflow:hidden!important;overscroll-behavior:none!important}
 html.chrome-ios body{position:fixed!important;inset:0!important;width:100%!important;padding:0!important}
 html.chrome-ios .app-header{position:relative!important;top:auto!important}
@@ -60,6 +61,7 @@ document.addEventListener('keydown',event=>{if((event.ctrlKey||event.metaKey)&&[
 let lastTouchEnd=0;
 document.addEventListener('touchend',event=>{const now=Date.now();if(now-lastTouchEnd<320)event.preventDefault();lastTouchEnd=now;},{passive:false});
 
+/* Nomenclatura visible, primero Inglés y activo por defecto. */
 const mainToolbar=document.querySelector('#circlesView>.toolbar');
 if(mainToolbar){
   const notationCard=mainToolbar.querySelector('.control-card:first-child');
@@ -74,6 +76,7 @@ if(mainToolbar){
   }
 }
 
+/* Escala como selector pequeño. */
 const selectorHead=document.querySelector('#selector .panel-head');
 const originalModeButtons=[...document.querySelectorAll('#escala [data-mode]')];
 if(selectorHead&&originalModeButtons.length&&!document.getElementById('minimalScaleSelect')){
@@ -91,8 +94,90 @@ if(selectorHead&&originalModeButtons.length&&!document.getElementById('minimalSc
 if(!document.querySelector('link[href*="circle-wheel.css"]')){
   const link=document.createElement('link');
   link.rel='stylesheet';
-  link.href='circle-wheel.css?v=3';
+  link.href='circle-wheel.css?v=4';
   document.head.appendChild(link);
+}
+
+if(!document.querySelector('link[href*="ui-refinement.css"]')){
+  const refinementLink=document.createElement('link');
+  refinementLink.rel='stylesheet';
+  refinementLink.href='ui-refinement.css?v=1';
+  document.head.appendChild(refinementLink);
+}
+
+/* Menú lateral simplificado y dedicatoria sorpresa. */
+const menuChoices=[...document.querySelectorAll('[data-app-view]')];
+const circlesChoice=menuChoices.find(button=>button.dataset.appView==='circles');
+const chordsChoice=menuChoices.find(button=>button.dataset.appView==='chords');
+if(circlesChoice){
+  const description=circlesChoice.querySelector('small');
+  if(description)description.textContent='Tonalidades, escalas y sus 7 acordes en un círculo armónico.';
+}
+if(chordsChoice){
+  const description=chordsChoice.querySelector('small');
+  if(description)description.textContent='Acordes de guitarra y sus posiciones más conocidas en el diapasón.';
+}
+
+const sideNote=document.querySelector('.side-menu-note');
+if(sideNote){
+  sideNote.className='side-menu-gift';
+  sideNote.tabIndex=0;
+  sideNote.setAttribute('role','button');
+  sideNote.setAttribute('aria-label','Abrir regalo de José Huancas Rico');
+  sideNote.innerHTML='<img src="gift.svg" alt=""><span><strong>Un regalo para ti</strong><small>Descubre quién preparó todo esto.</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
+
+  const giftModal=document.createElement('div');
+  giftModal.className='gift-modal';
+  giftModal.setAttribute('aria-hidden','true');
+  giftModal.innerHTML='<div class="gift-modal-backdrop" data-gift-close></div><section class="gift-card" role="dialog" aria-modal="true" aria-labelledby="giftTitle"><button class="gift-close" type="button" data-gift-close aria-label="Cerrar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><img class="gift-card-icon" src="gift.svg" alt=""><p class="gift-kicker">UN REGALO MUSICAL PARA TI</p><h2 id="giftTitle">Hecho para compartir la música.</h2><p class="gift-message">Todo lo que encuentras aquí fue preparado con dedicación para que explorar los acordes sea sencillo, claro y especial.</p><p class="gift-signature">Por José Huancas Rico</p></section>';
+  document.body.appendChild(giftModal);
+  const openGift=()=>{giftModal.classList.add('open');giftModal.setAttribute('aria-hidden','false');document.body.classList.add('gift-open');giftModal.querySelector('.gift-close')?.focus();};
+  const closeGift=()=>{giftModal.classList.remove('open');giftModal.setAttribute('aria-hidden','true');document.body.classList.remove('gift-open');sideNote.focus();};
+  sideNote.addEventListener('click',openGift);
+  sideNote.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();openGift();}});
+  giftModal.querySelectorAll('[data-gift-close]').forEach(element=>element.addEventListener('click',closeGift));
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&giftModal.classList.contains('open'))closeGift();});
+}
+
+/* La biblioteca de acordes adopta la misma estructura limpia de Círculos. */
+const chordsView=document.getElementById('chordsView');
+if(chordsView){
+  const hero=chordsView.querySelector('.library-hero');
+  const heroTitle=hero?.querySelector('h1');
+  if(heroTitle)heroTitle.textContent='Acordes de guitarra.';
+
+  const toolbar=chordsView.querySelector(':scope>.toolbar');
+  const notationCard=toolbar?.querySelector('.control-card:first-child');
+  const notationSegment=notationCard?.querySelector('.segmented');
+  const english=notationSegment?.querySelector('[data-library-notation="english"]');
+  const latin=notationSegment?.querySelector('[data-library-notation="latin"]');
+  if(english&&latin){
+    english.textContent='Inglés';
+    latin.textContent='Latina';
+    notationSegment.append(english,latin);
+    if(!english.classList.contains('active'))english.click();
+  }
+
+  const panels=[...chordsView.querySelectorAll(':scope>.panel')];
+  const selectorPanel=panels[0];
+  const selectorTitle=selectorPanel?.querySelector('.panel-title');
+  const selectorSubtitle=selectorPanel?.querySelector('.panel-subtitle');
+  if(selectorTitle)selectorTitle.textContent='Acorde principal';
+  if(selectorSubtitle)selectorSubtitle.textContent='Selecciona la tónica.';
+
+  const selectorPanelHead=selectorPanel?.querySelector('.panel-head');
+  if(selectorPanelHead&&!document.getElementById('libraryQualitySelect')){
+    const compact=document.createElement('label');
+    compact.className='minimal-library-quality';
+    compact.innerHTML='<select id="libraryQualitySelect" aria-label="Tipo de acorde"><option value="major">Mayor</option><option value="minor">Menor</option><option value="dominant7">Séptima</option><option value="major7">Mayor 7</option><option value="minor7">Menor 7</option><option value="diminished">Disminuido</option></select><span aria-hidden="true">⌄</span>';
+    selectorPanelHead.appendChild(compact);
+    const select=compact.querySelector('select');
+    const sync=()=>{const active=document.querySelector('#libraryQualities [data-library-quality].active');if(active)select.value=active.dataset.libraryQuality;};
+    select.addEventListener('change',()=>document.querySelector(`#libraryQualities [data-library-quality="${select.value}"]`)?.click());
+    const qualityHost=document.getElementById('libraryQualities');
+    if(qualityHost)new MutationObserver(sync).observe(qualityHost,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+    sync();
+  }
 }
 
 const chordsSection=document.getElementById('acordes');
