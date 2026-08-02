@@ -85,5 +85,6 @@ function showView(name,scroll=true){const circles=name==='circles';document.getE
 document.querySelectorAll('[data-theme-choice]').forEach(btn=>btn.addEventListener('click',()=>chooseTheme(btn.dataset.themeChoice)));menuBtn.addEventListener('click',()=>toggleMenu(true));closeBtn.addEventListener('click',()=>toggleMenu(false));backdrop.addEventListener('click',()=>toggleMenu(false));document.querySelectorAll('[data-app-view]').forEach(btn=>btn.addEventListener('click',()=>showView(btn.dataset.appView)));document.addEventListener('keydown',e=>{if(e.key==='Escape')toggleMenu(false)});media.addEventListener?.('change',()=>{if(currentTheme()==='system')paintTheme('system')});paintTheme();showView(localStorage.getItem('circulos-active-view')||'circles',false);
 })();
 </script>
+<!-- GitHub Pages redeploy: 2026-08-02 -->
 </body>
 </html>
