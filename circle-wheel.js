@@ -1,0 +1,36 @@
+(()=>{
+'use strict';
+const NS='http://www.w3.org/2000/svg';
+const grid=document.getElementById('diatonicGrid');
+const host=document.getElementById('harmonyWheel');
+const summary=document.getElementById('harmonyWheelSummary');
+const scaleTitle=document.getElementById('scaleTitle');
+if(!grid||!host)return;
+let pending=false;
+function svgEl(name,attrs={}){const node=document.createElementNS(NS,name);Object.entries(attrs).forEach(([key,value])=>node.setAttribute(key,String(value)));return node;}
+function qualityClass(text){const value=(text||'').toLowerCase();if(value.includes('dismin'))return'diminished';if(value.includes('menor'))return'minor';return'major';}
+function centerLabel(){return(scaleTitle?.textContent||'Escala').replace(/^Escala de\s*/i,'').trim();}
+function schedule(){if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;render();});}
+function render(){const cards=[...grid.querySelectorAll('.chord-card')];if(cards.length!==7)return;
+  const data=cards.map((card,index)=>({index,card,degree:card.querySelector('.badge,.degree-badge')?.textContent?.trim()||String(index+1),name:card.querySelector('.chord-name,.chord-card-name')?.textContent?.trim()||'',quality:card.querySelector('.chord-quality')?.textContent?.trim()||'',active:card.classList.contains('active')}));
+  const svg=svgEl('svg',{class:'harmony-wheel-svg',viewBox:'0 0 640 640',role:'group','aria-label':`Círculo de los siete acordes de ${centerLabel()}`});
+  const cx=320,cy=320,radius=226,nodeRadius=58;
+  svg.appendChild(svgEl('circle',{class:'harmony-wheel-ring',cx,cy,r:radius}));
+  data.forEach((item,index)=>{const angle=(-90+index*(360/7))*Math.PI/180,x=cx+Math.cos(angle)*radius,y=cy+Math.sin(angle)*radius;svg.appendChild(svgEl('line',{class:'harmony-wheel-spoke',x1:cx,y1:cy,x2:x,y2:y}));});
+  const center=svgEl('g');center.appendChild(svgEl('circle',{class:'harmony-wheel-center',cx,cy,r:91}));
+  const kicker=svgEl('text',{class:'harmony-wheel-center-kicker',x:cx,y:cy-12});kicker.textContent='ESCALA';center.appendChild(kicker);
+  const title=svgEl('text',{class:'harmony-wheel-center-title',x:cx,y:cy+24});title.textContent=centerLabel();center.appendChild(title);svg.appendChild(center);
+  data.forEach((item,index)=>{const angle=(-90+index*(360/7))*Math.PI/180,x=cx+Math.cos(angle)*radius,y=cy+Math.sin(angle)*radius,type=qualityClass(item.quality);const group=svgEl('g',{class:`harmony-wheel-node ${type}${item.active?' active':''}`,role:'button',tabindex:'0','aria-label':`${item.degree}, ${item.name}, ${item.quality}`,'data-wheel-index':index});
+    group.appendChild(svgEl('circle',{class:'harmony-wheel-node-bg',cx:x,cy:y,r:nodeRadius}));
+    const degree=svgEl('text',{class:'harmony-wheel-degree',x,y:y-22});degree.textContent=item.degree;group.appendChild(degree);
+    const name=svgEl('text',{class:'harmony-wheel-name',x,y:y+5});name.textContent=item.name;group.appendChild(name);
+    const quality=svgEl('text',{class:'harmony-wheel-quality',x,y:y+28});quality.textContent=item.quality;group.appendChild(quality);
+    const activate=()=>cards[index]?.click();group.addEventListener('click',activate);group.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();activate();}});svg.appendChild(group);
+  });
+  host.replaceChildren(svg);
+  if(summary){const counts=data.reduce((acc,item)=>{acc[qualityClass(item.quality)]++;return acc;},{major:0,minor:0,diminished:0});summary.textContent=`${counts.major} mayores · ${counts.minor} menores · ${counts.diminished} disminuido${counts.diminished===1?'':'s'}`;}
+}
+new MutationObserver(schedule).observe(grid,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+if(scaleTitle)new MutationObserver(schedule).observe(scaleTitle,{childList:true,subtree:true,characterData:true});
+window.addEventListener('DOMContentLoaded',schedule);schedule();
+})();
