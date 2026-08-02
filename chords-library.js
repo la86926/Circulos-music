@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-import('./stability-hotfix.js?v=1').then(()=>Promise.all([
+import('./stability-hotfix.js?v=2').then(()=>Promise.all([
   import('./circle-wheel.js?v=5'),
   import('./chords-cleanup.js?v=2')
 ])).catch(()=>{});
