@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 import('./stability-hotfix.js?v=4').then(()=>Promise.all([
-  import('./circle-wheel.js?v=6'),
+  import('./circle-wheel.js?v=7'),
   import('./chords-cleanup.js?v=4')
 ])).catch(()=>{});
 const PC={C:0,'C#':1,Db:1,D:2,'D#':3,Eb:3,E:4,Fb:4,'E#':5,F:5,'F#':6,Gb:6,G:7,'G#':8,Ab:8,A:9,'A#':10,Bb:10,B:11,Cb:11};
