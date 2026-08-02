@@ -261,13 +261,7 @@ document.addEventListener('click',event=>{
     return;
   }
   const existingKey=event.target.closest?.('#pianoKeyboard .white-key,#pianoKeyboard .black-key');
-  if(existingKey){
-    event.preventDefault();event.stopImmediatePropagation();
-    const pc=parseNote(existingKey.textContent);
-    if(Number.isFinite(pc))PremiumAudio.play([60+pc],'piano',{arpeggio:false,velocity:.92});
-    flash(existingKey,320);
-    return;
-  }
+  if(existingKey){flash(existingKey,320);return;}
   if(event.target.closest?.('#libraryRoots [data-library-root],[data-library-notation]')){
     pianoSignature='';
     setTimeout(renderLibraryPiano,0);

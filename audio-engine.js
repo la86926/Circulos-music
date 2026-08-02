@@ -12,11 +12,11 @@ function ensureAudio(){
     highpass.frequency.value=72;
     highpass.Q.value=.707;
     limiter=ctx.createDynamicsCompressor();
-    limiter.threshold.value=-1.5;
-    limiter.knee.value=0;
-    limiter.ratio.value=20;
-    limiter.attack.value=.003;
-    limiter.release.value=.22;
+    limiter.threshold.value=-3;
+    limiter.knee.value=6;
+    limiter.ratio.value=6;
+    limiter.attack.value=.006;
+    limiter.release.value=.25;
     master=ctx.createGain();
     master.gain.value=1;
     master.connect(highpass).connect(limiter).connect(ctx.destination);
@@ -27,8 +27,8 @@ function ensureAudio(){
 
 const frequency=midi=>440*Math.pow(2,(midi-69)/12);
 
-const PIANO_PARTIALS=[['triangle',1,0,.537],['sine',2,-3,.241],['sine',3,2,.120],['sine',4,-5,.056],['sine',.5,0,.046]];
-const GUITAR_PARTIALS=[['sawtooth',1,0,.332],['triangle',1,7,.351],['sine',2,-4,.176],['sine',3,3,.098],['sine',4,0,.044]];
+const PIANO_PARTIALS=[['triangle',1,0,.60],['sine',2,0,.25],['sine',3,0,.11],['sine',4,0,.04]];
+const GUITAR_PARTIALS=[['triangle',1,0,.58],['sine',2,0,.24],['sine',3,0,.12],['sine',4,0,.06]];
 
 function voice(midi,start,peak,partials,options){
   const audio=ensureAudio(),
@@ -80,7 +80,7 @@ function play(midis,instrument='piano',options={}){
         arpeggio=options.arpeggio??(instrument==='guitar'),
         gap=arpeggio?(options.gap??.030):0,
         velocity=options.velocity??1,
-        peak=Math.min(.55,.72*velocity/Math.sqrt(notes.length));
+        peak=Math.min(.50,.52*velocity/Math.sqrt(notes.length));
   notes.forEach((midi,index)=>{
     const start=now+index*gap;
     if(instrument==='piano')pianoTone(midi,start,peak);else guitarTone(midi,start,peak);
