@@ -28,6 +28,7 @@ if(/CriOS/i.test(navigator.userAgent)&&window.CSSStyleDeclaration){
 }
 
 /* Refuerzo de volumen antes de que se cree el motor de audio. */
+const boostedParams=new WeakSet();
 for(const Constructor of [window.AudioContext,window.webkitAudioContext].filter(Boolean)){
   const prototype=Constructor.prototype;
   if(prototype.__circulosStrongAudio)continue;
@@ -36,13 +37,15 @@ for(const Constructor of [window.AudioContext,window.webkitAudioContext].filter(
   prototype.createGain=function(...args){
     const node=nativeCreateGain.apply(this,args);
     const param=node.gain;
-    if(param&&!param.__circulosBoosted){
-      param.__circulosBoosted=true;
+    if(param&&!boostedParams.has(param)){
+      boostedParams.add(param);
       const amplify=value=>value>0.001?Math.min(value*3.25,1.85):value;
       for(const method of ['setValueAtTime','linearRampToValueAtTime','exponentialRampToValueAtTime','setTargetAtTime']){
         const native=param[method]?.bind(param);
         if(!native)continue;
-        param[method]=function(value,...rest){return native(amplify(value),...rest);};
+        try{
+          Object.defineProperty(param,method,{configurable:true,value(value,...rest){return native(amplify(value),...rest);}});
+        }catch{}
       }
     }
     return node;
