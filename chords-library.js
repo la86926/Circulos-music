@@ -1,8 +1,8 @@
 (()=>{
 'use strict';
-import('./stability-hotfix.js?v=2').then(()=>Promise.all([
-  import('./circle-wheel.js?v=5'),
-  import('./chords-cleanup.js?v=2')
+import('./stability-hotfix.js?v=4').then(()=>Promise.all([
+  import('./circle-wheel.js?v=6'),
+  import('./chords-cleanup.js?v=3')
 ])).catch(()=>{});
 const PC={C:0,'C#':1,Db:1,D:2,'D#':3,Eb:3,E:4,Fb:4,'E#':5,F:5,'F#':6,Gb:6,G:7,'G#':8,Ab:8,A:9,'A#':10,Bb:10,B:11,Cb:11};
 const ROOTS=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
@@ -27,7 +27,6 @@ const OPEN={
 };
 const state={root:'C',quality:'major',notation:'latin'};
 const $=id=>document.getElementById(id);
-let audio=null;
 function formatNote(note){if(state.notation==='english')return note.replace('#','♯').replace('b','♭');return `${LATIN[note[0]]||note[0]}${note.slice(1).replace('#','♯').replace('b','♭')}`}
 function chordName(){const q=QUALITIES[state.quality],root=formatNote(state.root);if(state.quality==='major')return `${root} mayor`;if(state.quality==='minor')return `${root} menor`;if(state.quality==='diminished')return `${root} disminuido`;return `${root}${q.suffix}`}
 function noteNames(){const q=QUALITIES[state.quality],flat=state.root.includes('b');return q.intervals.map(i=>(flat?FLAT:SHARP)[(PC[state.root]+i)%12])}
@@ -45,8 +44,7 @@ function compactPositions(){const intervals=QUALITIES[state.quality].intervals,t
 }
 function allPositions(){const list=[],open=OPEN[`${state.root}:${state.quality}`];if(open)list.push({name:'Posición abierta',description:'La forma más habitual para comenzar',frets:open,base:0,kind:'Abierto'});list.push(...movablePositions(),...compactPositions());return list.slice(0,6);}
 function midiFor(position){return position.frets.map((f,i)=>f===null?null:TUNING_MIDI[i]+f).filter(Number.isFinite)}
-function ensureAudio(){if(!audio)audio=new(window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume();return audio}
-function play(position){const notes=midiFor(position),ctx=ensureAudio(),now=ctx.currentTime;notes.forEach((midi,i)=>{const osc=ctx.createOscillator(),gain=ctx.createGain(),start=now+i*.055;osc.type='triangle';osc.frequency.value=440*Math.pow(2,(midi-69)/12);gain.gain.setValueAtTime(.0001,start);gain.gain.exponentialRampToValueAtTime(Math.max(.03,.12/Math.sqrt(notes.length)),start+.02);gain.gain.exponentialRampToValueAtTime(.0001,start+1.15);osc.connect(gain).connect(ctx.destination);osc.start(start);osc.stop(start+1.2);});}
+function play(position){window.CirculosAudio?.play(midiFor(position),'guitar',{arpeggio:true});}
 function diagram(position){const frets=position.frets,positive=frets.filter(f=>Number.isFinite(f)&&f>0);let start=positive.length?Math.min(...positive):1;if(start<=3&&Math.max(...positive,0)<=5)start=1;const end=start+4,w=230,h=252,left=38,top=38,sg=31,fg=36,rootPc=PC[state.root];let svg=`<svg class="library-diagram" viewBox="0 0 ${w} ${h}" role="img" aria-label="${position.name} de ${chordName()}">`;
   for(let s=0;s<6;s++)svg+=`<line class="string" x1="${left+s*sg}" y1="${top}" x2="${left+s*sg}" y2="${top+5*fg}"/>`;
   for(let f=0;f<=5;f++)svg+=`<line class="${start===1&&f===0?'nut':'fret'}" x1="${left}" y1="${top+f*fg}" x2="${left+5*sg}" y2="${top+f*fg}"/>`;
