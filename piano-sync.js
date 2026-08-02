@@ -35,6 +35,15 @@ function fundamentalMidis(pcs){
     return midi;
   });
 }
+function reorderCircleInstrumentButtons(){
+  const segment=document.querySelector('#instrumento .instrument-tabs .segmented');
+  if(!segment)return false;
+  const guitar=segment.querySelector('[data-instrument="guitar"]');
+  const piano=segment.querySelector('[data-instrument="piano"]');
+  if(!guitar||!piano)return false;
+  segment.append(guitar,piano);
+  return true;
+}
 function render(force=false){
   const host=document.getElementById('performancePianoKeyboard');
   if(!host||rendering)return false;
@@ -96,12 +105,14 @@ function watchHost(host){
   hostObserver.observe(host,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
 }
 function discover(){
+  reorderCircleInstrumentButtons();
   const host=document.getElementById('performancePianoKeyboard');
   if(!host)return false;
   render(true);
   return true;
 }
 function init(){
+  reorderCircleInstrumentButtons();
   discover();
   document.addEventListener('click',event=>{
     if(event.target.closest('#libraryRoots [data-library-root],[data-library-notation],[data-performance-library]'))setTimeout(()=>schedule(true),0);
@@ -110,7 +121,8 @@ function init(){
     if(event.target.id==='libraryQualitySelect')setTimeout(()=>schedule(true),0);
   });
   const bodyObserver=new MutationObserver(()=>{
-    if(discover()&&document.getElementById('libraryPerformanceSwitch'))bodyObserver.disconnect();
+    const reordered=reorderCircleInstrumentButtons();
+    if(discover()&&reordered&&document.getElementById('libraryPerformanceSwitch'))bodyObserver.disconnect();
   });
   bodyObserver.observe(document.body,{childList:true,subtree:true});
 }
