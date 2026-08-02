@@ -2,7 +2,7 @@
 'use strict';
 if(window.CirculosAudio)return;
 
-let ctx=null,master=null,limiter=null,highpass=null;
+let ctx=null,master=null,limiter=null,highpass=null,output=null;
 
 function ensureAudio(){
   if(!ctx){
@@ -12,14 +12,16 @@ function ensureAudio(){
     highpass.frequency.value=72;
     highpass.Q.value=.707;
     limiter=ctx.createDynamicsCompressor();
-    limiter.threshold.value=-3;
-    limiter.knee.value=6;
-    limiter.ratio.value=6;
-    limiter.attack.value=.006;
-    limiter.release.value=.25;
+    limiter.threshold.value=-1;
+    limiter.knee.value=0;
+    limiter.ratio.value=20;
+    limiter.attack.value=.002;
+    limiter.release.value=.20;
     master=ctx.createGain();
-    master.gain.value=1;
-    master.connect(highpass).connect(limiter).connect(ctx.destination);
+    master.gain.value=2.2;
+    output=ctx.createGain();
+    output.gain.value=1.1;
+    master.connect(highpass).connect(limiter).connect(output).connect(ctx.destination);
   }
   if(ctx.state==='suspended')ctx.resume();
   return ctx;
@@ -80,7 +82,7 @@ function play(midis,instrument='piano',options={}){
         arpeggio=options.arpeggio??(instrument==='guitar'),
         gap=arpeggio?(options.gap??.030):0,
         velocity=options.velocity??1,
-        peak=Math.min(.50,.52*velocity/Math.sqrt(notes.length));
+        peak=Math.min(.72,.78*velocity/Math.sqrt(notes.length));
   notes.forEach((midi,index)=>{
     const start=now+index*gap;
     if(instrument==='piano')pianoTone(midi,start,peak);else guitarTone(midi,start,peak);
