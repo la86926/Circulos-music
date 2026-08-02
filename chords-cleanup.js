@@ -48,8 +48,8 @@ function applyGiftCopy(){
   if(title.textContent!=='UN REGALO MUSICAL')title.textContent='UN REGALO MUSICAL';
   if(subtitle.textContent!=='Lo que hay preparado aquí.')subtitle.textContent='Lo que hay preparado aquí.';
   if(kicker.textContent!=='UN REGALO MUSICAL')kicker.textContent='UN REGALO MUSICAL';
-  if(modalTitle.textContent!=='Hecho por José, para compartir la música.')modalTitle.textContent='Hecho por José, para compartir la música.';
-  const newMessage='Todo lo que encuentras aquí fue preparado con dedicación para que, explorar los acordes, sea sencillo, claro y especial.';
+  if(modalTitle.textContent!=='Por José H. Rico, todo esto')modalTitle.textContent='Por José H. Rico, todo esto';
+  const newMessage='Todo lo que encuentras aquí fue preparado con dedicación para que, explorar los acordes, sea sencillo y claro.';
   if(message.textContent!==newMessage)message.textContent=newMessage;
   signature?.remove();
   gift.setAttribute('aria-label','Abrir regalo musical');
