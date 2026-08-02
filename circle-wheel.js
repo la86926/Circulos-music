@@ -6,24 +6,15 @@ if(viewport) viewport.setAttribute('content','width=device-width, initial-scale=
 
 const isChromeIOS=/CriOS/i.test(navigator.userAgent);
 const root=document.documentElement;
-function syncChromeViewport(){
-  const height=Math.round(window.visualViewport?.height||window.innerHeight);
-  root.style.setProperty('--app-viewport-height',`${height}px`);
-}
-if(isChromeIOS){
-  root.classList.add('chrome-ios');
-  syncChromeViewport();
-  window.visualViewport?.addEventListener('resize',syncChromeViewport,{passive:true});
-  window.visualViewport?.addEventListener('scroll',syncChromeViewport,{passive:true});
-  window.addEventListener('orientationchange',()=>setTimeout(syncChromeViewport,180),{passive:true});
-  requestAnimationFrame(()=>window.scrollTo(0,0));
-}
+if(isChromeIOS)root.classList.add('chrome-ios');
 
 const uiStyle=document.createElement('style');
 uiStyle.textContent=`
 *{-webkit-tap-highlight-color:transparent}
 html,body{touch-action:pan-x pan-y!important;-webkit-text-size-adjust:100%!important;text-size-adjust:100%!important}
-#escala,#circlesView>#acordes,#circlesView>#instrumento,#circlesView>#progresion,#bottomNav{display:none!important}
+body:not(.menu-open):not(.gift-open){overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-y:auto!important}
+#escala,#circlesView>#acordes,#circlesView>#progresion,#bottomNav{display:none!important}
+html body #circlesView>#instrumento{display:block!important;margin-top:18px!important}
 #circlesView .hero-copy,#circlesView .hero-status{display:none!important}
 #circlesView .hero{grid-template-columns:1fr;margin-bottom:22px}
 #circlesView>.toolbar{display:block;margin-bottom:18px}
@@ -41,12 +32,11 @@ html[data-theme="dark"] .white-key.voicing-tone{background:#6fc893!important;col
 html[data-theme="dark"] .white-key.root-tone{background:#b8efca!important;color:#092015!important;box-shadow:inset 0 0 0 3px #397c58!important}
 html[data-theme="dark"] .black-key.voicing-tone{background:#3e8f61!important;color:#fff!important}
 html[data-theme="dark"] .black-key.root-tone{background:#d1f8dd!important;color:#0b2116!important}
-
-html.chrome-ios,html.chrome-ios body{height:var(--app-viewport-height)!important;min-height:0!important;max-height:var(--app-viewport-height)!important;overflow:hidden!important;overscroll-behavior:none!important}
-html.chrome-ios body{position:fixed!important;inset:0!important;width:100%!important;padding:0!important}
-html.chrome-ios .app-header{position:relative!important;top:auto!important}
-html.chrome-ios #circlesView,html.chrome-ios #chordsView{height:calc(var(--app-viewport-height) - 72px)!important;min-height:0!important;max-height:calc(var(--app-viewport-height) - 72px)!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-y:contain!important;-webkit-overflow-scrolling:touch;padding-bottom:max(6px,env(safe-area-inset-bottom))!important}
-html.chrome-ios #circlesView .harmony-wheel-panel{margin-bottom:0!important}
+html.chrome-ios,html.chrome-ios body{height:auto!important;min-height:100%!important;max-height:none!important;overflow-x:hidden!important}
+html.chrome-ios body:not(.menu-open):not(.gift-open){position:static!important;inset:auto!important;width:auto!important;overflow-y:auto!important;overscroll-behavior-y:auto!important}
+html.chrome-ios .app-header{position:sticky!important;top:0!important}
+html.chrome-ios #circlesView,html.chrome-ios #chordsView{height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;padding-bottom:112px!important}
+#instrumento .piano-scroll,#instrumento .voicing-scroll,#instrumento #guitarVoicings,#instrumento #guitarVoicings>*{touch-action:pan-x pan-y!important}
 @media(max-width:700px){#selector .panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.minimal-scale-control{min-width:128px}}
 @media(max-width:500px){#selector .panel-head{display:grid;grid-template-columns:1fr auto;align-items:center}.minimal-scale-select{height:36px}.minimal-scale-control{min-width:120px}}
 `;
@@ -195,6 +185,17 @@ function svgEl(name,attrs={}){const node=document.createElementNS(NS,name);for(c
 function qualityClass(text){const value=(text||'').toLowerCase();if(value.includes('dismin'))return'diminished';if(value.includes('menor'))return'minor';return'major';}
 function schedule(){if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;render();});}
 function addText(group,cls,x,y,value){const text=svgEl('text',{class:cls,x,y});text.textContent=value;group.appendChild(text);}
+function showSelectedChord(){
+  const instrument=document.getElementById('instrumento');
+  if(!instrument)return;
+  instrument.style.setProperty('display','block','important');
+  requestAnimationFrame(()=>{
+    const guitarButton=instrument.querySelector('[data-instrument="guitar"]');
+    if(guitarButton&&!guitarButton.classList.contains('active'))guitarButton.click();
+    const carousel=document.getElementById('guitarVoicings');
+    if(carousel)carousel.classList.add('circle-voicing-carousel');
+  });
+}
 function nodeGroup(item,x,y,r,isCenter=false){
   const type=qualityClass(item.quality);
   const group=svgEl('g',{class:`harmony-wheel-node ${type}${item.active?' active':''}${isCenter?' harmony-wheel-center-node':''}`,role:'button','aria-label':`${item.degree}, ${item.name}, ${item.functionName}, notas ${item.notes}`,'data-wheel-index':item.index,focusable:'false'});
@@ -212,9 +213,9 @@ function nodeGroup(item,x,y,r,isCenter=false){
   }
   const activate=()=>{
     item.card?.click();
+    showSelectedChord();
     setTimeout(()=>document.activeElement?.blur?.(),0);
   };
-  group.addEventListener('pointerdown',event=>event.preventDefault());
   group.addEventListener('click',activate);
   return group;
 }
@@ -245,6 +246,7 @@ function render(){
   host.replaceChildren(svg);
   const counts=data.reduce((acc,item)=>{acc[qualityClass(item.quality)]++;return acc;},{major:0,minor:0,diminished:0});
   if(summary)summary.textContent=`${counts.major} mayores · ${counts.minor} menores · ${counts.diminished} disminuido${counts.diminished===1?'':'s'}`;
+  showSelectedChord();
 }
 new MutationObserver(schedule).observe(grid,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
 window.addEventListener('DOMContentLoaded',schedule);
