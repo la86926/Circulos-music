@@ -4,7 +4,6 @@ const NS='http://www.w3.org/2000/svg';
 const viewport=document.querySelector('meta[name="viewport"]');
 if(viewport) viewport.setAttribute('content','width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover');
 
-/* Corrección específica para el espacio inferior de Chrome en iPhone */
 const isChromeIOS=/CriOS/i.test(navigator.userAgent);
 const root=document.documentElement;
 function syncChromeViewport(){
@@ -61,7 +60,6 @@ document.addEventListener('keydown',event=>{if((event.ctrlKey||event.metaKey)&&[
 let lastTouchEnd=0;
 document.addEventListener('touchend',event=>{const now=Date.now();if(now-lastTouchEnd<320)event.preventDefault();lastTouchEnd=now;},{passive:false});
 
-/* Nomenclatura visible, primero Inglés y activo por defecto. */
 const mainToolbar=document.querySelector('#circlesView>.toolbar');
 if(mainToolbar){
   const notationCard=mainToolbar.querySelector('.control-card:first-child');
@@ -76,7 +74,6 @@ if(mainToolbar){
   }
 }
 
-/* Escala como selector pequeño. */
 const selectorHead=document.querySelector('#selector .panel-head');
 const originalModeButtons=[...document.querySelectorAll('#escala [data-mode]')];
 if(selectorHead&&originalModeButtons.length&&!document.getElementById('minimalScaleSelect')){
@@ -94,18 +91,17 @@ if(selectorHead&&originalModeButtons.length&&!document.getElementById('minimalSc
 if(!document.querySelector('link[href*="circle-wheel.css"]')){
   const link=document.createElement('link');
   link.rel='stylesheet';
-  link.href='circle-wheel.css?v=4';
+  link.href='circle-wheel.css?v=5';
   document.head.appendChild(link);
 }
 
 if(!document.querySelector('link[href*="ui-refinement.css"]')){
   const refinementLink=document.createElement('link');
   refinementLink.rel='stylesheet';
-  refinementLink.href='ui-refinement.css?v=1';
+  refinementLink.href='ui-refinement.css?v=2';
   document.head.appendChild(refinementLink);
 }
 
-/* Menú lateral simplificado y dedicatoria sorpresa. */
 const menuChoices=[...document.querySelectorAll('[data-app-view]')];
 const circlesChoice=menuChoices.find(button=>button.dataset.appView==='circles');
 const chordsChoice=menuChoices.find(button=>button.dataset.appView==='chords');
@@ -139,7 +135,6 @@ if(sideNote){
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&giftModal.classList.contains('open'))closeGift();});
 }
 
-/* La biblioteca de acordes adopta la misma estructura limpia de Círculos. */
 const chordsView=document.getElementById('chordsView');
 if(chordsView){
   const hero=chordsView.querySelector('.library-hero');
