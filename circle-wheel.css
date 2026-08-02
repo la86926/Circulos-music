@@ -11,18 +11,18 @@ body{padding-bottom:0!important;overflow-x:hidden}
 .harmony-wheel-center-node .harmony-wheel-name{font-size:39px;font-weight:840}.harmony-wheel-center-node .harmony-wheel-function{font-size:21px;font-weight:680}.harmony-wheel-center-node .harmony-wheel-notes{font-size:21px;font-weight:580}.harmony-wheel-info{padding:18px;border-radius:18px;background:var(--bg);border:1px solid var(--line)}.harmony-wheel-info h4{margin:0;font-size:16px;letter-spacing:-.02em}.harmony-wheel-info p{margin:7px 0 0;color:var(--muted);font-size:12px;line-height:1.5}.harmony-wheel-legend{display:grid;gap:10px;margin-top:17px}.harmony-wheel-legend-item{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px}.harmony-wheel-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--line);flex:0 0 auto}.harmony-wheel-dot.major{background:var(--wheel-major-fill);border-color:var(--wheel-major-stroke)}.harmony-wheel-dot.minor{background:var(--wheel-minor-fill);border-color:var(--wheel-minor-stroke)}.harmony-wheel-dot.diminished{background:var(--wheel-dim-fill);border-color:var(--wheel-dim-stroke);border-style:dashed}
 #toneSelector .tone-btn{font-size:0}
 #toneSelector .tone-btn::after{font-size:16px;font-weight:800;letter-spacing:-.03em}
-#toneSelector .tone-btn[data-k="3"]{order:1}#toneSelector .tone-btn[data-k="3"]::after{content:"A"}
-#toneSelector .tone-btn[data-k="10"]{order:2}#toneSelector .tone-btn[data-k="10"]::after{content:"A♯"}
-#toneSelector .tone-btn[data-k="5"]{order:3}#toneSelector .tone-btn[data-k="5"]::after{content:"B"}
-#toneSelector .tone-btn[data-k="0"]{order:4}#toneSelector .tone-btn[data-k="0"]::after{content:"C"}
-#toneSelector .tone-btn[data-k="7"]{order:5}#toneSelector .tone-btn[data-k="7"]::after{content:"C♯"}
-#toneSelector .tone-btn[data-k="2"]{order:6}#toneSelector .tone-btn[data-k="2"]::after{content:"D"}
-#toneSelector .tone-btn[data-k="9"]{order:7}#toneSelector .tone-btn[data-k="9"]::after{content:"D♯"}
-#toneSelector .tone-btn[data-k="4"]{order:8}#toneSelector .tone-btn[data-k="4"]::after{content:"E"}
-#toneSelector .tone-btn[data-k="11"]{order:9}#toneSelector .tone-btn[data-k="11"]::after{content:"F"}
-#toneSelector .tone-btn[data-k="6"]{order:10}#toneSelector .tone-btn[data-k="6"]::after{content:"F♯"}
-#toneSelector .tone-btn[data-k="1"]{order:11}#toneSelector .tone-btn[data-k="1"]::after{content:"G"}
-#toneSelector .tone-btn[data-k="8"]{order:12}#toneSelector .tone-btn[data-k="8"]::after{content:"G♯"}
+#toneSelector .tone-btn[data-k="0"]{order:1}#toneSelector .tone-btn[data-k="0"]::after{content:"C"}
+#toneSelector .tone-btn[data-k="7"]{order:2}#toneSelector .tone-btn[data-k="7"]::after{content:"C♯"}
+#toneSelector .tone-btn[data-k="2"]{order:3}#toneSelector .tone-btn[data-k="2"]::after{content:"D"}
+#toneSelector .tone-btn[data-k="9"]{order:4}#toneSelector .tone-btn[data-k="9"]::after{content:"D♯"}
+#toneSelector .tone-btn[data-k="4"]{order:5}#toneSelector .tone-btn[data-k="4"]::after{content:"E"}
+#toneSelector .tone-btn[data-k="11"]{order:6}#toneSelector .tone-btn[data-k="11"]::after{content:"F"}
+#toneSelector .tone-btn[data-k="6"]{order:7}#toneSelector .tone-btn[data-k="6"]::after{content:"F♯"}
+#toneSelector .tone-btn[data-k="1"]{order:8}#toneSelector .tone-btn[data-k="1"]::after{content:"G"}
+#toneSelector .tone-btn[data-k="8"]{order:9}#toneSelector .tone-btn[data-k="8"]::after{content:"G♯"}
+#toneSelector .tone-btn[data-k="3"]{order:10}#toneSelector .tone-btn[data-k="3"]::after{content:"A"}
+#toneSelector .tone-btn[data-k="10"]{order:11}#toneSelector .tone-btn[data-k="10"]::after{content:"A♯"}
+#toneSelector .tone-btn[data-k="5"]{order:12}#toneSelector .tone-btn[data-k="5"]::after{content:"B"}
 body:has([data-nomenclature="latin"].active) #toneSelector .tone-btn[data-k="3"]::after{content:"LA"}
 body:has([data-nomenclature="latin"].active) #toneSelector .tone-btn[data-k="10"]::after{content:"LA♯"}
 body:has([data-nomenclature="latin"].active) #toneSelector .tone-btn[data-k="5"]::after{content:"SI"}
