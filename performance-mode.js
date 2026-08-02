@@ -15,12 +15,11 @@ let pianoSignature='';
 if(!document.querySelector('link[href*="performance-ui.css"]')){
   const link=document.createElement('link');
   link.rel='stylesheet';
-  link.href='performance-ui.css?v=2';
+  link.href='performance-ui.css?v=3';
   document.head.appendChild(link);
 }
 
-/* Audio limpio y polifónico. El audio antiguo se silencia una sola vez,
-   sin modificar prototipos en cada pulsación. */
+/* Audio limpio, polifónico y con mayor presencia. */
 let ctx=null,master=null;
 for(const Constructor of [window.AudioContext,window.webkitAudioContext].filter(Boolean)){
   const prototype=Constructor.prototype;
@@ -45,27 +44,27 @@ function ensureAudio(){
   if(!ctx){
     ctx=new(window.AudioContext||window.webkitAudioContext)();
     const compressor=ctx.createDynamicsCompressor();
-    compressor.threshold.value=-20;
-    compressor.knee.value=22;
-    compressor.ratio.value=3;
-    compressor.attack.value=.01;
-    compressor.release.value=.28;
+    compressor.threshold.value=-17;
+    compressor.knee.value=20;
+    compressor.ratio.value=4;
+    compressor.attack.value=.008;
+    compressor.release.value=.3;
     master=ctx.createGain();
-    master.gain.value=.62;
+    master.gain.value=.82;
     master.connect(compressor).connect(ctx.destination);
   }
   if(ctx.state==='suspended')ctx.resume();
   return ctx;
 }
 const frequency=midi=>440*Math.pow(2,(midi-69)/12);
-function pianoTone(midi,start,velocity=.84){
+function pianoTone(midi,start,velocity=.88){
   const audio=ensureAudio(),freq=frequency(midi),filter=audio.createBiquadFilter(),envelope=audio.createGain();
   filter.type='lowpass';
-  filter.frequency.setValueAtTime(Math.min(6400,2600+freq*4),start);
-  filter.frequency.exponentialRampToValueAtTime(Math.max(1200,freq*2.1),start+1.65);
+  filter.frequency.setValueAtTime(Math.min(6800,2800+freq*4.2),start);
+  filter.frequency.exponentialRampToValueAtTime(Math.max(1250,freq*2.15),start+1.65);
   envelope.gain.setValueAtTime(.0001,start);
-  envelope.gain.exponentialRampToValueAtTime(.18*velocity,start+.012);
-  envelope.gain.exponentialRampToValueAtTime(.065*velocity,start+.28);
+  envelope.gain.exponentialRampToValueAtTime(.19*velocity,start+.012);
+  envelope.gain.exponentialRampToValueAtTime(.07*velocity,start+.28);
   envelope.gain.exponentialRampToValueAtTime(.0001,start+2.2);
   filter.connect(envelope).connect(master);
   [['triangle',1,0,.62],['sine',2,-3,.20],['sine',3,2,.09],['sine',.5,0,.035]].forEach(([type,multiple,detune,level])=>{
@@ -79,14 +78,14 @@ function pianoTone(midi,start,velocity=.84){
     oscillator.stop(start+2.25);
   });
 }
-function guitarTone(midi,start,velocity=.84){
+function guitarTone(midi,start,velocity=.88){
   const audio=ensureAudio(),freq=frequency(midi),filter=audio.createBiquadFilter(),envelope=audio.createGain();
   filter.type='lowpass';
-  filter.frequency.setValueAtTime(Math.min(4400,1500+freq*3.2),start);
-  filter.frequency.exponentialRampToValueAtTime(Math.max(760,freq*1.7),start+1.25);
+  filter.frequency.setValueAtTime(Math.min(4700,1650+freq*3.3),start);
+  filter.frequency.exponentialRampToValueAtTime(Math.max(780,freq*1.75),start+1.25);
   envelope.gain.setValueAtTime(.0001,start);
-  envelope.gain.exponentialRampToValueAtTime(.16*velocity,start+.009);
-  envelope.gain.exponentialRampToValueAtTime(.052*velocity,start+.16);
+  envelope.gain.exponentialRampToValueAtTime(.175*velocity,start+.009);
+  envelope.gain.exponentialRampToValueAtTime(.058*velocity,start+.16);
   envelope.gain.exponentialRampToValueAtTime(.0001,start+1.55);
   filter.connect(envelope).connect(master);
   [['triangle',1,.72],['sine',2,.18],['sine',3,.07]].forEach(([type,multiple,level])=>{
@@ -101,7 +100,7 @@ function guitarTone(midi,start,velocity=.84){
 }
 const PremiumAudio={play(midis,instrument='guitar',options={}){
   if(!Array.isArray(midis)||!midis.length)return;
-  const audio=ensureAudio(),now=audio.currentTime+.008,arpeggio=options.arpeggio??(instrument==='guitar'),gap=arpeggio?.032:0,velocity=options.velocity??.84;
+  const audio=ensureAudio(),now=audio.currentTime+.008,arpeggio=options.arpeggio??(instrument==='guitar'),gap=arpeggio?.032:0,velocity=options.velocity??.88;
   midis.forEach((midi,index)=>{
     const start=now+index*gap;
     if(instrument==='piano')pianoTone(midi,start,velocity);else guitarTone(midi,start,velocity);
@@ -345,7 +344,7 @@ document.addEventListener('click',event=>{
   const premiumKey=event.target.closest?.('[data-performance-midi]');
   if(premiumKey){
     event.preventDefault();event.stopImmediatePropagation();
-    PremiumAudio.play([Number(premiumKey.dataset.performanceMidi)],'piano',{arpeggio:false,velocity:.9});
+    PremiumAudio.play([Number(premiumKey.dataset.performanceMidi)],'piano',{arpeggio:false,velocity:.94});
     flash(premiumKey,320);
     return;
   }
@@ -353,7 +352,7 @@ document.addEventListener('click',event=>{
   if(existingKey){
     event.preventDefault();event.stopImmediatePropagation();
     const pc=parseNote(existingKey.textContent);
-    if(Number.isFinite(pc))PremiumAudio.play([60+pc],'piano',{arpeggio:false,velocity:.86});
+    if(Number.isFinite(pc))PremiumAudio.play([60+pc],'piano',{arpeggio:false,velocity:.92});
     flash(existingKey,320);
     return;
   }
