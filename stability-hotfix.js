@@ -3,15 +3,13 @@
 if(window.__circulosStabilityHotfix)return;
 window.__circulosStabilityHotfix=true;
 
-/* Carga primero la hoja corregida para que no se reutilicen los gestos anteriores. */
 if(!document.querySelector('link[href*="performance-ui.css"]')){
   const link=document.createElement('link');
   link.rel='stylesheet';
-  link.href='performance-ui.css?v=4';
+  link.href='performance-ui.css?v=5';
   document.head.appendChild(link);
 }
 
-/* Evita que Chrome/iPhone recalcule toda la interfaz durante cada gesto. */
 const nativeAddEventListener=EventTarget.prototype.addEventListener;
 EventTarget.prototype.addEventListener=function(type,listener,options){
   if(this===window.visualViewport&&type==='scroll')return;
@@ -33,63 +31,6 @@ if(/CriOS/i.test(navigator.userAgent)&&window.CSSStyleDeclaration){
   window.addEventListener('orientationchange',()=>setTimeout(()=>{
     nativeSetProperty.call(rootStyle,'--app-viewport-height',`${Math.round(window.visualViewport?.height||window.innerHeight)}px`);
   },240),{passive:true});
-}
-
-/* Preamplificador real de 20× seguido de saturación suave. La señal alcanza
-   prácticamente el máximo digital sin que el limitador vuelva a bajarla. */
-const AudioNodeClass=window.AudioNode;
-if(AudioNodeClass&&!AudioNodeClass.prototype.__circulosMaximumAudio){
-  AudioNodeClass.prototype.__circulosMaximumAudio=true;
-  const nativeConnect=AudioNodeClass.prototype.connect;
-  const factories=new WeakMap();
-  for(const Constructor of [window.AudioContext,window.webkitAudioContext].filter(Boolean)){
-    const prototype=Constructor.prototype;
-    factories.set(prototype,{
-      gain:prototype.createGain,
-      shaper:prototype.createWaveShaper
-    });
-  }
-  function getFactories(context){
-    let prototype=Object.getPrototypeOf(context);
-    while(prototype){
-      const found=factories.get(prototype);
-      if(found)return found;
-      prototype=Object.getPrototypeOf(prototype);
-    }
-    return null;
-  }
-  function loudCurve(){
-    const samples=4096,curve=new Float32Array(samples),drive=1.7,normalizer=Math.tanh(drive);
-    for(let index=0;index<samples;index++){
-      const x=index*2/(samples-1)-1;
-      curve[index]=Math.tanh(drive*x)/normalizer;
-    }
-    return curve;
-  }
-  const curve=loudCurve();
-  AudioNodeClass.prototype.connect=function(destination,...args){
-    const context=this.context;
-    if(destination===context?.destination&&!this.__circulosFinalBoosted){
-      const factory=getFactories(context);
-      if(factory?.gain&&factory?.shaper){
-        this.__circulosFinalBoosted=true;
-        const preamp=factory.gain.call(context);
-        const saturator=factory.shaper.call(context);
-        const output=factory.gain.call(context);
-        preamp.gain.value=20;
-        saturator.curve=curve;
-        saturator.oversample='4x';
-        output.gain.value=.99;
-        nativeConnect.call(this,preamp);
-        nativeConnect.call(preamp,saturator);
-        nativeConnect.call(saturator,output);
-        nativeConnect.call(output,destination,...args);
-        this.__circulosFinalChain={preamp,saturator,output};
-        return destination;
-      }
-    }
-    return nativeConnect.call(this,destination,...args);
-  };
 }
 
 const style=document.createElement('style');
