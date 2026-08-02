@@ -15,11 +15,32 @@ let pianoSignature='';
 if(!document.querySelector('link[href*="performance-ui.css"]')){
   const link=document.createElement('link');
   link.rel='stylesheet';
-  link.href='performance-ui.css?v=1';
+  link.href='performance-ui.css?v=2';
   document.head.appendChild(link);
 }
 
+/* Audio limpio y polifónico. El audio antiguo se silencia una sola vez,
+   sin modificar prototipos en cada pulsación. */
 let ctx=null,master=null;
+for(const Constructor of [window.AudioContext,window.webkitAudioContext].filter(Boolean)){
+  const prototype=Constructor.prototype;
+  if(prototype.__circulosLegacyMuted)continue;
+  prototype.__circulosLegacyMuted=true;
+  const originalCreateGain=prototype.createGain;
+  prototype.createGain=function(...args){
+    const context=this,gain=originalCreateGain.apply(context,args);
+    if(context===ctx)return gain;
+    const originalConnect=gain.connect.bind(gain);
+    gain.connect=function(destination,...connectArgs){
+      const mute=originalCreateGain.call(context);
+      mute.gain.value=0;
+      originalConnect(mute);
+      mute.connect(destination,...connectArgs);
+      return destination;
+    };
+    return gain;
+  };
+}
 function ensureAudio(){
   if(!ctx){
     ctx=new(window.AudioContext||window.webkitAudioContext)();
@@ -80,34 +101,13 @@ function guitarTone(midi,start,velocity=.84){
 }
 const PremiumAudio={play(midis,instrument='guitar',options={}){
   if(!Array.isArray(midis)||!midis.length)return;
-  const audio=ensureAudio(),now=audio.currentTime+.008,arpeggio=options.arpeggio??(instrument==='guitar'),gap=arpeggio?0.032:0,velocity=options.velocity??.84;
+  const audio=ensureAudio(),now=audio.currentTime+.008,arpeggio=options.arpeggio??(instrument==='guitar'),gap=arpeggio?.032:0,velocity=options.velocity??.84;
   midis.forEach((midi,index)=>{
     const start=now+index*gap;
     if(instrument==='piano')pianoTone(midi,start,velocity);else guitarTone(midi,start,velocity);
   });
 }};
 window.CirculosPremiumAudio=PremiumAudio;
-
-function silenceLegacyAudio(callback){
-  const constructors=[window.AudioContext,window.webkitAudioContext].filter(Boolean),restores=[];
-  constructors.forEach(Constructor=>{
-    const prototype=Constructor.prototype,originalCreateGain=prototype.createGain;
-    if(typeof originalCreateGain!=='function')return;
-    prototype.createGain=function(){
-      const context=this,gain=originalCreateGain.call(context),originalConnect=gain.connect.bind(gain);
-      gain.connect=function(destination){
-        const mute=originalCreateGain.call(context);
-        mute.gain.value=0;
-        originalConnect(mute);
-        mute.connect(destination);
-        return destination;
-      };
-      return gain;
-    };
-    restores.push(()=>{prototype.createGain=originalCreateGain;});
-  });
-  try{callback();}finally{restores.forEach(restore=>restore());}
-}
 
 function parseNote(token){
   const value=String(token||'').trim().toUpperCase().replace(/NOTAS?:/g,'').replace(/♯/g,'#').replace(/♭/g,'B').replace(/\s+/g,'');
@@ -161,7 +161,7 @@ function markCircle(index,duration=1750){
   applyCirclePlaying();
   setTimeout(()=>{if((playing.get(index)||0)<=Date.now())playing.delete(index);applyCirclePlaying();},duration+50);
 }
-function flash(element,duration=1400){
+function flash(element,duration=900){
   if(!element)return;
   element.classList.add('performance-playing');
   clearTimeout(element._performanceTimer);
@@ -191,7 +191,20 @@ function rotateDiagram(svg){
   svg.dataset.horizontalTab='true';
   svg.classList.add('horizontal-tab');
 }
-const rotateAll=()=>document.querySelectorAll('.chord-diagram,.library-diagram').forEach(rotateDiagram);
+function rotateInside(host){host?.querySelectorAll('.chord-diagram,.library-diagram').forEach(rotateDiagram);}
+
+function toneClassMap(pcs){return new Map(pcs.map((pc,index)=>[pc,`triad-tone-${index+1}`]));}
+function decorateCirclePiano(){
+  const host=document.getElementById('pianoKeyboard');
+  const active=document.querySelector('#diatonicGrid .chord-card.active')||document.querySelector('#diatonicGrid .chord-card');
+  if(!host||!active)return;
+  const chord=cardChord(active),classes=toneClassMap(chord.notes);
+  host.querySelectorAll('.white-key,.black-key').forEach(key=>{
+    key.classList.remove('triad-tone-1','triad-tone-2','triad-tone-3','triad-tone-4');
+    const pc=parseNote(key.textContent),className=classes.get(pc);
+    if(className)key.classList.add(className);
+  });
+}
 
 function initializeCircleDetail(){
   const panel=document.getElementById('instrumento');
@@ -249,22 +262,22 @@ function renderLibraryPiano(){
   const chord=libraryChord(),notation=libraryNotation(),signature=`${chord.root}|${chord.quality}|${notation}`;
   if(signature===pianoSignature&&host.childElementCount)return;
   pianoSignature=signature;
-  const pcs=new Set(chord.pcs),whitePcs=new Set([0,2,4,5,7,9,11]),whites=[],title=document.getElementById('performancePianoTitle'),notes=document.getElementById('performancePianoNotes');
+  const classes=toneClassMap(chord.pcs),whitePcs=new Set([0,2,4,5,7,9,11]),whites=[],title=document.getElementById('performancePianoTitle'),notes=document.getElementById('performancePianoNotes');
   if(title)title.textContent=`${displayNote(chord.rootPc,notation)} ${QUALITY_LABEL[chord.quality]||'mayor'}`;
   if(notes)notes.textContent=chord.pcs.map(pc=>displayNote(pc,notation)).join(' · ');
   host.replaceChildren();
   for(let midi=48;midi<=83;midi++)if(whitePcs.has(midi%12))whites.push(midi);
   const keyWidth=54;
   whites.forEach((midi,index)=>{
-    const pc=midi%12,key=document.createElement('button');
+    const pc=midi%12,key=document.createElement('button'),toneClass=classes.get(pc)||'';
     key.type='button';key.dataset.performanceMidi=midi;
-    key.className=`performance-white-key${pcs.has(pc)?' chord-tone':''}${pc===chord.rootPc?' root-tone':''}`;
+    key.className=`performance-white-key ${toneClass}`.trim();
     key.textContent=displayNote(pc,notation);
     host.appendChild(key);
     if([0,2,5,7,9].includes(pc)&&midi+1<=83){
-      const blackMidi=midi+1,blackPc=blackMidi%12,black=document.createElement('button');
+      const blackMidi=midi+1,blackPc=blackMidi%12,black=document.createElement('button'),blackTone=classes.get(blackPc)||'';
       black.type='button';black.dataset.performanceMidi=blackMidi;
-      black.className=`performance-black-key${pcs.has(blackPc)?' chord-tone':''}${blackPc===chord.rootPc?' root-tone':''}`;
+      black.className=`performance-black-key ${blackTone}`.trim();
       black.style.left=`${(index+1)*keyWidth}px`;
       black.textContent=displayNote(blackPc,notation);
       host.appendChild(black);
@@ -274,9 +287,9 @@ function renderLibraryPiano(){
 }
 
 const blockedClicks=new WeakMap();
-function blockNextClick(element){if(element)blockedClicks.set(element,Date.now()+800);}
+function blockNextClick(element){if(element)blockedClicks.set(element,Date.now()+700);}
 document.addEventListener('click',event=>{
-  const element=event.target.closest?.('.harmony-wheel-node,.library-card-play,#guitarVoicings .voicing-play,#playChordBtn,#pianoKeyboard .white-key,#pianoKeyboard .black-key,[data-performance-midi]');
+  const element=event.target.closest?.('.harmony-wheel-node,.library-card-play,#guitarVoicings .voicing-play,#playChordBtn');
   if(element&&(blockedClicks.get(element)||0)>Date.now()){
     event.preventDefault();
     event.stopImmediatePropagation();
@@ -289,8 +302,9 @@ document.addEventListener('pointerdown',event=>{
     event.preventDefault();event.stopPropagation();blockNextClick(circle);
     const index=Number(circle.dataset.wheelIndex),card=[...document.querySelectorAll('#diatonicGrid .chord-card')][index],chord=cardChord(card);
     if(chord.notes.length)PremiumAudio.play(ascendingMidis(chord.notes,state.circles),state.circles,{arpeggio:state.circles==='guitar'});
-    if(card)silenceLegacyAudio(()=>card.click());
+    card?.click();
     markCircle(index);
+    requestAnimationFrame(()=>{initializeCircleDetail();rotateInside(document.getElementById('guitarVoicings'));decorateCirclePiano();});
     return;
   }
   const rootButton=event.target.closest?.('#libraryRoots [data-library-root]');
@@ -298,8 +312,6 @@ document.addEventListener('pointerdown',event=>{
     const chord=libraryChord(rootButton.dataset.libraryRoot);
     PremiumAudio.play(ascendingMidis(chord.pcs,state.library),state.library,{arpeggio:state.library==='guitar'});
     flash(rootButton);
-    pianoSignature='';
-    setTimeout(renderLibraryPiano,0);
     return;
   }
   const libraryPlay=event.target.closest?.('.library-card-play');
@@ -324,32 +336,58 @@ document.addEventListener('pointerdown',event=>{
     const chord=cardChord(document.querySelector('#diatonicGrid .chord-card.active')||document.querySelector('#diatonicGrid .chord-card'));
     if(chord.notes.length)PremiumAudio.play(ascendingMidis(chord.notes,state.circles),state.circles,{arpeggio:state.circles==='guitar'});
     markCircle(chord.index);
-    return;
   }
+},true);
+
+/* Las teclas se reproducen con click, no con pointerdown. Así el dedo puede
+   desplazarse horizontalmente sobre el teclado sin quedar atrapado. */
+document.addEventListener('click',event=>{
   const premiumKey=event.target.closest?.('[data-performance-midi]');
   if(premiumKey){
-    event.preventDefault();event.stopPropagation();blockNextClick(premiumKey);
+    event.preventDefault();event.stopImmediatePropagation();
     PremiumAudio.play([Number(premiumKey.dataset.performanceMidi)],'piano',{arpeggio:false,velocity:.9});
-    flash(premiumKey,380);
+    flash(premiumKey,320);
     return;
   }
-  const existingPianoKey=event.target.closest?.('#pianoKeyboard .white-key,#pianoKeyboard .black-key');
-  if(existingPianoKey){
-    event.preventDefault();event.stopPropagation();blockNextClick(existingPianoKey);
-    const pc=parseNote(existingPianoKey.textContent);
+  const existingKey=event.target.closest?.('#pianoKeyboard .white-key,#pianoKeyboard .black-key');
+  if(existingKey){
+    event.preventDefault();event.stopImmediatePropagation();
+    const pc=parseNote(existingKey.textContent);
     if(Number.isFinite(pc))PremiumAudio.play([60+pc],'piano',{arpeggio:false,velocity:.86});
+    flash(existingKey,320);
+    return;
+  }
+  if(event.target.closest?.('#libraryRoots [data-library-root],[data-library-notation]')){
+    pianoSignature='';
+    setTimeout(renderLibraryPiano,0);
   }
 },true);
-
-document.addEventListener('click',event=>{
-  if(event.target.closest?.('[data-library-notation]')){pianoSignature='';setTimeout(renderLibraryPiano,0);}
-},true);
 document.addEventListener('change',event=>{
-  if(event.target.id==='libraryQualitySelect'){pianoSignature='';setTimeout(renderLibraryPiano,0);}
+  if(event.target.id==='libraryQualitySelect'){
+    pianoSignature='';
+    setTimeout(renderLibraryPiano,0);
+  }
 });
 
-function refresh(){initializeCircleDetail();createLibrarySwitch();rotateAll();applyCirclePlaying();}
-const observer=new MutationObserver(()=>requestAnimationFrame(refresh));
-observer.observe(document.body,{childList:true,subtree:true});
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh,{once:true});else refresh();
+function observeChildren(host,callback){
+  if(!host)return;
+  let scheduled=false;
+  new MutationObserver(()=>{
+    if(scheduled)return;
+    scheduled=true;
+    requestAnimationFrame(()=>{scheduled=false;callback();});
+  }).observe(host,{childList:true,subtree:true});
+}
+function init(){
+  initializeCircleDetail();
+  createLibrarySwitch();
+  rotateInside(document.getElementById('guitarVoicings'));
+  rotateInside(document.getElementById('chordLibraryGrid'));
+  decorateCirclePiano();
+  observeChildren(document.getElementById('guitarVoicings'),()=>rotateInside(document.getElementById('guitarVoicings')));
+  observeChildren(document.getElementById('chordLibraryGrid'),()=>rotateInside(document.getElementById('chordLibraryGrid')));
+  observeChildren(document.getElementById('pianoKeyboard'),decorateCirclePiano);
+  observeChildren(document.getElementById('diatonicGrid'),()=>requestAnimationFrame(decorateCirclePiano));
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
