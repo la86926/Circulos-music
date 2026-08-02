@@ -19,71 +19,95 @@ if(!document.querySelector('link[href*="performance-ui.css"]')){
   document.head.appendChild(link);
 }
 
-let ctx=null,master=null,noise=null;
+let ctx=null,master=null;
 function ensureAudio(){
   if(!ctx){
     ctx=new(window.AudioContext||window.webkitAudioContext)();
     const compressor=ctx.createDynamicsCompressor();
-    compressor.threshold.value=-18;
-    compressor.knee.value=18;
-    compressor.ratio.value=4;
-    compressor.attack.value=.004;
-    compressor.release.value=.22;
+    compressor.threshold.value=-20;
+    compressor.knee.value=22;
+    compressor.ratio.value=3;
+    compressor.attack.value=.01;
+    compressor.release.value=.28;
     master=ctx.createGain();
-    master.gain.value=.82;
+    master.gain.value=.62;
     master.connect(compressor).connect(ctx.destination);
-    noise=ctx.createBuffer(1,Math.floor(ctx.sampleRate*.22),ctx.sampleRate);
-    const data=noise.getChannelData(0);
-    for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*Math.pow(1-i/data.length,2.6);
   }
   if(ctx.state==='suspended')ctx.resume();
   return ctx;
 }
-const freq=midi=>440*Math.pow(2,(midi-69)/12);
-function pianoTone(midi,start,velocity=.88){
-  const audio=ensureAudio(),f=freq(midi),filter=audio.createBiquadFilter(),env=audio.createGain();
+const frequency=midi=>440*Math.pow(2,(midi-69)/12);
+function pianoTone(midi,start,velocity=.84){
+  const audio=ensureAudio(),freq=frequency(midi),filter=audio.createBiquadFilter(),envelope=audio.createGain();
   filter.type='lowpass';
-  filter.frequency.setValueAtTime(Math.min(7600,3000+f*5),start);
-  filter.frequency.exponentialRampToValueAtTime(Math.max(1100,f*2.2),start+1.8);
-  env.gain.setValueAtTime(.0001,start);
-  env.gain.exponentialRampToValueAtTime(.22*velocity,start+.006);
-  env.gain.exponentialRampToValueAtTime(.075*velocity,start+.24);
-  env.gain.exponentialRampToValueAtTime(.0001,start+2.45);
-  filter.connect(env).connect(master);
-  [['triangle',1,0,.64],['sine',2,-4,.21],['sine',3,3,.1],['sine',.5,0,.05]].forEach(([type,multiple,detune,level])=>{
-    const osc=audio.createOscillator(),gain=audio.createGain();
-    osc.type=type;osc.frequency.setValueAtTime(f*multiple,start);osc.detune.value=detune;gain.gain.value=level;
-    osc.connect(gain).connect(filter);osc.start(start);osc.stop(start+2.5);
+  filter.frequency.setValueAtTime(Math.min(6400,2600+freq*4),start);
+  filter.frequency.exponentialRampToValueAtTime(Math.max(1200,freq*2.1),start+1.65);
+  envelope.gain.setValueAtTime(.0001,start);
+  envelope.gain.exponentialRampToValueAtTime(.18*velocity,start+.012);
+  envelope.gain.exponentialRampToValueAtTime(.065*velocity,start+.28);
+  envelope.gain.exponentialRampToValueAtTime(.0001,start+2.2);
+  filter.connect(envelope).connect(master);
+  [['triangle',1,0,.62],['sine',2,-3,.20],['sine',3,2,.09],['sine',.5,0,.035]].forEach(([type,multiple,detune,level])=>{
+    const oscillator=audio.createOscillator(),gain=audio.createGain();
+    oscillator.type=type;
+    oscillator.frequency.setValueAtTime(freq*multiple,start);
+    oscillator.detune.value=detune;
+    gain.gain.value=level;
+    oscillator.connect(gain).connect(filter);
+    oscillator.start(start);
+    oscillator.stop(start+2.25);
   });
-  const transient=audio.createBufferSource(),high=audio.createBiquadFilter(),gain=audio.createGain();
-  transient.buffer=noise;high.type='highpass';high.frequency.value=1800;
-  gain.gain.setValueAtTime(.035*velocity,start);gain.gain.exponentialRampToValueAtTime(.0001,start+.045);
-  transient.connect(high).connect(gain).connect(master);transient.start(start);transient.stop(start+.06);
 }
-function guitarTone(midi,start,velocity=.88){
-  const audio=ensureAudio(),f=freq(midi),filter=audio.createBiquadFilter(),env=audio.createGain();
-  filter.type='lowpass';filter.frequency.setValueAtTime(Math.min(5200,1700+f*4),start);filter.frequency.exponentialRampToValueAtTime(Math.max(700,f*1.8),start+1.45);
-  env.gain.setValueAtTime(.0001,start);env.gain.exponentialRampToValueAtTime(.19*velocity,start+.004);env.gain.exponentialRampToValueAtTime(.058*velocity,start+.13);env.gain.exponentialRampToValueAtTime(.0001,start+1.75);
-  filter.connect(env).connect(master);
-  [['triangle',1,.7],['sine',2,.2],['sine',3,.1]].forEach(([type,multiple,level])=>{
-    const osc=audio.createOscillator(),gain=audio.createGain();
-    osc.type=type;osc.frequency.setValueAtTime(f*multiple,start);gain.gain.value=level;
-    osc.connect(gain).connect(filter);osc.start(start);osc.stop(start+1.8);
+function guitarTone(midi,start,velocity=.84){
+  const audio=ensureAudio(),freq=frequency(midi),filter=audio.createBiquadFilter(),envelope=audio.createGain();
+  filter.type='lowpass';
+  filter.frequency.setValueAtTime(Math.min(4400,1500+freq*3.2),start);
+  filter.frequency.exponentialRampToValueAtTime(Math.max(760,freq*1.7),start+1.25);
+  envelope.gain.setValueAtTime(.0001,start);
+  envelope.gain.exponentialRampToValueAtTime(.16*velocity,start+.009);
+  envelope.gain.exponentialRampToValueAtTime(.052*velocity,start+.16);
+  envelope.gain.exponentialRampToValueAtTime(.0001,start+1.55);
+  filter.connect(envelope).connect(master);
+  [['triangle',1,.72],['sine',2,.18],['sine',3,.07]].forEach(([type,multiple,level])=>{
+    const oscillator=audio.createOscillator(),gain=audio.createGain();
+    oscillator.type=type;
+    oscillator.frequency.setValueAtTime(freq*multiple,start);
+    gain.gain.value=level;
+    oscillator.connect(gain).connect(filter);
+    oscillator.start(start);
+    oscillator.stop(start+1.6);
   });
-  const pick=audio.createBufferSource(),band=audio.createBiquadFilter(),gain=audio.createGain();
-  pick.buffer=noise;band.type='bandpass';band.frequency.value=Math.min(6500,f*4.5);band.Q.value=.8;
-  gain.gain.setValueAtTime(.13*velocity,start);gain.gain.exponentialRampToValueAtTime(.0001,start+.12);
-  pick.connect(band).connect(gain).connect(master);pick.start(start);pick.stop(start+.14);
 }
 const PremiumAudio={play(midis,instrument='guitar',options={}){
   if(!Array.isArray(midis)||!midis.length)return;
-  const audio=ensureAudio(),now=audio.currentTime+.006,arpeggio=options.arpeggio??(instrument==='guitar'),gap=arpeggio?.038:0,velocity=options.velocity??.88;
+  const audio=ensureAudio(),now=audio.currentTime+.008,arpeggio=options.arpeggio??(instrument==='guitar'),gap=arpeggio?0.032:0,velocity=options.velocity??.84;
   midis.forEach((midi,index)=>{
     const start=now+index*gap;
     if(instrument==='piano')pianoTone(midi,start,velocity);else guitarTone(midi,start,velocity);
   });
 }};
 window.CirculosPremiumAudio=PremiumAudio;
+
+function silenceLegacyAudio(callback){
+  const constructors=[window.AudioContext,window.webkitAudioContext].filter(Boolean),restores=[];
+  constructors.forEach(Constructor=>{
+    const prototype=Constructor.prototype,originalCreateGain=prototype.createGain;
+    if(typeof originalCreateGain!=='function')return;
+    prototype.createGain=function(){
+      const context=this,gain=originalCreateGain.call(context),originalConnect=gain.connect.bind(gain);
+      gain.connect=function(destination){
+        const mute=originalCreateGain.call(context);
+        mute.gain.value=0;
+        originalConnect(mute);
+        mute.connect(destination);
+        return destination;
+      };
+      return gain;
+    };
+    restores.push(()=>{prototype.createGain=originalCreateGain;});
+  });
+  try{callback();}finally{restores.forEach(restore=>restore());}
+}
 
 function parseNote(token){
   const value=String(token||'').trim().toUpperCase().replace(/NOTAS?:/g,'').replace(/♯/g,'#').replace(/♭/g,'B').replace(/\s+/g,'');
@@ -132,13 +156,15 @@ function applyCirclePlaying(){
   document.querySelectorAll('.harmony-wheel-node[data-wheel-index]').forEach(node=>node.classList.toggle('playing',playing.has(Number(node.dataset.wheelIndex))));
   document.querySelectorAll('#diatonicGrid .chord-card').forEach((card,index)=>card.classList.toggle('performance-playing',playing.has(index)));
 }
-function markCircle(index,duration=1900){
-  playing.set(index,Date.now()+duration);applyCirclePlaying();
+function markCircle(index,duration=1750){
+  playing.set(index,Date.now()+duration);
+  applyCirclePlaying();
   setTimeout(()=>{if((playing.get(index)||0)<=Date.now())playing.delete(index);applyCirclePlaying();},duration+50);
 }
-function flash(element,duration=1500){
+function flash(element,duration=1400){
   if(!element)return;
-  element.classList.add('performance-playing');clearTimeout(element._performanceTimer);
+  element.classList.add('performance-playing');
+  clearTimeout(element._performanceTimer);
   element._performanceTimer=setTimeout(()=>element.classList.remove('performance-playing'),duration);
 }
 
@@ -158,9 +184,12 @@ function rotateDiagram(svg){
   svg.querySelectorAll('text').forEach(text=>{
     const x=Number(text.getAttribute('x')),y=Number(text.getAttribute('y'));
     if(!Number.isFinite(x)||!Number.isFinite(y))return;
-    const point=rotatePoint(x,y,width);text.setAttribute('x',point[0]);text.setAttribute('y',point[1]);text.removeAttribute('transform');
+    const point=rotatePoint(x,y,width);
+    text.setAttribute('x',point[0]);text.setAttribute('y',point[1]);text.removeAttribute('transform');
   });
-  svg.setAttribute('viewBox',`0 0 ${height} ${width}`);svg.dataset.horizontalTab='true';svg.classList.add('horizontal-tab');
+  svg.setAttribute('viewBox',`0 0 ${height} ${width}`);
+  svg.dataset.horizontalTab='true';
+  svg.classList.add('horizontal-tab');
 }
 const rotateAll=()=>document.querySelectorAll('.chord-diagram,.library-diagram').forEach(rotateDiagram);
 
@@ -187,12 +216,16 @@ function createLibrarySwitch(){
   if(!panel)return;
   let control=document.getElementById('libraryPerformanceSwitch');
   if(!control){
-    control=document.createElement('div');control.id='libraryPerformanceSwitch';control.className='performance-instrument-switch';
+    control=document.createElement('div');
+    control.id='libraryPerformanceSwitch';
+    control.className='performance-instrument-switch';
     control.innerHTML='<span>Instrumento</span><div class="segmented seg2"><button class="seg-btn active" data-performance-library="guitar" type="button">Guitarra</button><button class="seg-btn" data-performance-library="piano" type="button">Piano</button></div>';
-    panel.insertBefore(control,grid);view.dataset.performanceInstrument='guitar';
+    panel.insertBefore(control,grid);
+    view.dataset.performanceInstrument='guitar';
   }
   if(!document.getElementById('libraryPianoPanel')){
-    const piano=document.createElement('section');piano.id='libraryPianoPanel';
+    const piano=document.createElement('section');
+    piano.id='libraryPianoPanel';
     piano.innerHTML='<div class="performance-piano-summary"><div><strong id="performancePianoTitle">C mayor</strong><small id="performancePianoNotes">C · E · G</small></div></div><div class="performance-piano-scroll"><div class="performance-piano" id="performancePianoKeyboard"></div></div>';
     panel.insertBefore(piano,grid.nextSibling);
   }
@@ -203,7 +236,9 @@ function createLibrarySwitch(){
       if(!button)return;
       state.library=button.dataset.performanceLibrary;
       control.querySelectorAll('button').forEach(item=>item.classList.toggle('active',item===button));
-      view.dataset.performanceInstrument=state.library;pianoSignature='';renderLibraryPiano();
+      view.dataset.performanceInstrument=state.library;
+      pianoSignature='';
+      renderLibraryPiano();
     });
   }
   renderLibraryPiano();
@@ -221,44 +256,97 @@ function renderLibraryPiano(){
   for(let midi=48;midi<=83;midi++)if(whitePcs.has(midi%12))whites.push(midi);
   const keyWidth=54;
   whites.forEach((midi,index)=>{
-    const pc=midi%12,key=document.createElement('button');key.type='button';key.dataset.performanceMidi=midi;
-    key.className=`performance-white-key${pcs.has(pc)?' chord-tone':''}${pc===chord.rootPc?' root-tone':''}`;key.textContent=displayNote(pc,notation);host.appendChild(key);
+    const pc=midi%12,key=document.createElement('button');
+    key.type='button';key.dataset.performanceMidi=midi;
+    key.className=`performance-white-key${pcs.has(pc)?' chord-tone':''}${pc===chord.rootPc?' root-tone':''}`;
+    key.textContent=displayNote(pc,notation);
+    host.appendChild(key);
     if([0,2,5,7,9].includes(pc)&&midi+1<=83){
-      const blackMidi=midi+1,blackPc=blackMidi%12,black=document.createElement('button');black.type='button';black.dataset.performanceMidi=blackMidi;
-      black.className=`performance-black-key${pcs.has(blackPc)?' chord-tone':''}${blackPc===chord.rootPc?' root-tone':''}`;black.style.left=`${(index+1)*keyWidth}px`;black.textContent=displayNote(blackPc,notation);host.appendChild(black);
+      const blackMidi=midi+1,blackPc=blackMidi%12,black=document.createElement('button');
+      black.type='button';black.dataset.performanceMidi=blackMidi;
+      black.className=`performance-black-key${pcs.has(blackPc)?' chord-tone':''}${blackPc===chord.rootPc?' root-tone':''}`;
+      black.style.left=`${(index+1)*keyWidth}px`;
+      black.textContent=displayNote(blackPc,notation);
+      host.appendChild(black);
     }
   });
   host.style.minWidth=`${whites.length*keyWidth+8}px`;
 }
 
-let suppressCircleClickUntil=0;
+const blockedClicks=new WeakMap();
+function blockNextClick(element){if(element)blockedClicks.set(element,Date.now()+800);}
+document.addEventListener('click',event=>{
+  const element=event.target.closest?.('.harmony-wheel-node,.library-card-play,#guitarVoicings .voicing-play,#playChordBtn,#pianoKeyboard .white-key,#pianoKeyboard .black-key,[data-performance-midi]');
+  if(element&&(blockedClicks.get(element)||0)>Date.now()){
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }
+},true);
+
 document.addEventListener('pointerdown',event=>{
   const circle=event.target.closest?.('.harmony-wheel-node[data-wheel-index]');
   if(circle){
-    event.preventDefault();event.stopPropagation();
+    event.preventDefault();event.stopPropagation();blockNextClick(circle);
     const index=Number(circle.dataset.wheelIndex),card=[...document.querySelectorAll('#diatonicGrid .chord-card')][index],chord=cardChord(card);
-    if(chord.notes.length){PremiumAudio.play(ascendingMidis(chord.notes,state.circles),state.circles,{arpeggio:state.circles==='guitar'});markCircle(index);}
-    suppressCircleClickUntil=Date.now()+700;card?.click();return;
+    if(chord.notes.length)PremiumAudio.play(ascendingMidis(chord.notes,state.circles),state.circles,{arpeggio:state.circles==='guitar'});
+    if(card)silenceLegacyAudio(()=>card.click());
+    markCircle(index);
+    return;
   }
   const rootButton=event.target.closest?.('#libraryRoots [data-library-root]');
   if(rootButton){
-    const chord=libraryChord(rootButton.dataset.libraryRoot);PremiumAudio.play(ascendingMidis(chord.pcs,state.library),state.library,{arpeggio:state.library==='guitar'});flash(rootButton);pianoSignature='';setTimeout(renderLibraryPiano,0);return;
+    const chord=libraryChord(rootButton.dataset.libraryRoot);
+    PremiumAudio.play(ascendingMidis(chord.pcs,state.library),state.library,{arpeggio:state.library==='guitar'});
+    flash(rootButton);
+    pianoSignature='';
+    setTimeout(renderLibraryPiano,0);
+    return;
   }
   const libraryPlay=event.target.closest?.('.library-card-play');
-  if(libraryPlay){const chord=libraryChord();PremiumAudio.play(ascendingMidis(chord.pcs,state.library),state.library,{arpeggio:state.library==='guitar'});flash(libraryPlay.closest('.library-card'));return;}
+  if(libraryPlay){
+    event.preventDefault();event.stopPropagation();blockNextClick(libraryPlay);
+    const chord=libraryChord();
+    PremiumAudio.play(ascendingMidis(chord.pcs,state.library),state.library,{arpeggio:state.library==='guitar'});
+    flash(libraryPlay.closest('.library-card'));
+    return;
+  }
   const voicingPlay=event.target.closest?.('#guitarVoicings .voicing-play');
-  if(voicingPlay){const chord=cardChord(document.querySelector('#diatonicGrid .chord-card.active')||document.querySelector('#diatonicGrid .chord-card'));if(chord.notes.length)PremiumAudio.play(ascendingMidis(chord.notes,'guitar'),'guitar',{arpeggio:true});flash(voicingPlay.closest('.voicing-card'));return;}
-  if(event.target.closest?.('#playChordBtn')){const chord=cardChord(document.querySelector('#diatonicGrid .chord-card.active')||document.querySelector('#diatonicGrid .chord-card'));if(chord.notes.length)PremiumAudio.play(ascendingMidis(chord.notes,state.circles),state.circles,{arpeggio:state.circles==='guitar'});markCircle(chord.index);return;}
+  if(voicingPlay){
+    event.preventDefault();event.stopPropagation();blockNextClick(voicingPlay);
+    const chord=cardChord(document.querySelector('#diatonicGrid .chord-card.active')||document.querySelector('#diatonicGrid .chord-card'));
+    if(chord.notes.length)PremiumAudio.play(ascendingMidis(chord.notes,'guitar'),'guitar',{arpeggio:true});
+    flash(voicingPlay.closest('.voicing-card'));
+    return;
+  }
+  const replay=event.target.closest?.('#playChordBtn');
+  if(replay){
+    event.preventDefault();event.stopPropagation();blockNextClick(replay);
+    const chord=cardChord(document.querySelector('#diatonicGrid .chord-card.active')||document.querySelector('#diatonicGrid .chord-card'));
+    if(chord.notes.length)PremiumAudio.play(ascendingMidis(chord.notes,state.circles),state.circles,{arpeggio:state.circles==='guitar'});
+    markCircle(chord.index);
+    return;
+  }
   const premiumKey=event.target.closest?.('[data-performance-midi]');
-  if(premiumKey){PremiumAudio.play([Number(premiumKey.dataset.performanceMidi)],'piano',{arpeggio:false,velocity:.96});flash(premiumKey,420);return;}
+  if(premiumKey){
+    event.preventDefault();event.stopPropagation();blockNextClick(premiumKey);
+    PremiumAudio.play([Number(premiumKey.dataset.performanceMidi)],'piano',{arpeggio:false,velocity:.9});
+    flash(premiumKey,380);
+    return;
+  }
   const existingPianoKey=event.target.closest?.('#pianoKeyboard .white-key,#pianoKeyboard .black-key');
-  if(existingPianoKey){const pc=parseNote(existingPianoKey.textContent);if(Number.isFinite(pc))PremiumAudio.play([60+pc],'piano',{arpeggio:false,velocity:.9});}
+  if(existingPianoKey){
+    event.preventDefault();event.stopPropagation();blockNextClick(existingPianoKey);
+    const pc=parseNote(existingPianoKey.textContent);
+    if(Number.isFinite(pc))PremiumAudio.play([60+pc],'piano',{arpeggio:false,velocity:.86});
+  }
 },true);
+
 document.addEventListener('click',event=>{
-  if(Date.now()<suppressCircleClickUntil&&event.target.closest?.('.harmony-wheel-node')){event.preventDefault();event.stopImmediatePropagation();return;}
   if(event.target.closest?.('[data-library-notation]')){pianoSignature='';setTimeout(renderLibraryPiano,0);}
 },true);
-document.addEventListener('change',event=>{if(event.target.id==='libraryQualitySelect'){pianoSignature='';setTimeout(renderLibraryPiano,0);}});
+document.addEventListener('change',event=>{
+  if(event.target.id==='libraryQualitySelect'){pianoSignature='';setTimeout(renderLibraryPiano,0);}
+});
 
 function refresh(){initializeCircleDetail();createLibrarySwitch();rotateAll();applyCirclePlaying();}
 const observer=new MutationObserver(()=>requestAnimationFrame(refresh));
