@@ -4,6 +4,22 @@ const NS='http://www.w3.org/2000/svg';
 const viewport=document.querySelector('meta[name="viewport"]');
 if(viewport) viewport.setAttribute('content','width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover');
 
+/* Corrección específica para el espacio inferior de Chrome en iPhone */
+const isChromeIOS=/CriOS/i.test(navigator.userAgent);
+const root=document.documentElement;
+function syncChromeViewport(){
+  const height=Math.round(window.visualViewport?.height||window.innerHeight);
+  root.style.setProperty('--app-viewport-height',`${height}px`);
+}
+if(isChromeIOS){
+  root.classList.add('chrome-ios');
+  syncChromeViewport();
+  window.visualViewport?.addEventListener('resize',syncChromeViewport,{passive:true});
+  window.visualViewport?.addEventListener('scroll',syncChromeViewport,{passive:true});
+  window.addEventListener('orientationchange',()=>setTimeout(syncChromeViewport,180),{passive:true});
+  requestAnimationFrame(()=>window.scrollTo(0,0));
+}
+
 const uiStyle=document.createElement('style');
 uiStyle.textContent=`
 *{-webkit-tap-highlight-color:transparent}
@@ -26,6 +42,11 @@ html[data-theme="dark"] .white-key.voicing-tone{background:#6fc893!important;col
 html[data-theme="dark"] .white-key.root-tone{background:#b8efca!important;color:#092015!important;box-shadow:inset 0 0 0 3px #397c58!important}
 html[data-theme="dark"] .black-key.voicing-tone{background:#3e8f61!important;color:#fff!important}
 html[data-theme="dark"] .black-key.root-tone{background:#d1f8dd!important;color:#0b2116!important}
+html.chrome-ios,html.chrome-ios body{height:var(--app-viewport-height)!important;min-height:0!important;max-height:var(--app-viewport-height)!important;overflow:hidden!important;overscroll-behavior:none!important}
+html.chrome-ios body{position:fixed!important;inset:0!important;width:100%!important;padding:0!important}
+html.chrome-ios .app-header{position:relative!important;top:auto!important}
+html.chrome-ios #circlesView,html.chrome-ios #chordsView{height:calc(var(--app-viewport-height) - 72px)!important;min-height:0!important;max-height:calc(var(--app-viewport-height) - 72px)!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-y:contain!important;-webkit-overflow-scrolling:touch;padding-bottom:max(6px,env(safe-area-inset-bottom))!important}
+html.chrome-ios #circlesView .harmony-wheel-panel{margin-bottom:0!important}
 @media(max-width:700px){#selector .panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.minimal-scale-control{min-width:128px}}
 @media(max-width:500px){#selector .panel-head{display:grid;grid-template-columns:1fr auto;align-items:center}.minimal-scale-select{height:36px}.minimal-scale-control{min-width:120px}}
 `;
