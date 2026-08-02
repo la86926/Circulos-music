@@ -15,98 +15,12 @@ let pianoSignature='';
 if(!document.querySelector('link[href*="performance-ui.css"]')){
   const link=document.createElement('link');
   link.rel='stylesheet';
-  link.href='performance-ui.css?v=3';
+  link.href='performance-ui.css?v=5';
   document.head.appendChild(link);
 }
 
-/* Audio limpio, polifónico y con mayor presencia. */
-let ctx=null,master=null;
-for(const Constructor of [window.AudioContext,window.webkitAudioContext].filter(Boolean)){
-  const prototype=Constructor.prototype;
-  if(prototype.__circulosLegacyMuted)continue;
-  prototype.__circulosLegacyMuted=true;
-  const originalCreateGain=prototype.createGain;
-  prototype.createGain=function(...args){
-    const context=this,gain=originalCreateGain.apply(context,args);
-    if(context===ctx)return gain;
-    const originalConnect=gain.connect.bind(gain);
-    gain.connect=function(destination,...connectArgs){
-      const mute=originalCreateGain.call(context);
-      mute.gain.value=0;
-      originalConnect(mute);
-      mute.connect(destination,...connectArgs);
-      return destination;
-    };
-    return gain;
-  };
-}
-function ensureAudio(){
-  if(!ctx){
-    ctx=new(window.AudioContext||window.webkitAudioContext)();
-    const compressor=ctx.createDynamicsCompressor();
-    compressor.threshold.value=-17;
-    compressor.knee.value=20;
-    compressor.ratio.value=4;
-    compressor.attack.value=.008;
-    compressor.release.value=.3;
-    master=ctx.createGain();
-    master.gain.value=.82;
-    master.connect(compressor).connect(ctx.destination);
-  }
-  if(ctx.state==='suspended')ctx.resume();
-  return ctx;
-}
-const frequency=midi=>440*Math.pow(2,(midi-69)/12);
-function pianoTone(midi,start,velocity=.88){
-  const audio=ensureAudio(),freq=frequency(midi),filter=audio.createBiquadFilter(),envelope=audio.createGain();
-  filter.type='lowpass';
-  filter.frequency.setValueAtTime(Math.min(6800,2800+freq*4.2),start);
-  filter.frequency.exponentialRampToValueAtTime(Math.max(1250,freq*2.15),start+1.65);
-  envelope.gain.setValueAtTime(.0001,start);
-  envelope.gain.exponentialRampToValueAtTime(.19*velocity,start+.012);
-  envelope.gain.exponentialRampToValueAtTime(.07*velocity,start+.28);
-  envelope.gain.exponentialRampToValueAtTime(.0001,start+2.2);
-  filter.connect(envelope).connect(master);
-  [['triangle',1,0,.62],['sine',2,-3,.20],['sine',3,2,.09],['sine',.5,0,.035]].forEach(([type,multiple,detune,level])=>{
-    const oscillator=audio.createOscillator(),gain=audio.createGain();
-    oscillator.type=type;
-    oscillator.frequency.setValueAtTime(freq*multiple,start);
-    oscillator.detune.value=detune;
-    gain.gain.value=level;
-    oscillator.connect(gain).connect(filter);
-    oscillator.start(start);
-    oscillator.stop(start+2.25);
-  });
-}
-function guitarTone(midi,start,velocity=.88){
-  const audio=ensureAudio(),freq=frequency(midi),filter=audio.createBiquadFilter(),envelope=audio.createGain();
-  filter.type='lowpass';
-  filter.frequency.setValueAtTime(Math.min(4700,1650+freq*3.3),start);
-  filter.frequency.exponentialRampToValueAtTime(Math.max(780,freq*1.75),start+1.25);
-  envelope.gain.setValueAtTime(.0001,start);
-  envelope.gain.exponentialRampToValueAtTime(.175*velocity,start+.009);
-  envelope.gain.exponentialRampToValueAtTime(.058*velocity,start+.16);
-  envelope.gain.exponentialRampToValueAtTime(.0001,start+1.55);
-  filter.connect(envelope).connect(master);
-  [['triangle',1,.72],['sine',2,.18],['sine',3,.07]].forEach(([type,multiple,level])=>{
-    const oscillator=audio.createOscillator(),gain=audio.createGain();
-    oscillator.type=type;
-    oscillator.frequency.setValueAtTime(freq*multiple,start);
-    gain.gain.value=level;
-    oscillator.connect(gain).connect(filter);
-    oscillator.start(start);
-    oscillator.stop(start+1.6);
-  });
-}
-const PremiumAudio={play(midis,instrument='guitar',options={}){
-  if(!Array.isArray(midis)||!midis.length)return;
-  const audio=ensureAudio(),now=audio.currentTime+.008,arpeggio=options.arpeggio??(instrument==='guitar'),gap=arpeggio?.032:0,velocity=options.velocity??.88;
-  midis.forEach((midi,index)=>{
-    const start=now+index*gap;
-    if(instrument==='piano')pianoTone(midi,start,velocity);else guitarTone(midi,start,velocity);
-  });
-}};
-window.CirculosPremiumAudio=PremiumAudio;
+function cssPx(name,fallback){const raw=getComputedStyle(document.documentElement).getPropertyValue(name).trim();const value=parseFloat(raw);return Number.isFinite(value)&&value>0?value:fallback;}
+const PremiumAudio={play(midis,instrument='guitar',options={}){window.CirculosAudio?.play(midis,instrument,options);}};
 
 function parseNote(token){
   const value=String(token||'').trim().toUpperCase().replace(/NOTAS?:/g,'').replace(/♯/g,'#').replace(/♭/g,'B').replace(/\s+/g,'');
@@ -266,7 +180,7 @@ function renderLibraryPiano(){
   if(notes)notes.textContent=chord.pcs.map(pc=>displayNote(pc,notation)).join(' · ');
   host.replaceChildren();
   for(let midi=48;midi<=83;midi++)if(whitePcs.has(midi%12))whites.push(midi);
-  const keyWidth=54;
+  const keyWidth=cssPx('--pkey-w',51);
   whites.forEach((midi,index)=>{
     const pc=midi%12,key=document.createElement('button'),toneClass=classes.get(pc)||'';
     key.type='button';key.dataset.performanceMidi=midi;
@@ -338,8 +252,6 @@ document.addEventListener('pointerdown',event=>{
   }
 },true);
 
-/* Las teclas se reproducen con click, no con pointerdown. Así el dedo puede
-   desplazarse horizontalmente sobre el teclado sin quedar atrapado. */
 document.addEventListener('click',event=>{
   const premiumKey=event.target.closest?.('[data-performance-midi]');
   if(premiumKey){
