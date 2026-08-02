@@ -36,6 +36,25 @@ function decorateRoots(){
     button.setAttribute('aria-label',`${rootLabel(root)}: ${tonesFor(root).join(', ')}`);
   });
 }
+function applyGiftCopy(){
+  const gift=document.querySelector('.side-menu-gift');
+  const title=gift?.querySelector('strong');
+  const subtitle=gift?.querySelector('small');
+  const kicker=document.querySelector('.gift-kicker');
+  const modalTitle=document.getElementById('giftTitle');
+  const message=document.querySelector('.gift-message');
+  const signature=document.querySelector('.gift-signature');
+  if(!gift||!title||!subtitle||!kicker||!modalTitle||!message)return false;
+  if(title.textContent!=='UN REGALO MUSICAL')title.textContent='UN REGALO MUSICAL';
+  if(subtitle.textContent!=='Lo que hay preparado aquí.')subtitle.textContent='Lo que hay preparado aquí.';
+  if(kicker.textContent!=='UN REGALO MUSICAL')kicker.textContent='UN REGALO MUSICAL';
+  if(modalTitle.textContent!=='Hecho por José, para compartir la música.')modalTitle.textContent='Hecho por José, para compartir la música.';
+  const newMessage='Todo lo que encuentras aquí fue preparado con dedicación para que, explorar los acordes, sea sencillo, claro y especial.';
+  if(message.textContent!==newMessage)message.textContent=newMessage;
+  signature?.remove();
+  gift.setAttribute('aria-label','Abrir regalo musical');
+  return true;
+}
 function simplify(){
   const qualityBlock=document.getElementById('libraryQualities')?.closest('.library-control-block');
   if(qualityBlock){qualityBlock.style.setProperty('display','none','important');qualityBlock.setAttribute('aria-hidden','true');}
@@ -51,6 +70,10 @@ function init(){
   if(qualities)new MutationObserver(()=>requestAnimationFrame(decorateRoots)).observe(qualities,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
   document.querySelectorAll('[data-library-notation]').forEach(button=>button.addEventListener('click',()=>requestAnimationFrame(decorateRoots)));
   document.getElementById('libraryQualitySelect')?.addEventListener('change',()=>requestAnimationFrame(decorateRoots));
+  if(!applyGiftCopy()){
+    const observer=new MutationObserver(()=>{if(applyGiftCopy())observer.disconnect();});
+    observer.observe(document.body,{childList:true,subtree:true});
+  }
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
