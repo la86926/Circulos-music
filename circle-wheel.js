@@ -1,6 +1,9 @@
 (()=>{
 'use strict';
 const NS='http://www.w3.org/2000/svg';
+if(!document.querySelector('link[href*="circle-wheel.css"]')){const link=document.createElement('link');link.rel='stylesheet';link.href='circle-wheel.css?v=1';document.head.appendChild(link);}
+let section=document.getElementById('circuloArmonico');
+if(!section){const chordsSection=document.getElementById('acordes');if(!chordsSection)return;section=document.createElement('section');section.className='panel';section.id='circuloArmonico';section.innerHTML=`<div class="panel-head"><div><h3 class="panel-title">Círculo de los 7 acordes</h3><p class="panel-subtitle">Visualiza los acordes de la escala y pulsa cualquiera para seleccionarlo.</p></div></div><div class="harmony-wheel-wrap"><div class="harmony-wheel-stage" id="harmonyWheel"></div><aside class="harmony-wheel-info"><div><h4>Distribución armónica</h4><p id="harmonyWheelSummary">3 mayores · 3 menores · 1 disminuido</p></div><div class="harmony-wheel-legend"><div class="harmony-wheel-legend-item"><span class="harmony-wheel-dot major"></span><span>Mayor</span></div><div class="harmony-wheel-legend-item"><span class="harmony-wheel-dot minor"></span><span>Menor</span></div><div class="harmony-wheel-legend-item"><span class="harmony-wheel-dot diminished"></span><span>Disminuido</span></div></div><p class="harmony-wheel-tip">El nombre de cada acorde cambia automáticamente según la tonalidad, el tipo de escala y la nomenclatura elegida.</p></aside></div>`;chordsSection.parentNode.insertBefore(section,chordsSection);}
 const grid=document.getElementById('diatonicGrid');
 const host=document.getElementById('harmonyWheel');
 const summary=document.getElementById('harmonyWheelSummary');
