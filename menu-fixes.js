@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
-if(window.__circulosMenuFixesV2)return;
-window.__circulosMenuFixesV2=true;
+if(window.__circulosMenuFixesV3)return;
+window.__circulosMenuFixesV3=true;
 
 const PC={C:0,'C#':1,Db:1,D:2,'D#':3,Eb:3,E:4,Fb:4,'E#':5,F:5,'F#':6,Gb:6,G:7,'G#':8,Ab:8,A:9,'A#':10,Bb:10,B:11,Cb:11};
 const LATIN_TO_EN={DO:'C',RE:'D',MI:'E',FA:'F',SOL:'G',LA:'A',SI:'B'};
@@ -15,6 +15,14 @@ style.textContent=`
 #libraryPerformanceSwitch .seg-btn{min-height:38px!important;border:0!important;border-radius:999px!important;background:transparent!important;box-shadow:none!important}
 #libraryPerformanceSwitch .seg-btn.active{background:var(--accent)!important;color:var(--contrast)!important}
 #libraryPerformanceSwitch+ #chordLibraryGrid{border-top:0!important}
+html body #pianoKeyboard .white-key.root-tone,
+html body #pianoKeyboard .white-key.piano-tonic-color,
+html body #performancePianoKeyboard .white-key.root-tone,
+html body #performancePianoKeyboard .white-key.piano-tonic-color{background:#D5DCF9!important;color:#263252!important;box-shadow:inset 0 -8px 0 #AAB6EA!important}
+html body #pianoKeyboard .black-key.root-tone,
+html body #pianoKeyboard .black-key.piano-tonic-color,
+html body #performancePianoKeyboard .black-key.root-tone,
+html body #performancePianoKeyboard .black-key.piano-tonic-color{background:#D5DCF9!important;color:#263252!important;box-shadow:inset 0 0 0 3px #AAB6EA!important}
 @media(max-width:560px){#libraryPerformanceSwitch{padding:18px 18px 0!important}#libraryPerformanceSwitch .seg-btn{min-height:42px!important}}
 `;
 document.head.appendChild(style);
@@ -74,7 +82,6 @@ function playExactVoicing(button){
   card?.classList.add('performance-playing');setTimeout(()=>card?.classList.remove('performance-playing'),900);
 }
 
-/* Mantiene el texto del selector y el contenido visibles siempre sincronizados. */
 let circleInstrument=localStorage.getItem('circulos-circle-instrument')||'guitar';
 function applyCircleInstrument(instrument=circleInstrument){
   const panel=document.getElementById('instrumento'),piano=document.getElementById('pianoPanel'),guitar=document.getElementById('guitarPanel');
@@ -106,7 +113,6 @@ document.addEventListener('pointerup',event=>{
   if(instrument)scheduleCircleSync(instrument.dataset.instrument);
 },true);
 
-/* En “Nota principal” solo se selecciona la nota; no se reproduce ningún acorde. */
 window.addEventListener('pointerdown',event=>{
   const root=event.target.closest?.('#libraryRoots [data-library-root]');
   if(root){event.stopImmediatePropagation();return;}
@@ -117,12 +123,28 @@ window.addEventListener('click',event=>{
   if(event.target.closest?.('#guitarVoicings .voicing-play')){event.preventDefault();event.stopImmediatePropagation();}
 },true);
 
+function removeTitlePeriods(root=document){
+  root.querySelectorAll('h1,h2,h3,h4,h5,h6,.panel-title,.selected-title,.library-title,.chord-name,.chord-card-name,.voicing-card h4,.performance-piano-summary strong').forEach(title=>{
+    if(title.children.length)return;
+    const text=title.textContent||'';
+    const clean=text.replace(/\s*\.\s*$/,'');
+    if(clean!==text)title.textContent=clean;
+  });
+}
+
 function init(){
   scheduleCircleSync();
+  removeTitlePeriods();
   const circles=document.getElementById('circlesView');
   if(circles)new MutationObserver(()=>{if(!circles.classList.contains('view-hidden'))scheduleCircleSync();}).observe(circles,{attributes:true,attributeFilter:['class']});
   const tabs=document.querySelector('#instrumento .instrument-tabs');
   if(tabs)new MutationObserver(()=>scheduleCircleSync()).observe(tabs,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+  let titleQueued=false;
+  new MutationObserver(mutations=>{
+    if(titleQueued)return;
+    titleQueued=true;
+    requestAnimationFrame(()=>{titleQueued=false;for(const mutation of mutations){for(const node of mutation.addedNodes){if(node.nodeType===1)removeTitlePeriods(node);}}removeTitlePeriods();});
+  }).observe(document.body,{childList:true,subtree:true,characterData:true});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
