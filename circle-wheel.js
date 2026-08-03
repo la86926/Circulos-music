@@ -81,14 +81,14 @@ if(selectorHead&&originalModeButtons.length&&!document.getElementById('minimalSc
 if(!document.querySelector('link[href*="circle-wheel.css"]')){
   const link=document.createElement('link');
   link.rel='stylesheet';
-  link.href='circle-wheel.css?v=5';
+  link.href='circle-wheel.css?v=6';
   document.head.appendChild(link);
 }
 
 if(!document.querySelector('link[href*="ui-refinement.css"]')){
   const refinementLink=document.createElement('link');
   refinementLink.rel='stylesheet';
-  refinementLink.href='ui-refinement.css?v=2';
+  refinementLink.href='ui-refinement.css?v=3';
   document.head.appendChild(refinementLink);
 }
 

@@ -15,7 +15,7 @@ let pianoSignature='';
 if(!document.querySelector('link[href*="performance-ui.css"]')){
   const link=document.createElement('link');
   link.rel='stylesheet';
-  link.href='performance-ui.css?v=5';
+  link.href='performance-ui.css?v=6';
   document.head.appendChild(link);
 }
 
@@ -73,6 +73,14 @@ function markCircle(index,duration=1750){
   playing.set(index,Date.now()+duration);
   applyCirclePlaying();
   setTimeout(()=>{if((playing.get(index)||0)<=Date.now())playing.delete(index);applyCirclePlaying();},duration+50);
+}
+function clicSinSonido(elemento){
+  if(!elemento)return;
+  const audio=window.CirculosAudio;
+  if(!audio||typeof audio.play!=='function'){elemento.click();return;}
+  const original=audio.play;
+  audio.play=()=>{};
+  try{elemento.click();}finally{audio.play=original;}
 }
 function flash(element,duration=900){
   if(!element)return;
@@ -215,7 +223,7 @@ document.addEventListener('pointerdown',event=>{
     event.preventDefault();event.stopPropagation();blockNextClick(circle);
     const index=Number(circle.dataset.wheelIndex),card=[...document.querySelectorAll('#diatonicGrid .chord-card')][index],chord=cardChord(card);
     if(chord.notes.length)PremiumAudio.play(ascendingMidis(chord.notes,state.circles),state.circles,{arpeggio:state.circles==='guitar'});
-    card?.click();
+    clicSinSonido(card);
     markCircle(index);
     requestAnimationFrame(()=>{initializeCircleDetail();rotateInside(document.getElementById('guitarVoicings'));decorateCirclePiano();});
     return;
@@ -231,7 +239,9 @@ document.addEventListener('pointerdown',event=>{
   if(libraryPlay){
     event.preventDefault();event.stopPropagation();blockNextClick(libraryPlay);
     const chord=libraryChord();
-    PremiumAudio.play(ascendingMidis(chord.pcs,state.library),state.library,{arpeggio:state.library==='guitar'});
+    const propias=(libraryPlay.dataset.libraryMidis||'').split(',').map(Number).filter(Number.isFinite);
+    const notas=(state.library==='guitar'&&propias.length)?propias:ascendingMidis(chord.pcs,state.library);
+    PremiumAudio.play(notas,state.library,{arpeggio:state.library==='guitar'});
     flash(libraryPlay.closest('.library-card'));
     return;
   }
