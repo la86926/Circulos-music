@@ -15,7 +15,7 @@ let pianoSignature='';
 if(!document.querySelector('link[href*="performance-ui.css"]')){
   const link=document.createElement('link');
   link.rel='stylesheet';
-  link.href='performance-ui.css?v=6';
+  link.href='performance-ui.css?v=7';
   document.head.appendChild(link);
 }
 

@@ -1,5 +1,5 @@
-:root{--triad-1:#1f6d4a;--triad-1-soft:#bfe8cf;--triad-2:#4f9a70;--triad-2-soft:#e2f4e8;--triad-3:#4f9a70;--triad-3-soft:#e2f4e8;--triad-4:#4f9a70;--triad-4-soft:#e2f4e8}
-html[data-theme="dark"]{--triad-1:#2f8b59;--triad-1-soft:#b8efca;--triad-2:#78c596;--triad-2-soft:#244531;--triad-3:#78c596;--triad-3-soft:#244531;--triad-4:#78c596;--triad-4-soft:#244531}
+:root{--triad-1:#AAB6EA;--triad-1-soft:#D5DCF9;--triad-1-text:#263252;--triad-2:#4f9a70;--triad-2-soft:#e2f4e8;--triad-3:#4f9a70;--triad-3-soft:#e2f4e8;--triad-4:#4f9a70;--triad-4-soft:#e2f4e8}
+html[data-theme="dark"]{--triad-1:#AAB6EA;--triad-1-soft:#D5DCF9;--triad-1-text:#263252;--triad-2:#78c596;--triad-2-soft:#244531;--triad-3:#78c596;--triad-3-soft:#244531;--triad-4:#78c596;--triad-4-soft:#244531}
 #circlesView>#instrumento{display:block!important;margin-top:18px}
 #circlesView>#instrumento .instrument-tabs{display:block!important;margin:0 24px 18px}
 #circlesView>#instrumento .instrument-tabs .segmented{max-width:420px;margin:0 auto}
@@ -33,11 +33,11 @@ html[data-theme="dark"]{--triad-1:#2f8b59;--triad-1-soft:#b8efca;--triad-2:#78c5
 :root{--pkey-w:51px;--pkey-black-w:32px}
 .performance-white-key{position:relative;flex:0 0 var(--pkey-w);height:190px;border:1px solid var(--line);border-radius:0 0 9px 9px;background:var(--surface);color:var(--muted);display:flex;align-items:flex-end;justify-content:center;padding:0 2px 12px;font-size:10px;font-weight:720;cursor:pointer}
 .performance-black-key{position:absolute;z-index:3;top:0;width:var(--pkey-black-w);height:116px;border:1px solid #080808;border-radius:0 0 7px 7px;background:#181a19;color:#d8dbd9;display:flex;align-items:flex-end;justify-content:center;padding:0 2px 9px;font-size:9px;font-weight:720;cursor:pointer;transform:translateX(-50%)}
-#pianoKeyboard .white-key.triad-tone-1,.performance-white-key.triad-tone-1{background:var(--triad-1-soft)!important;color:var(--triad-1)!important;box-shadow:inset 0 -8px 0 var(--triad-1)!important}
+#pianoKeyboard .white-key.triad-tone-1,.performance-white-key.triad-tone-1{background:var(--triad-1-soft)!important;color:var(--triad-1-text)!important;box-shadow:inset 0 -8px 0 var(--triad-1)!important}
 #pianoKeyboard .white-key.triad-tone-2,.performance-white-key.triad-tone-2,#pianoKeyboard .white-key.triad-tone-3,.performance-white-key.triad-tone-3,#pianoKeyboard .white-key.triad-tone-4,.performance-white-key.triad-tone-4{background:var(--triad-2-soft)!important;color:var(--triad-2)!important;box-shadow:inset 0 -7px 0 var(--triad-2)!important}
-#pianoKeyboard .black-key.triad-tone-1,.performance-black-key.triad-tone-1{background:var(--triad-1)!important;color:#fff!important;box-shadow:inset 0 0 0 3px var(--triad-1-soft)!important}
+#pianoKeyboard .black-key.triad-tone-1,.performance-black-key.triad-tone-1{background:var(--triad-1-soft)!important;color:var(--triad-1-text)!important;box-shadow:inset 0 0 0 3px var(--triad-1)!important}
 #pianoKeyboard .black-key.triad-tone-2,.performance-black-key.triad-tone-2,#pianoKeyboard .black-key.triad-tone-3,.performance-black-key.triad-tone-3,#pianoKeyboard .black-key.triad-tone-4,.performance-black-key.triad-tone-4{background:var(--triad-2)!important;color:#fff!important;box-shadow:inset 0 0 0 3px var(--triad-2-soft)!important}
-html[data-theme="dark"] #pianoKeyboard .black-key.triad-tone-1,html[data-theme="dark"] .performance-black-key.triad-tone-1{color:#fff!important}
+html[data-theme="dark"] #pianoKeyboard .black-key.triad-tone-1,html[data-theme="dark"] .performance-black-key.triad-tone-1{color:var(--triad-1-text)!important}
 .performance-white-key.performance-playing,#pianoKeyboard .white-key.performance-playing{filter:brightness(1.06);transform:translateY(2px)}
 .performance-black-key.performance-playing{filter:brightness(1.08);transform:translateX(-50%) translateY(2px)}
 #pianoKeyboard .black-key.performance-playing{filter:brightness(1.08);transform:translateY(2px)}
