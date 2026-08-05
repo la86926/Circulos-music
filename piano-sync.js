@@ -46,10 +46,10 @@ html body #pianoKeyboard,html body #performancePianoKeyboard,html body #pianoKey
 #performancePianoKeyboard .white-key.chord-tone{background:#ecefea}
 #performancePianoKeyboard .black-key{background:#171817;color:#fff}
 #performancePianoKeyboard .black-key.chord-tone{background:#30332f}
-#pianoKeyboard .white-key.synced-chord-tone,#performancePianoKeyboard .white-key.synced-chord-tone{background:var(--root)}
-#pianoKeyboard .white-key.synced-root-tone,#performancePianoKeyboard .white-key.synced-root-tone{background:var(--root2);color:#fff}
-#pianoKeyboard .black-key.synced-chord-tone,#performancePianoKeyboard .black-key.synced-chord-tone{background:var(--root)}
-#pianoKeyboard .black-key.synced-root-tone,#performancePianoKeyboard .black-key.synced-root-tone{background:var(--root2);color:#fff}
+html body #pianoKeyboard .white-key.synced-chord-tone,html body #performancePianoKeyboard .white-key.synced-chord-tone{background:#e2f4e8!important;color:#4f9a70!important;box-shadow:inset 0 -7px 0 #4f9a70!important}
+html body #pianoKeyboard .white-key.synced-root-tone,html body #performancePianoKeyboard .white-key.synced-root-tone{background:#D5DCF9!important;color:#263252!important;box-shadow:inset 0 -8px 0 #AAB6EA!important}
+html body #pianoKeyboard .black-key.synced-chord-tone,html body #performancePianoKeyboard .black-key.synced-chord-tone{background:#4f9a70!important;color:#fff!important;box-shadow:inset 0 0 0 3px #e2f4e8!important}
+html body #pianoKeyboard .black-key.synced-root-tone,html body #performancePianoKeyboard .black-key.synced-root-tone{background:#D5DCF9!important;color:#263252!important;box-shadow:inset 0 0 0 3px #AAB6EA!important}
 @media(max-width:560px){.piano-position-control{grid-template-columns:1fr auto;gap:7px}.piano-position-title{grid-column:1/-1}.piano-position-range{min-width:0}#libraryPianoPanel{padding:0 16px 20px!important}#libraryPerformanceSwitch{margin:0 16px 12px!important}#libraryPianoPanel .performance-piano-summary strong{font-size:25px!important}}
 `;
 document.head.appendChild(style);
