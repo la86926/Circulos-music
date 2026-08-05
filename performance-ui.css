@@ -3,6 +3,7 @@ html[data-theme="dark"]{--triad-1:#AAB6EA;--triad-1-soft:#D5DCF9;--triad-1-text:
 #circlesView>#instrumento{display:block!important;margin-top:18px}
 #circlesView>#instrumento .instrument-tabs{display:block!important;margin:0 24px 18px}
 #circlesView>#instrumento .instrument-tabs .segmented{max-width:420px;margin:0 auto}
+#circlesView>#instrumento>.last-chord-kicker,#circlesView>#instrumento>.selected-head{display:none!important}
 .last-chord-kicker{margin:0;padding:18px 24px 0;color:var(--muted);font-size:10px;font-weight:820;letter-spacing:.15em;text-transform:uppercase}
 #instrumento .selected-head{padding-top:14px}
 .harmony-wheel-node.playing .harmony-wheel-node-bg{stroke-width:7;filter:drop-shadow(0 0 9px color-mix(in srgb,var(--accent) 56%,transparent))}
