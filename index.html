@@ -19,6 +19,27 @@
 #chordsView .panel:has(.library-controls)>.panel-head{order:2;border-bottom:0;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px}
 #chordsView .panel:has(.library-controls)>.panel-head .minimal-library-quality{min-width:120px;width:auto;justify-self:end}
 #chordsView .panel:has(.library-controls)>.library-controls{order:1}
+
+/* Cabecera flotante; la hamburguesa vuelve a su sitio dentro de ella */
+html body header.app-header.app-header{
+  position:fixed!important;
+  top:10px!important;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(1240px,calc(100% - 20px));
+  border:1px solid var(--line);
+  border-radius:22px;
+  border-bottom:1px solid var(--line);
+  overflow:hidden;
+  z-index:45;
+}
+html body .app-header .header-inner{height:64px}
+html body{padding-top:74px}
+@media(max-width:700px){
+  html body header.app-header.app-header{top:8px;width:calc(100% - 16px);border-radius:18px}
+  html body .app-header .header-inner{height:58px}
+  html body{padding-top:66px}
+}
 </style>
 </head>
 <body>
@@ -49,7 +70,7 @@
 </aside>
 
 <main class="container app-view" id="circlesView">
-<section class="hero" id="inicio"><div><p class="eyebrow">Armonía interactiva</p><h1>Todos los acordes de tu escala.</h1><p class="hero-copy">Elige una escala mayor o menor natural. Consulta sus 7 acordes, escucha cada triada y compara distintas posiciones en piano y guitarra.</p></div><aside class="hero-status"><div class="status-row"><span class="status-label">Escala</span><strong id="statusKey" class="status-value">DO mayor</strong></div><div class="status-row"><span class="status-label">Acorde</span><strong id="statusChord" class="status-value">DO mayor</strong></div><div class="status-row"><span class="status-label">Posición</span><strong id="statusPosition" class="status-value">Fundamental</strong></div></aside></section>
+<section class="hero" id="inicio"><div><h1>Círculos de acordes</h1><p class="hero-copy">Elige una escala mayor o menor natural. Consulta sus 7 acordes, escucha cada triada y compara distintas posiciones en piano y guitarra.</p></div><aside class="hero-status"><div class="status-row"><span class="status-label">Escala</span><strong id="statusKey" class="status-value">DO mayor</strong></div><div class="status-row"><span class="status-label">Acorde</span><strong id="statusChord" class="status-value">DO mayor</strong></div><div class="status-row"><span class="status-label">Posición</span><strong id="statusPosition" class="status-value">Fundamental</strong></div></aside></section>
 <section class="toolbar"><div class="control-card"><span class="label">Nomenclatura</span><div class="segmented seg2"><button class="seg-btn active" data-nomenclature="latin" type="button">Latina</button><button class="seg-btn" data-nomenclature="english" type="button">Inglesa</button></div></div><div class="control-card"><span class="label">Instrumento</span><div class="segmented seg2"><button class="seg-btn active" data-instrument="piano" type="button">Piano</button><button class="seg-btn" data-instrument="guitar" type="button">Guitarra</button></div></div></section>
 <section class="panel" id="selector"><div class="panel-head"><div><h3 class="panel-title">Tonalidad principal</h3><p class="panel-subtitle">Selecciona la tónica de la escala.</p></div></div><div class="key-scroller" id="toneSelector"></div></section>
 <section class="panel" id="escala"><div class="panel-head"><div><p class="eyebrow" id="scaleEyebrow">Escala natural mayor</p><h3 class="panel-title" id="scaleTitle">Escala de DO mayor</h3></div><div class="mode-picker"><span class="label">Tipo de escala</span><div class="segmented seg2"><button class="seg-btn active" data-mode="major" type="button">Mayor</button><button class="seg-btn" data-mode="minor" type="button">Menor natural</button></div></div></div><div class="scale-summary"><p class="scale-pattern" id="scalePattern"><strong>Patrón fijo:</strong> I, IV y V son mayores; ii, iii y vi son menores; vii° es disminuido.</p></div></section>
