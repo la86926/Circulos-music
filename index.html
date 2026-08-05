@@ -16,7 +16,8 @@
 #selector>#toneSelector{order:1}
 /* Menú 2: notas del acorde arriba, título + tipo de acorde abajo */
 #chordsView .panel:has(.library-controls){display:flex;flex-direction:column}
-#chordsView .panel:has(.library-controls)>.panel-head{order:2;border-bottom:0;border-top:1px solid var(--line)}
+#chordsView .panel:has(.library-controls)>.panel-head{order:2;border-bottom:0;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px}
+#chordsView .panel:has(.library-controls)>.panel-head .minimal-library-quality{min-width:120px;width:auto;justify-self:end}
 #chordsView .panel:has(.library-controls)>.library-controls{order:1}
 </style>
 </head>
