@@ -1,9 +1,9 @@
 (()=>{
 'use strict';
-if(window.__circulosChordLibraryV10)return;
-window.__circulosChordLibraryV10=true;
+if(window.__circulosChordLibraryV11)return;
+window.__circulosChordLibraryV11=true;
 
-const DATA_URL='chords-data.json?v=1';
+const DATA_URL='chords-data.json?v=2';
 const ROOT_PC={C:0,'B#':0,'C#':1,Db:1,D:2,'D#':3,Eb:3,E:4,Fb:4,'E#':5,F:5,'F#':6,Gb:6,G:7,'G#':8,Ab:8,A:9,'A#':10,Bb:10,B:11,Cb:11};
 const PC_ROOT=['C','C#/Db','D','D#/Eb','E','F','F#/Gb','G','G#/Ab','A','A#/Bb','B'];
 const LATIN={C:'DO',D:'RE',E:'MI',F:'FA',G:'SOL',A:'LA',B:'SI'};
@@ -80,13 +80,15 @@ function applyFilters(reset=true){
 }
 function positionTypeLabel(type){return({open:'Abierta',barre:'Cejilla',movable:'Móvil',inversion:'Inversión',slash:'Slash / pedal',bass:'Bajo alternativo'})[type]||type;}
 function shapeTokens(shape){return String(shape||'').trim().split(/\s+/);}
-function miniShape(shape){return `<span class="mini-fingering" aria-hidden="true">${shapeTokens(shape).map(v=>`<span>${v==='x'?'×':v}</span>`).join('')}</span>`;}
+function preferredPosition(entry){
+  const list=entry.p||[];
+  return list.find(p=>/(principal|est[aá]ndar|tradicional|com[uú]n)/i.test(stripAccents(p.l)))||list[0]||null;
+}
 function cardHtml(entry){
-  const pos=entry.p?.[0];
+  const pos=preferredPosition(entry);
   return `<button class="chord-catalog-card" type="button" data-chord-id="${entry.id}" aria-label="Abrir ${escapeHtml(displaySymbol(entry.s))}, ${entry.p.length} posiciones">
-    <span class="chord-catalog-top"><strong>${escapeHtml(displaySymbol(entry.s))}</strong><span>${entry.p.length} pos.</span></span>
-    <span class="chord-catalog-family">${escapeHtml(familyLabel(entry.f))}</span>
-    ${pos?miniShape(pos.x):'<span class="mini-fingering empty">Sin digitación</span>'}
+    <span class="chord-catalog-top"><strong>${escapeHtml(displaySymbol(entry.s))}</strong></span>
+    ${pos?diagramSvg(entry,pos,0,{mini:true}):'<span class="diagram-empty">Sin diagrama</span>'}
   </button>`;
 }
 function renderResults(){
@@ -114,27 +116,61 @@ async function ensureData(){
   if(state.data||state.loading)return;setLoading(true);
   try{
     const response=await fetch(DATA_URL,{cache:'force-cache'});if(!response.ok)throw new Error(`HTTP ${response.status}`);
-    state.data=await response.json();enrich();renderFamilies();renderRoots();applyFilters();
+    state.data=await response.json();if(state.data.stringOrder!=='1-6')throw new Error('Orden de cuerdas no compatible');enrich();renderFamilies();renderRoots();applyFilters();
     const stats=$('chordLibraryStats');if(stats)stats.textContent=`${state.data.entries.length} acordes · ${state.data.entries.reduce((n,e)=>n+(e.p?.length||0),0)} posiciones`;
   }catch(error){const grid=$('chordCatalogGrid');if(grid)grid.innerHTML='<div class="library-error"><strong>No se pudo abrir la biblioteca.</strong><span>Recarga la página para intentarlo de nuevo.</span></div>';console.error('Círculos Music: biblioteca de acordes',error);}
   finally{setLoading(false);}
 }
 function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
 function escapeAttr(value){return escapeHtml(value);}
-function diagramSvg(entry,position,index){
-  const frets=shapeTokens(position.x).map(v=>v.toLowerCase()==='x'?null:Number(v));
-  const positive=frets.filter(v=>Number.isFinite(v)&&v>0),max=Math.max(0,...positive),min=Math.min(...positive.filter(v=>v>0));
+function diagramSvg(entry,position,index,options={}){
+  const mini=Boolean(options.mini),tokens=shapeTokens(position.x);
+  const frets=tokens.map(v=>v.toLowerCase()==='x'?null:Number(v));
+  const positive=frets.filter(v=>Number.isFinite(v)&&v>0);
+  const max=positive.length?Math.max(...positive):0,min=positive.length?Math.min(...positive):1;
   let start=positive.length?min:1;if(start<=3&&max<=5)start=1;
   const fretCount=Math.max(5,Math.min(7,max-start+1));
-  const W=218,H=236,left=34,top=38,stringGap=30,fretGap=31;
-  const rootPc=ROOT_PC[primaryRoot(entry.s)]??0,tuning=[4,9,2,7,11,4];
-  let svg=`<svg class="library-diagram" viewBox="0 0 ${W} ${H}" role="img" aria-label="${escapeAttr(displaySymbol(entry.s))}, posición ${index+1}">`;
-  for(let s=0;s<6;s++)svg+=`<line class="diagram-string" x1="${left+s*stringGap}" y1="${top}" x2="${left+s*stringGap}" y2="${top+fretCount*fretGap}"/>`;
-  for(let f=0;f<=fretCount;f++)svg+=`<line class="${start===1&&f===0?'diagram-nut':'diagram-fret'}" x1="${left}" y1="${top+f*fretGap}" x2="${left+5*stringGap}" y2="${top+f*fretGap}"/>`;
-  if(start>1)svg+=`<text class="diagram-label" x="7" y="${top+fretGap*.72}">${start}</text>`;
-  if(stripAccents(position.l).toLowerCase().includes('cejilla')&&positive.length){const barreFret=min,from=frets.findIndex(v=>Number.isFinite(v)&&v>0),to=frets.map((v,i)=>Number.isFinite(v)&&v>0?i:-1).reduce((a,b)=>Math.max(a,b),-1);if(from>=0&&to>from&&barreFret>=start&&barreFret<start+fretCount){const y=top+(barreFret-start+.5)*fretGap;svg+=`<line class="diagram-barre" x1="${left+from*stringGap}" y1="${y}" x2="${left+to*stringGap}" y2="${y}"/>`;}}
-  frets.forEach((fret,s)=>{const x=left+s*stringGap;if(fret===null){svg+=`<text class="diagram-label diagram-top" x="${x}" y="22" text-anchor="middle">×</text>`;return;}if(fret===0){svg+=`<text class="diagram-label diagram-top" x="${x}" y="22" text-anchor="middle">○</text>`;return;}if(fret<start||fret>=start+fretCount)return;const y=top+(fret-start+.5)*fretGap,pc=(tuning[s]+fret)%12,isRoot=pc===rootPc;svg+=`<circle class="${isRoot?'diagram-root':'diagram-dot'}" cx="${x}" cy="${y}" r="10"/>`;if(isRoot)svg+=`<text class="diagram-dot-text" x="${x}" y="${y}">R</text>`;});
-  svg+=`<text class="diagram-label" x="${left}" y="${H-7}">6.ª</text><text class="diagram-label" x="${left+5*stringGap}" y="${H-7}" text-anchor="end">1.ª</text></svg>`;return svg;
+  const left=24,top=50,stringGap=22,fretGap=26;
+  const verticalWidth=left+5*stringGap+24,verticalHeight=top+fretCount*fretGap+20;
+  const rotateCCW=(x,y)=>[verticalHeight-y,x];
+  const stringX=dataIndex=>left+(5-dataIndex)*stringGap;
+  const rootPc=ROOT_PC[primaryRoot(entry.s)]??0;
+  const tuningByDataIndex=[4,11,7,2,9,4];
+  const classes=`library-diagram${mini?' library-diagram-mini':''}`;
+  const accessibility=mini?'aria-hidden="true"':`role="img" aria-label="${escapeAttr(displaySymbol(entry.s))}, posición ${index+1}"`;
+  let svg=`<svg class="${classes}" viewBox="0 0 ${verticalHeight} ${verticalWidth}" ${accessibility} data-string-order="1-6" data-orientation="ccw-90">`;
+  for(let dataIndex=0;dataIndex<6;dataIndex++){
+    const x=stringX(dataIndex),a=rotateCCW(x,top),b=rotateCCW(x,top+fretCount*fretGap);
+    svg+=`<line class="diagram-string" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`;
+  }
+  for(let f=0;f<=fretCount;f++){
+    const y=top+f*fretGap,a=rotateCCW(left,y),b=rotateCCW(left+5*stringGap,y);
+    svg+=`<line class="${start===1&&f===0?'diagram-nut':'diagram-fret'}" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`;
+  }
+  const nutX=rotateCCW(left,top)[0];
+  if(start>1){
+    const labelX=rotateCCW(left,top+fretGap*.62)[0];
+    svg+=`<text class="diagram-label diagram-fret-number" x="${labelX}" y="13" text-anchor="middle">${start}</text>`;
+  }
+  if(stripAccents(position.l).toLowerCase().includes('cejilla')&&positive.length){
+    const barreFret=min,from=frets.findIndex(v=>Number.isFinite(v)&&v>0),to=frets.map((v,i)=>Number.isFinite(v)&&v>0?i:-1).reduce((a,b)=>Math.max(a,b),-1);
+    if(from>=0&&to>from&&barreFret>=start&&barreFret<start+fretCount){
+      const y=top+(barreFret-start+.5)*fretGap,a=rotateCCW(stringX(from),y),b=rotateCCW(stringX(to),y);
+      svg+=`<line class="diagram-barre" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`;
+    }
+  }
+  frets.forEach((fret,dataIndex)=>{
+    const verticalX=stringX(dataIndex),stringNumber=dataIndex+1,stringY=rotateCCW(verticalX,top)[1];
+    const marker=fret===null?'×':fret===0?'○':'';
+    if(marker)svg+=`<text class="diagram-label diagram-marker" x="${nutX+17}" y="${stringY}" text-anchor="middle" dominant-baseline="central">${marker}</text>`;
+    svg+=`<text class="diagram-label diagram-string-number" x="${nutX+36}" y="${stringY}" text-anchor="middle" dominant-baseline="central">${stringNumber}</text>`;
+    if(fret===null||fret===0||fret<start||fret>=start+fretCount)return;
+    const verticalY=top+(fret-start+.5)*fretGap,p=rotateCCW(verticalX,verticalY);
+    const pc=(tuningByDataIndex[dataIndex]+fret)%12,isRoot=pc===rootPc;
+    svg+=`<circle class="${isRoot?'diagram-root':'diagram-dot'}" cx="${p[0]}" cy="${p[1]}" r="${mini?7.5:9.5}"/>`;
+    if(isRoot&&!mini)svg+=`<text class="diagram-dot-text" x="${p[0]}" y="${p[1]}">R</text>`;
+  });
+  svg+='</svg>';return svg;
 }
 function displayNotesText(text){return String(text||'').split('–').map(part=>noteDisplay(part.trim())).join('–');}
 function detailMeta(entry){
@@ -149,7 +185,7 @@ function openDetail(id,rerender=false){
   if(!state.data)return;const entry=state.data.entries.find(e=>e.id===id);if(!entry)return;
   let modal=$('chordDetail');if(!modal){modal=document.createElement('div');modal.id='chordDetail';modal.className='chord-detail';modal.innerHTML='<div class="chord-detail-backdrop" data-detail-close></div><section class="chord-detail-sheet" role="dialog" aria-modal="true" aria-labelledby="chordDetailTitle"><button class="chord-detail-close" type="button" data-detail-close aria-label="Cerrar">×</button><div id="chordDetailContent"></div></section>';document.body.appendChild(modal);}
   modal.dataset.entryId=id;const content=$('chordDetailContent');
-  content.innerHTML=`<header class="chord-detail-head"><p class="eyebrow">${escapeHtml(familyLabel(entry.f))}</p><h2 id="chordDetailTitle">${escapeHtml(displaySymbol(entry.s))}</h2>${entry.n?`<p>${escapeHtml(entry.n)}</p>`:''}<div class="chord-detail-meta">${detailMeta(entry)}</div></header><div class="chord-detail-section-head"><div><strong>${entry.p.length} ${entry.p.length===1?'posición':'posiciones'}</strong><span>6.ª cuerda → 1.ª cuerda</span></div></div><div class="chord-position-grid">${entry.p.map((p,i)=>`<article class="chord-position-card"><div class="position-card-head"><span>Posición ${i+1}</span><strong>${escapeHtml(p.l)}</strong></div>${diagramSvg(entry,p,i)}<code>${escapeHtml(p.x.replace(/x/g,'×'))}</code>${p.o?`<small>Omisiones: ${escapeHtml(p.o)}</small>`:''}${p.al?`<small>Alteraciones: ${escapeHtml(p.al)}</small>`:''}</article>`).join('')}</div>${entry.c?`<p class="chord-context">${escapeHtml(entry.c)}</p>`:''}`;
+  content.innerHTML=`<header class="chord-detail-head"><p class="eyebrow">${escapeHtml(familyLabel(entry.f))}</p><h2 id="chordDetailTitle">${escapeHtml(displaySymbol(entry.s))}</h2>${entry.n?`<p>${escapeHtml(entry.n)}</p>`:''}<div class="chord-detail-meta">${detailMeta(entry)}</div></header><div class="chord-detail-section-head"><div><strong>${entry.p.length} ${entry.p.length===1?'posición':'posiciones'}</strong><span>Datos: 1.ª cuerda → 6.ª cuerda</span></div></div><div class="chord-position-grid">${entry.p.map((p,i)=>`<article class="chord-position-card"><div class="position-card-head"><span>Posición ${i+1}</span><strong>${escapeHtml(p.l)}</strong></div>${diagramSvg(entry,p,i)}<code>${escapeHtml(p.x.replace(/x/g,'×'))}</code>${p.o?`<small>Omisiones: ${escapeHtml(p.o)}</small>`:''}${p.al?`<small>Alteraciones: ${escapeHtml(p.al)}</small>`:''}</article>`).join('')}</div>${entry.c?`<p class="chord-context">${escapeHtml(entry.c)}</p>`:''}`;
   modal.classList.add('open');document.body.classList.add('chord-detail-open');if(!rerender)modal.querySelector('.chord-detail-close')?.focus({preventScroll:true});
 }
 function closeDetail(){const modal=$('chordDetail');if(!modal?.classList.contains('open'))return;modal.classList.remove('open');document.body.classList.remove('chord-detail-open');}
