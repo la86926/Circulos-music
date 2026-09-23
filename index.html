@@ -7,8 +7,8 @@
 <meta name="description" content="Círculos armónicos, escalas y biblioteca de acordes para piano y guitarra.">
 <title>Círculos Music</title>
 <link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="style.css?v=5">
-<link rel="stylesheet" href="chords-library.css?v=3">
+<link rel="stylesheet" href="style.css?v=6">
+<link rel="stylesheet" href="chords-library.css?v=10">
 <style id="headOrderFix">
 /* Menú 1: notas de la escala arriba, título + Mayor/Menor abajo */
 #selector{display:flex;flex-direction:column}
@@ -75,42 +75,52 @@ html body header.app-header.app-header{background:var(--bg)!important}
 </aside>
 
 <main class="container app-view" id="circlesView">
-<section class="hero" id="inicio"><div><h1>Círculos de acordes</h1><p class="hero-copy">Elige una escala mayor o menor natural. Consulta sus 7 acordes, escucha cada triada y compara distintas posiciones en piano y guitarra.</p></div><aside class="hero-status"><div class="status-row"><span class="status-label">Escala</span><strong id="statusKey" class="status-value">DO mayor</strong></div><div class="status-row"><span class="status-label">Acorde</span><strong id="statusChord" class="status-value">DO mayor</strong></div><div class="status-row"><span class="status-label">Posición</span><strong id="statusPosition" class="status-value">Fundamental</strong></div></aside></section>
+<section class="hero" id="inicio"><div><h1>Círculos de acordes</h1><p class="hero-copy">Elige una escala mayor o menor natural. Consulta sus 7 acordes y compara distintas posiciones en piano y guitarra.</p></div><aside class="hero-status"><div class="status-row"><span class="status-label">Escala</span><strong id="statusKey" class="status-value">DO mayor</strong></div><div class="status-row"><span class="status-label">Acorde</span><strong id="statusChord" class="status-value">DO mayor</strong></div><div class="status-row"><span class="status-label">Posición</span><strong id="statusPosition" class="status-value">Fundamental</strong></div></aside></section>
 <section class="toolbar"><div class="control-card"><span class="label">Nomenclatura</span><div class="segmented seg2"><button class="seg-btn active" data-nomenclature="latin" type="button">Latina</button><button class="seg-btn" data-nomenclature="english" type="button">Inglesa</button></div></div><div class="control-card"><span class="label">Instrumento</span><div class="segmented seg2"><button class="seg-btn active" data-instrument="piano" type="button">Piano</button><button class="seg-btn" data-instrument="guitar" type="button">Guitarra</button></div></div></section>
 <section class="panel" id="selector"><div class="panel-head"><div><h3 class="panel-title">Tonalidad principal</h3><p class="panel-subtitle">Selecciona la tónica de la escala.</p></div></div><div class="key-scroller" id="toneSelector"></div></section>
 <section class="panel" id="escala"><div class="panel-head"><div><p class="eyebrow" id="scaleEyebrow">Escala natural mayor</p><h3 class="panel-title" id="scaleTitle">Escala de DO mayor</h3></div><div class="mode-picker"><span class="label">Tipo de escala</span><div class="segmented seg2"><button class="seg-btn active" data-mode="major" type="button">Mayor</button><button class="seg-btn" data-mode="minor" type="button">Menor natural</button></div></div></div><div class="scale-summary"><p class="scale-pattern" id="scalePattern"><strong>Patrón fijo:</strong> I, IV y V son mayores; ii, iii y vi son menores; vii° es disminuido.</p></div></section>
-<section class="panel" id="acordes"><div class="panel-head"><div><h3 class="panel-title" id="chordsTitle">Los 7 acordes de DO mayor</h3><p class="panel-subtitle">Selecciona un acorde para ver y escuchar sus posiciones.</p></div></div><div class="diatonic-grid" id="diatonicGrid"></div></section>
-<section class="panel" id="instrumento"><div class="panel-head selected-head"><div><p class="selected-kicker" id="selectedDegreeLabel">Grado I · Tónica</p><h3 class="selected-title" id="selectedChordTitle">DO mayor</h3><p class="selected-notes" id="selectedChordNotes">Notas: DO · MI · SOL</p></div><button class="secondary-btn" id="playChordBtn" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7Z"/></svg>Escuchar acorde</button></div><div class="instrument-tabs"><div class="segmented seg2"><button class="seg-btn active" data-instrument="piano" type="button">Piano</button><button class="seg-btn" data-instrument="guitar" type="button">Guitarra</button></div></div><div class="instrument-body" id="pianoPanel"><div class="visual-top"><div class="inversion-wrap"><span class="mini-label">Posición</span><div class="segmented seg3"><button class="seg-btn active" data-inversion="0" type="button">Fundamental</button><button class="seg-btn" data-inversion="1" type="button">1.ª inversión</button><button class="seg-btn" data-inversion="2" type="button">2.ª inversión</button></div></div></div><div class="piano-scroll"><div class="piano" id="pianoKeyboard"></div></div><p class="voicing-note-line">Notas de esta posición: <strong id="pianoVoicingText"></strong></p></div><div class="instrument-body hidden" id="guitarPanel"><div class="voicing-scroll"><div class="voicing-grid" id="guitarVoicings"></div></div><p class="helper">Las posiciones muestran acordes abiertos, cejillas móviles y triadas compactas. “R” señala la tónica.</p></div></section>
-<section class="panel" id="progresion"><div class="panel-head"><div><h3 class="panel-title">Prueba una progresión</h3><p class="panel-subtitle">Escribe acordes como DO LAm FA SOL o C Am F G.</p></div></div><div class="progression-builder"><input class="text-input" id="customProgression" value="DO LAm FA SOL" autocomplete="off" spellcheck="false"><button class="primary-btn" id="applyProgressionBtn" type="button">Preparar</button></div><div class="player-bar"><button class="primary-btn" id="playProgressionBtn" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7Z"/></svg><span>Reproducir</span></button><div class="progression-chips" id="progressionChips"></div><div class="tempo-wrap"><label for="tempoInput">Tempo</label><input class="number-input" id="tempoInput" type="number" min="40" max="220" value="92"></div></div></section>
+<section class="panel" id="acordes"><div class="panel-head"><div><h3 class="panel-title" id="chordsTitle">Los 7 acordes de DO mayor</h3><p class="panel-subtitle">Selecciona un acorde para ver sus posiciones.</p></div></div><div class="diatonic-grid" id="diatonicGrid"></div></section>
+<section class="panel" id="instrumento"><div class="panel-head selected-head"><div><p class="selected-kicker" id="selectedDegreeLabel">Grado I · Tónica</p><h3 class="selected-title" id="selectedChordTitle">DO mayor</h3><p class="selected-notes" id="selectedChordNotes">Notas: DO · MI · SOL</p></div></div><div class="instrument-tabs"><div class="segmented seg2"><button class="seg-btn active" data-instrument="piano" type="button">Piano</button><button class="seg-btn" data-instrument="guitar" type="button">Guitarra</button></div></div><div class="instrument-body" id="pianoPanel"><div class="visual-top"><div class="inversion-wrap"><span class="mini-label">Posición</span><div class="segmented seg3"><button class="seg-btn active" data-inversion="0" type="button">Fundamental</button><button class="seg-btn" data-inversion="1" type="button">1.ª inversión</button><button class="seg-btn" data-inversion="2" type="button">2.ª inversión</button></div></div></div><div class="piano-scroll"><div class="piano" id="pianoKeyboard"></div></div><p class="voicing-note-line">Notas de esta posición: <strong id="pianoVoicingText"></strong></p></div><div class="instrument-body hidden" id="guitarPanel"><div class="voicing-scroll"><div class="voicing-grid" id="guitarVoicings"></div></div><p class="helper">Las posiciones muestran acordes abiertos, cejillas móviles y triadas compactas. “R” señala la tónica.</p></div></section>
+
 </main>
 
 <main class="container app-view view-hidden" id="chordsView">
-  <section class="hero library-hero"><div><p class="eyebrow">Biblioteca de guitarra</p><h1>Un acorde, varias posiciones.</h1><p class="hero-copy">Elige la nota y el tipo de acorde. Verás primero las formas más conocidas y después otras posiciones útiles a lo largo del diapasón.</p></div></section>
-  <section class="toolbar">
-    <div class="control-card"><span class="label">Nomenclatura</span><div class="segmented seg2"><button class="seg-btn active" data-library-notation="latin" type="button">Latina</button><button class="seg-btn" data-library-notation="english" type="button">Inglesa</button></div></div>
-    <div class="control-card"><span class="label">Instrumento</span><div class="segmented seg2"><button class="seg-btn active" type="button">Guitarra</button><button class="seg-btn" type="button" disabled aria-disabled="true">Diapasón</button></div></div>
+  <section class="hero library-hero">
+    <div>
+      <p class="eyebrow">Biblioteca de guitarra</p>
+      <h1>Biblioteca de acordes</h1>
+      <p class="hero-copy">Explora acordes, inversiones y voicings. Filtra rápido y abre las posiciones solo cuando las necesites.</p>
+    </div>
+    <div class="library-stats" id="chordLibraryStats">912 acordes · 5 902 posiciones</div>
   </section>
-  <section class="panel">
-    <div class="panel-head"><div><h3 class="panel-title">Elige el acorde</h3><p class="panel-subtitle">Selecciona la tónica y su tipo.</p></div></div>
-    <div class="library-controls">
-      <div class="library-control-block"><div class="library-control-title"><strong>Nota principal</strong><span>12 notas</span></div><div class="library-root-list" id="libraryRoots"></div></div>
-      <div class="library-control-block"><div class="library-control-title"><strong>Tipo de acorde</strong><span>Formas frecuentes</span></div><div class="library-quality-list" id="libraryQualities"></div></div>
+  <section class="panel chordlib-tools" aria-label="Herramientas de la biblioteca">
+    <div class="chordlib-tools-main">
+      <label class="chord-search" for="chordSearch">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        <input id="chordSearch" type="search" autocomplete="off" spellcheck="false" placeholder="Busca Cmaj7, DO menor 7, F#m7…">
+      </label>
+      <div class="chord-notation"><span class="label">Nomenclatura</span><div class="segmented seg2"><button class="seg-btn active" data-library-notation="latin" type="button">Latina</button><button class="seg-btn" data-library-notation="english" type="button">Inglesa</button></div></div>
+    </div>
+    <div class="chordlib-filter-row">
+      <div class="chord-filter-block"><span class="chord-filter-label">Nota</span><div class="chord-root-scroller" id="chordRootFilters" aria-label="Filtrar por nota"></div></div>
+      <label class="chord-filter-block"><span class="chord-filter-label">Familia</span><select class="chord-select" id="chordFamilyFilter"><option value="all">Todas las familias</option></select></label>
+      <label class="chord-filter-block"><span class="chord-filter-label">Posición</span><select class="chord-select" id="chordPositionFilter"><option value="all">Todas las posiciones</option><option value="open">Abiertas</option><option value="barre">Cejilla</option><option value="movable">Móviles</option><option value="inversion">Inversiones</option><option value="slash">Slash / pedal</option><option value="bass">Bajo alternativo</option></select></label>
     </div>
   </section>
-  <section class="panel">
-    <div class="panel-head library-toolbar"><div class="library-heading"><p class="eyebrow">Posiciones en guitarra</p><h2 class="library-title" id="libraryTitle">DO mayor</h2><p class="library-notes" id="libraryNotes">Notas: DO · MI · SOL</p></div><button class="secondary-btn library-play" id="playLibraryChord" type="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7Z"/></svg>Escuchar la principal</button></div>
-    <div class="library-grid" id="chordLibraryGrid"></div>
-    <p class="library-source-note">Las posiciones abiertas aparecen primero cuando existen. Después se muestran cejillas móviles y disposiciones compactas en otras zonas del mástil. La letra “R” señala la nota raíz.</p>
+  <section class="chordlib-results" aria-labelledby="chordCatalogTitle">
+    <div class="chord-results-head"><div><h2 id="chordCatalogTitle">Acordes</h2><span id="chordResultCount">Biblioteca disponible</span></div><button class="chord-reset" id="chordResetFilters" type="button">Limpiar filtros</button></div>
+    <div class="chord-catalog-grid" id="chordCatalogGrid" aria-live="polite"></div>
+    <div class="chord-empty" id="chordEmpty" hidden><strong>Sin coincidencias</strong><span>Prueba otra nota, familia o búsqueda.</span></div>
+    <button class="chord-load-more" id="chordLoadMore" type="button" hidden>Mostrar más</button>
   </section>
 </main>
 
 <nav class="bottom-nav" id="bottomNav"><button class="nav-btn active" data-target="selector" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3v4M21 12h-4M12 21v-4M3 12h4"/></svg><span>Tonalidad</span></button><button class="nav-btn" data-target="acordes" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a8 8 0 1 0-2.1 3"/></svg><span>Acordes</span></button><button class="nav-btn" data-target="instrumento" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 18V5l10-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/></svg><span>Posiciones</span></button></nav>
 <div class="toast" id="toast"></div>
-<script src="audio-engine.js?v=4" defer></script>
-<script src="stability-hotfix.js?v=6" defer></script>
-<script src="app.js?v=9" defer></script>
-<script src="chords-library.js?v=7" defer></script>
-<script src="piano-sync.js?v=8" defer></script>
+<script src="stability-hotfix.js?v=7" defer></script>
+<script src="app.js?v=10" defer></script>
+<script src="chords-library.js?v=10" defer></script>
+<script src="piano-sync.js?v=9" defer></script>
 <script src="ui-upgrades.js?v=2" defer></script>
 <script src="piano-colors-fix.js?v=2" defer></script>
 <script>
