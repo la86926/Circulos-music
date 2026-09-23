@@ -110,7 +110,7 @@ function syncNotation(){
   if(state.data){renderRoots();renderResults();}
   const open=document.querySelector('.chord-detail.open');if(open&&open.dataset.entryId)openDetail(open.dataset.entryId,true);
 }
-function setLoading(value){state.loading=value;const grid=$('chordCatalogGrid');if(grid&&value)grid.innerHTML=Array.from({length:18},()=>'<div class="chord-skeleton" aria-hidden="true"></div>').join('');$('chordResultCount').textContent=value?'Cargando biblioteca…':'';}
+function setLoading(value){state.loading=value;const grid=$('chordCatalogGrid'),count=$('chordResultCount');if(grid&&value)grid.innerHTML=Array.from({length:18},()=>'<div class="chord-skeleton" aria-hidden="true"></div>').join('');if(count&&value)count.textContent='Cargando biblioteca…';}
 async function ensureData(){
   if(state.data||state.loading)return;setLoading(true);
   try{
