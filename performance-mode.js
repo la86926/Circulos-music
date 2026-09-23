@@ -82,23 +82,23 @@ function flash(element,duration=900){
   element._performanceTimer=setTimeout(()=>element.classList.remove('performance-playing'),duration);
 }
 
-const rotatePoint=(x,y,height)=>[height-y,x];
+const rotatePoint=(x,y,width)=>[y,width-x];
 function rotateDiagram(svg){
   if(!svg||svg.dataset.horizontalTab==='true')return;
   const parts=(svg.getAttribute('viewBox')||'0 0 230 250').trim().split(/\s+/).map(Number),width=parts[2],height=parts[3];
   if(!Number.isFinite(width)||!Number.isFinite(height))return;
   svg.querySelectorAll('line').forEach(line=>{
-    const a=rotatePoint(Number(line.getAttribute('x1')),Number(line.getAttribute('y1')),height),b=rotatePoint(Number(line.getAttribute('x2')),Number(line.getAttribute('y2')),height);
+    const a=rotatePoint(Number(line.getAttribute('x1')),Number(line.getAttribute('y1')),width),b=rotatePoint(Number(line.getAttribute('x2')),Number(line.getAttribute('y2')),width);
     line.setAttribute('x1',a[0]);line.setAttribute('y1',a[1]);line.setAttribute('x2',b[0]);line.setAttribute('y2',b[1]);
   });
   svg.querySelectorAll('circle').forEach(circle=>{
-    const point=rotatePoint(Number(circle.getAttribute('cx')),Number(circle.getAttribute('cy')),height);
+    const point=rotatePoint(Number(circle.getAttribute('cx')),Number(circle.getAttribute('cy')),width);
     circle.setAttribute('cx',point[0]);circle.setAttribute('cy',point[1]);
   });
   svg.querySelectorAll('text').forEach(text=>{
     const x=Number(text.getAttribute('x')),y=Number(text.getAttribute('y'));
     if(!Number.isFinite(x)||!Number.isFinite(y))return;
-    const point=rotatePoint(x,y,height);
+    const point=rotatePoint(x,y,width);
     text.setAttribute('x',point[0]);text.setAttribute('y',point[1]);text.removeAttribute('transform');
   });
   svg.setAttribute('viewBox',`0 0 ${height} ${width}`);
