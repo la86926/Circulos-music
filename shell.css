@@ -22,3 +22,10 @@ html body::before{content:"";position:fixed;top:0;left:0;right:0;height:76px;bac
 
 /* Refinamiento compartido del menú */
 .app-choice-badge{display:none!important}.app-choice{padding:17px 18px}.app-choice strong{font-size:16px}.app-choice small{max-width:250px;font-size:12px;line-height:1.5}
+
+/* Selector de apariencia minimalista: iconos solamente */
+.theme-switch{grid-template-columns:repeat(3,34px);gap:3px;padding:3px}
+.theme-choice{width:34px;height:34px;padding:0;gap:0}
+.theme-choice span{display:none!important}
+.theme-choice svg{width:16px;height:16px;flex:0 0 16px}
+@media(max-width:430px){.theme-switch{grid-template-columns:repeat(3,31px)}.theme-choice{width:31px;height:31px}.theme-choice svg{width:15px;height:15px}}
