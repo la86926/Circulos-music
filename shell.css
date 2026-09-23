@@ -19,3 +19,6 @@ html body .app-header .header-inner{height:64px}
 html body{padding-top:82px}
 html body::before{content:"";position:fixed;top:0;left:0;right:0;height:76px;background:var(--bg);z-index:44;pointer-events:none}
 @media(max-width:700px){html body header.app-header.app-header{top:8px;width:calc(100% - 16px);border-radius:18px}html body .app-header .header-inner{height:58px}html body{padding-top:74px}html body::before{height:68px}}
+
+/* Refinamiento compartido del menú */
+.app-choice-badge{display:none!important}.app-choice{padding:17px 18px}.app-choice strong{font-size:16px}.app-choice small{max-width:250px;font-size:12px;line-height:1.5}
