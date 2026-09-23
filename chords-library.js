@@ -130,7 +130,7 @@ function diagramSvg(entry,position,index,options={}){
   const max=positive.length?Math.max(...positive):0,min=positive.length?Math.min(...positive):1;
   let start=positive.length?min:1;if(start<=3&&max<=5)start=1;
   const fretCount=Math.max(5,Math.min(7,max-start+1));
-  const left=24,top=50,stringGap=22,fretGap=26;
+  const left=24,top=50,stringGap=18,fretGap=25;
   const verticalWidth=left+5*stringGap+24,verticalHeight=top+fretCount*fretGap+20;
   const rotateCCW=(x,y)=>[verticalHeight-y,x];
   const stringX=dataIndex=>left+(5-dataIndex)*stringGap;
