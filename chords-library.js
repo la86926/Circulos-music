@@ -19,6 +19,8 @@ function normalize(value){
   let s=stripAccents(value).toLowerCase().replace(/♯/g,'#').replace(/♭/g,'b');
   s=s.replace(/sostenido/g,'#').replace(/bemol/g,'b');
   const notes=[['sol','g'],['do','c'],['re','d'],['mi','e'],['fa','f'],['la','a'],['si','b']];
+  const prefix=notes.find(([n])=>new RegExp(`^${n}(?=(?:#|b|m|maj|dim|aug|sus|add|alt|[0-9]|/|$))`).test(s));
+  if(prefix)s=s.replace(new RegExp(`^${prefix[0]}`),prefix[1]);
   for(const[n,e]of notes)s=s.replace(new RegExp(`\\b${n}(?=[#b]|\\b)`,'g'),e);
   return s.replace(/disminuido/g,'dim').replace(/aumentado/g,'aug').replace(/menor/g,'m').replace(/mayor/g,'maj').replace(/septima/g,'7').replace(/\s+/g,'').replace(/[()]/g,'');
 }
