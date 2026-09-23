@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f5f2">
+<meta name="description" content="Biblioteca visual de acordes de guitarra.">
+<title>Acordes · Círculos Music</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="shell.css?v=1">
+<link rel="stylesheet" href="chords-library.css?v=12">
+</head>
+<body>
+<header class="app-header">
+  <div class="header-inner appearance-header">
+    <button class="icon-btn" id="menuBtn" type="button" aria-label="Abrir menú" aria-controls="sideMenu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <div class="brand-wrap"><img src="icon.svg" alt="" class="brand-icon"><h2 class="brand">Círculos Music</h2></div>
+    <div class="theme-switch" role="group" aria-label="Apariencia">
+      <button class="theme-choice" data-theme-choice="light" type="button" aria-label="Diseño claro" title="Claro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"/></svg><span>Claro</span></button>
+      <button class="theme-choice" data-theme-choice="dark" type="button" aria-label="Diseño oscuro" title="Oscuro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg><span>Oscuro</span></button>
+      <button class="theme-choice" data-theme-choice="system" type="button" aria-label="Usar diseño del sistema" title="Sistema"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg><span>Sistema</span></button>
+    </div>
+  </div>
+</header>
+<button class="compat-hidden" id="scrollTopBtn" type="button" tabindex="-1" aria-hidden="true"></button>
+<button class="compat-hidden" id="themeBtn" type="button" tabindex="-1" aria-hidden="true"></button>
+<div class="menu-backdrop" id="menuBackdrop" aria-hidden="true"></div>
+<aside class="side-menu" id="sideMenu" aria-hidden="true" aria-label="Elegir herramienta">
+  <div class="side-menu-head">
+    <div class="side-menu-brand"><img src="icon.svg" alt=""><div><strong>Círculos Music</strong><span>Elige una herramienta</span></div></div>
+    <button class="icon-btn" id="menuCloseBtn" type="button" aria-label="Cerrar menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  </div>
+  <nav class="app-picker" aria-label="Herramientas">
+    <a class="app-choice" href="index.html"><span class="app-choice-badge">Activo</span><strong>Círculos</strong><small>Escalas, 7 acordes diatónicos, piano y guitarra.</small></a>
+    <a class="app-choice active" href="acordes.html" aria-current="page"><span class="app-choice-badge">Abrir</span><strong>Acordes</strong><small>Biblioteca exclusiva de posiciones para guitarra.</small></a>
+  </nav>
+  <div class="side-menu-note"><strong>Acordes de guitarra</strong><p>Las posiciones aparecen desde las formas abiertas y cejillas más conocidas hasta otras zonas útiles del diapasón.</p></div>
+</aside>
+<main class="container app-view" id="chordsView">
+  <section class="hero library-hero">
+    <div>
+      <p class="eyebrow">Biblioteca de guitarra</p>
+      <h1>Biblioteca de acordes</h1>
+      <p class="hero-copy">Explora acordes, inversiones y voicings. Filtra rápido y abre las posiciones solo cuando las necesites.</p>
+    </div>
+    <div class="library-stats" id="chordLibraryStats">912 acordes · 5 902 posiciones</div>
+  </section>
+  <section class="panel chordlib-tools" aria-label="Herramientas de la biblioteca">
+    <div class="chordlib-tools-main">
+      <label class="chord-search" for="chordSearch">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        <input id="chordSearch" type="search" autocomplete="off" spellcheck="false" placeholder="Busca Cmaj7, DO menor 7, F#m7…">
+      </label>
+      <div class="chord-notation"><span class="label">Nomenclatura</span><div class="segmented seg2"><button class="seg-btn active" data-library-notation="latin" type="button">Latina</button><button class="seg-btn" data-library-notation="english" type="button">Inglesa</button></div></div>
+    </div>
+    <div class="chordlib-filter-row">
+      <div class="chord-filter-block"><span class="chord-filter-label">Nota</span><div class="chord-root-scroller" id="chordRootFilters" aria-label="Filtrar por nota"></div></div>
+      <label class="chord-filter-block"><span class="chord-filter-label">Familia</span><select class="chord-select" id="chordFamilyFilter"><option value="all">Todas las familias</option></select></label>
+      <label class="chord-filter-block"><span class="chord-filter-label">Posición</span><select class="chord-select" id="chordPositionFilter"><option value="all">Todas las posiciones</option><option value="open">Abiertas</option><option value="barre">Cejilla</option><option value="movable">Móviles</option><option value="inversion">Inversiones</option><option value="slash">Slash / pedal</option><option value="bass">Bajo alternativo</option></select></label>
+    </div>
+  </section>
+  <section class="chordlib-results" aria-labelledby="chordCatalogTitle">
+    <div class="chord-results-head"><div><h2 id="chordCatalogTitle">Acordes</h2><span id="chordResultCount">Biblioteca disponible</span></div><button class="chord-reset" id="chordResetFilters" type="button">Limpiar filtros</button></div>
+    <div class="chord-catalog-grid" id="chordCatalogGrid" aria-live="polite"></div>
+    <div class="chord-empty" id="chordEmpty" hidden><strong>Sin coincidencias</strong><span>Prueba otra nota, familia o búsqueda.</span></div>
+    <button class="chord-load-more" id="chordLoadMore" type="button" hidden>Mostrar más</button>
+  </section>
+</main>
+<script src="chords-library.js?v=13" defer></script>
+<script>
+(()=>{
+const root=document.documentElement,menu=document.getElementById('sideMenu'),backdrop=document.getElementById('menuBackdrop'),menuBtn=document.getElementById('menuBtn'),closeBtn=document.getElementById('menuCloseBtn'),media=matchMedia('(prefers-color-scheme: dark)');
+function currentTheme(){return localStorage.getItem('circulos-theme')||'system'}
+function paintTheme(choice=currentTheme()){const resolved=choice==='system'?(media.matches?'dark':'light'):choice;root.dataset.theme=resolved;const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=resolved==='dark'?'#101110':'#f5f5f2';document.querySelectorAll('[data-theme-choice]').forEach(btn=>btn.classList.toggle('active',btn.dataset.themeChoice===choice))}
+function chooseTheme(choice){localStorage.setItem('circulos-theme',choice);paintTheme(choice)}
+function toggleMenu(open){document.body.classList.toggle('menu-open',open);menu?.classList.toggle('open',open);backdrop?.classList.toggle('open',open);menu?.setAttribute('aria-hidden',String(!open));backdrop?.setAttribute('aria-hidden',String(!open));menuBtn?.setAttribute('aria-expanded',String(open))}
+document.querySelectorAll('[data-theme-choice]').forEach(btn=>btn.addEventListener('click',()=>chooseTheme(btn.dataset.themeChoice)));
+menuBtn?.addEventListener('click',()=>toggleMenu(true));closeBtn?.addEventListener('click',()=>toggleMenu(false));backdrop?.addEventListener('click',()=>toggleMenu(false));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')toggleMenu(false)});media.addEventListener?.('change',()=>{if(currentTheme()==='system')paintTheme('system')});paintTheme();
+})();
+</script>
+</body>
+</html>
