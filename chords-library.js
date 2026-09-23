@@ -132,40 +132,43 @@ function diagramSvg(entry,position,index,options={}){
   const fretCount=Math.max(5,Math.min(7,max-start+1));
   const left=24,top=50,stringGap=18,fretGap=25;
   const verticalWidth=left+5*stringGap+24,verticalHeight=top+fretCount*fretGap+20;
-  const rotateCCW=(x,y)=>[verticalHeight-y,x];
+  // El dato siempre llega 1→6. Partimos del diagrama vertical clásico 6→1
+  // y lo proyectamos 90° en sentido horario: cejuela a la izquierda,
+  // cuerda 1 arriba y cuerda 6 abajo.
+  const rotateCW=(x,y)=>[y,verticalWidth-x];
   const stringX=dataIndex=>left+(5-dataIndex)*stringGap;
   const rootPc=ROOT_PC[primaryRoot(entry.s)]??0;
   const tuningByDataIndex=[4,11,7,2,9,4];
   const classes=`library-diagram${mini?' library-diagram-mini':''}`;
   const accessibility=mini?'aria-hidden="true"':`role="img" aria-label="${escapeAttr(displaySymbol(entry.s))}, posición ${index+1}"`;
-  let svg=`<svg class="${classes}" viewBox="0 0 ${verticalHeight} ${verticalWidth}" ${accessibility} data-string-order="1-6" data-orientation="ccw-90">`;
+  let svg=`<svg class="${classes}" viewBox="0 0 ${verticalHeight} ${verticalWidth}" ${accessibility} data-string-order="1-6" data-orientation="cw-90">`;
   for(let dataIndex=0;dataIndex<6;dataIndex++){
-    const x=stringX(dataIndex),a=rotateCCW(x,top),b=rotateCCW(x,top+fretCount*fretGap);
+    const x=stringX(dataIndex),a=rotateCW(x,top),b=rotateCW(x,top+fretCount*fretGap);
     svg+=`<line class="diagram-string" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`;
   }
   for(let f=0;f<=fretCount;f++){
-    const y=top+f*fretGap,a=rotateCCW(left,y),b=rotateCCW(left+5*stringGap,y);
+    const y=top+f*fretGap,a=rotateCW(left,y),b=rotateCW(left+5*stringGap,y);
     svg+=`<line class="${start===1&&f===0?'diagram-nut':'diagram-fret'}" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`;
   }
-  const nutX=rotateCCW(left,top)[0];
+  const nutX=rotateCW(left,top)[0];
   if(start>1){
-    const labelX=rotateCCW(left,top+fretGap*.62)[0];
+    const labelX=rotateCW(left,top+fretGap*.62)[0];
     svg+=`<text class="diagram-label diagram-fret-number" x="${labelX}" y="13" text-anchor="middle">${start}</text>`;
   }
   if(stripAccents(position.l).toLowerCase().includes('cejilla')&&positive.length){
     const barreFret=min,from=frets.findIndex(v=>Number.isFinite(v)&&v>0),to=frets.map((v,i)=>Number.isFinite(v)&&v>0?i:-1).reduce((a,b)=>Math.max(a,b),-1);
     if(from>=0&&to>from&&barreFret>=start&&barreFret<start+fretCount){
-      const y=top+(barreFret-start+.5)*fretGap,a=rotateCCW(stringX(from),y),b=rotateCCW(stringX(to),y);
+      const y=top+(barreFret-start+.5)*fretGap,a=rotateCW(stringX(from),y),b=rotateCW(stringX(to),y);
       svg+=`<line class="diagram-barre" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`;
     }
   }
   frets.forEach((fret,dataIndex)=>{
-    const verticalX=stringX(dataIndex),stringNumber=dataIndex+1,stringY=rotateCCW(verticalX,top)[1];
+    const verticalX=stringX(dataIndex),stringNumber=dataIndex+1,stringY=rotateCW(verticalX,top)[1];
     const marker=fret===null?'×':fret===0?'○':'';
-    if(marker)svg+=`<text class="diagram-label diagram-marker" x="${nutX+17}" y="${stringY}" text-anchor="middle" dominant-baseline="central">${marker}</text>`;
-    svg+=`<text class="diagram-label diagram-string-number" x="${nutX+36}" y="${stringY}" text-anchor="middle" dominant-baseline="central">${stringNumber}</text>`;
+    if(marker)svg+=`<text class="diagram-label diagram-marker" x="${nutX-17}" y="${stringY}" text-anchor="middle" dominant-baseline="central">${marker}</text>`;
+    svg+=`<text class="diagram-label diagram-string-number" x="${nutX-36}" y="${stringY}" text-anchor="middle" dominant-baseline="central">${stringNumber}</text>`;
     if(fret===null||fret===0||fret<start||fret>=start+fretCount)return;
-    const verticalY=top+(fret-start+.5)*fretGap,p=rotateCCW(verticalX,verticalY);
+    const verticalY=top+(fret-start+.5)*fretGap,p=rotateCW(verticalX,verticalY);
     const pc=(tuningByDataIndex[dataIndex]+fret)%12,isRoot=pc===rootPc;
     svg+=`<circle class="${isRoot?'diagram-root':'diagram-dot'}" cx="${p[0]}" cy="${p[1]}" r="${mini?7.5:9.5}"/>`;
     if(isRoot&&!mini)svg+=`<text class="diagram-dot-text" x="${p[0]}" y="${p[1]}">R</text>`;
