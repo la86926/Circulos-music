@@ -1,13 +1,8 @@
 (()=> {
-  const sideNote=document.querySelector('.side-menu-note');
+  const sideNote=document.querySelector('.side-menu-gift');
   if(!sideNote || sideNote.dataset.giftReady==='true') return;
 
   sideNote.dataset.giftReady='true';
-  sideNote.className='side-menu-gift';
-  sideNote.tabIndex=0;
-  sideNote.setAttribute('role','button');
-  sideNote.setAttribute('aria-label','Abrir regalo de José H. R.');
-  sideNote.innerHTML='<img src="gift.svg" alt=""><span><strong>Un regalo para ti</strong><small>Descubre quién preparó todo esto.</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
 
   document.querySelectorAll('.gift-modal').forEach(modal=>modal.remove());
 
