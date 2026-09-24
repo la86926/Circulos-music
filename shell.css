@@ -29,3 +29,6 @@ html body::before{content:"";position:fixed;top:0;left:0;right:0;height:76px;bac
 .theme-choice span{display:none!important}
 .theme-choice svg{width:16px;height:16px;flex:0 0 16px}
 @media(max-width:430px){.theme-switch{grid-template-columns:repeat(3,31px)}.theme-choice{width:31px;height:31px}.theme-choice svg{width:15px;height:15px}}
+
+/* App-like mobile interaction: preserve scrolling while preventing accidental pinch/double-tap zoom. */
+html,body{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%;text-size-adjust:100%}
