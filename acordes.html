@@ -14,7 +14,6 @@
 <link rel="stylesheet" href="shell.css?v=3">
 <link rel="stylesheet" href="chords-library.css?v=13">
 <link rel="stylesheet" href="ui-refinement.css?v=8">
-<link rel="stylesheet" href="gift-ui.css?v=1">
 </head>
 <body>
 <header class="app-header">
@@ -37,10 +36,10 @@
     <button class="icon-btn" id="menuCloseBtn" type="button" aria-label="Cerrar menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
   </div>
   <nav class="app-picker" aria-label="Herramientas">
-    <a class="app-choice" href="index.html?v=8"><span class="app-choice-badge">Activo</span><strong>Círculos</strong><small>Escalas, 7 acordes diatónicos, piano y guitarra.</small></a>
-    <a class="app-choice active" href="acordes.html?v=8" aria-current="page"><span class="app-choice-badge">Abrir</span><strong>Acordes</strong><small>Biblioteca exclusiva de posiciones para guitarra.</small></a>
+    <a class="app-choice" href="index.html?v=9"><span class="app-choice-badge">Activo</span><strong>Círculos</strong><small>Escalas, 7 acordes diatónicos, piano y guitarra.</small></a>
+    <a class="app-choice active" href="acordes.html?v=9" aria-current="page"><span class="app-choice-badge">Abrir</span><strong>Acordes</strong><small>Biblioteca exclusiva de posiciones para guitarra.</small></a>
   </nav>
-  <div class="side-menu-gift" tabindex="0" role="button" aria-label="Abrir regalo de José H. R."><img src="gift.svg" alt=""><span><strong>Un regalo para ti</strong><small>Descubre quién preparó todo esto.</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></div>
+  <gift-card-widget></gift-card-widget>
 </aside>
 <main class="container app-view" id="chordsView">
   <section class="hero library-hero">
@@ -73,7 +72,7 @@
   </section>
 </main>
 <script src="chords-library.js?v=15" defer></script>
-<script src="gift-ui.js?v=3" defer></script>
+<script src="gift-ui.js?v=4" defer></script>
 <script>
 (()=>{
 const root=document.documentElement,menu=document.getElementById('sideMenu'),backdrop=document.getElementById('menuBackdrop'),menuBtn=document.getElementById('menuBtn'),closeBtn=document.getElementById('menuCloseBtn'),media=matchMedia('(prefers-color-scheme: dark)');
