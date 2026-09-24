@@ -11,9 +11,9 @@
 <title>Acordes · Círculos Music</title>
 <link rel="icon" href="guitarra-logo.png?v=4" type="image/png">
 <link rel="stylesheet" href="style.css?v=12">
-<link rel="stylesheet" href="shell.css?v=2">
+<link rel="stylesheet" href="shell.css?v=3">
 <link rel="stylesheet" href="chords-library.css?v=13">
-<link rel="stylesheet" href="ui-refinement.css?v=6">
+<link rel="stylesheet" href="ui-refinement.css?v=7">
 </head>
 <body>
 <header class="app-header">
@@ -36,8 +36,8 @@
     <button class="icon-btn" id="menuCloseBtn" type="button" aria-label="Cerrar menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
   </div>
   <nav class="app-picker" aria-label="Herramientas">
-    <a class="app-choice" href="index.html"><span class="app-choice-badge">Activo</span><strong>Círculos</strong><small>Escalas, 7 acordes diatónicos, piano y guitarra.</small></a>
-    <a class="app-choice active" href="acordes.html" aria-current="page"><span class="app-choice-badge">Abrir</span><strong>Acordes</strong><small>Biblioteca exclusiva de posiciones para guitarra.</small></a>
+    <a class="app-choice" href="index.html?v=7"><span class="app-choice-badge">Activo</span><strong>Círculos</strong><small>Escalas, 7 acordes diatónicos, piano y guitarra.</small></a>
+    <a class="app-choice active" href="acordes.html?v=7" aria-current="page"><span class="app-choice-badge">Abrir</span><strong>Acordes</strong><small>Biblioteca exclusiva de posiciones para guitarra.</small></a>
   </nav>
   <div class="side-menu-gift" tabindex="0" role="button" aria-label="Abrir regalo de José H. R."><img src="gift.svg" alt=""><span><strong>Un regalo para ti</strong><small>Descubre quién preparó todo esto.</small></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></div>
 </aside>
@@ -72,7 +72,7 @@
   </section>
 </main>
 <script src="chords-library.js?v=15" defer></script>
-<script src="gift-ui.js?v=2" defer></script>
+<script src="gift-ui.js?v=3" defer></script>
 <script>
 (()=>{
 const root=document.documentElement,menu=document.getElementById('sideMenu'),backdrop=document.getElementById('menuBackdrop'),menuBtn=document.getElementById('menuBtn'),closeBtn=document.getElementById('menuCloseBtn'),media=matchMedia('(prefers-color-scheme: dark)');
