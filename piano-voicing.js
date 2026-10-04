@@ -1,5 +1,5 @@
 /* Círculos Music · piano en colores pastel, inversiones animadas, mapa para mover el teclado y "todo el teclado"
-   Solo se iluminan las 3 teclas de la posición elegida: lila = tónica, menta = las otras notas.
+   Solo se iluminan las 3 teclas de la posición elegida: azul intenso = tónica, azul hielo = las otras notas.
    Al cambiar de inversión, la nota que cambia de octava "vuela" a su nueva tecla y el teclado se centra solo. */
 (()=>{
 'use strict';

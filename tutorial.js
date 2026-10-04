@@ -110,7 +110,7 @@ const STEPS = {
           gesture: 'swipey', at: '#circleChordPositions .chord-position-card' };
         return {
           title: 'Posiciones en piano',
-          text: 'La tecla lila es la tónica y las verdes, las otras notas. Toca las teclas o desliza el dedo encima para escucharlas, y prueba una inversión: una nota salta de octava.',
+          text: 'La tecla azul intenso es la tónica y las azul claro, las otras notas. Toca las teclas o desliza el dedo encima para escucharlas, y prueba una inversión: una nota salta de octava.',
           ring: '#pianoPanel', radius: 22, hop: '#pianoPanel [data-inversion]', gesture: 'tap',
           at: '#pianoPanel [data-inversion]:not(.active)', tap: { sel: '#pianoPanel [data-inversion]' }, ok: '¡Otra forma de tocarlo!' };
       } },

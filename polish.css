@@ -55,24 +55,24 @@
 .chord-detail-meta>div{max-width:360px}
 
 /* ───────── Piano en tonos pastel ─────────
-   Solo brillan las teclas de la posición: lila = tónica, menta = las otras notas del acorde. */
-:root{--pk-mint:#cdf5e4;--pk-mint-edge:#8fe0bd;--pk-mint-text:#23825c;--pk-lilac:#e6e0ff;--pk-lilac-edge:#b4a6ff;--pk-lilac-text:#5440c4}
+   Solo brillan las teclas de la posición: azul intenso = tónica, azul hielo = las otras notas del acorde. */
+:root{--pk-note:#dcebfb;--pk-note-edge:#8bb7e6;--pk-note-text:#2f64a8;--pk-root:#5b8fdb;--pk-root-edge:#3a6fc0;--pk-root-text:#ffffff}
 html body #instrumento #pianoKeyboard .white-key{background:#fbfbf8!important;color:#a2a49f!important;border-color:#d6d7d1!important;box-shadow:none!important;filter:none!important;transition:background-color .35s ease,color .35s ease,box-shadow .35s ease}
 html body #instrumento #pianoKeyboard .black-key{background:#1d1e1d!important;color:#8d908b!important;box-shadow:none!important;filter:none!important;transition:background-color .35s ease,color .35s ease}
-html body #instrumento #pianoKeyboard .white-key.pk-on{background:var(--pk-mint)!important;color:var(--pk-mint-text)!important;box-shadow:inset 0 -12px 0 var(--pk-mint-edge)!important}
-html body #instrumento #pianoKeyboard .white-key.pk-root{background:var(--pk-lilac)!important;color:var(--pk-lilac-text)!important;box-shadow:inset 0 -12px 0 var(--pk-lilac-edge)!important}
-html body #instrumento #pianoKeyboard .black-key.pk-on{background:var(--pk-mint-edge)!important;color:#143826!important}
-html body #instrumento #pianoKeyboard .black-key.pk-root{background:var(--pk-lilac-edge)!important;color:#1d2560!important}
+html body #instrumento #pianoKeyboard .white-key.pk-on{background:var(--pk-note)!important;color:var(--pk-note-text)!important;box-shadow:inset 0 -12px 0 var(--pk-note-edge)!important}
+html body #instrumento #pianoKeyboard .white-key.pk-root{background:var(--pk-root)!important;color:var(--pk-root-text)!important;box-shadow:inset 0 -12px 0 var(--pk-root-edge)!important}
+html body #instrumento #pianoKeyboard .black-key.pk-on{background:var(--pk-note-edge)!important;color:#12345f!important}
+html body #instrumento #pianoKeyboard .black-key.pk-root{background:var(--pk-root)!important;color:#fff!important}
 html body #instrumento #pianoKeyboard .white-key.pk-wait{background:#fbfbf8!important;color:#a2a49f!important;box-shadow:none!important}
 html body #instrumento #pianoKeyboard .black-key.pk-wait{background:#1d1e1d!important;color:#8d908b!important}
 html body #instrumento #pianoKeyboard .pk-leave{animation:pkLeave .5s ease both}
 html body #instrumento #pianoKeyboard .pk-pop{animation:pkPop .55s cubic-bezier(.34,1.56,.64,1) both;animation-delay:var(--pk-d,0ms)}
 @keyframes pkPop{0%{transform:translateY(0)}35%{transform:translateY(5px)}100%{transform:translateY(0)}}
-@keyframes pkLeave{0%{box-shadow:inset 0 -12px 0 var(--pk-mint-edge),0 0 0 0 rgba(170,180,246,.0)}40%{box-shadow:inset 0 -4px 0 var(--pk-mint-edge),0 0 0 6px rgba(170,180,246,.35)}100%{box-shadow:none}}
-.pk-fly{position:absolute;left:0;top:0;z-index:8;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:820;letter-spacing:-.01em;pointer-events:none;background:var(--pk-mint);color:var(--pk-mint-text);box-shadow:0 0 0 3px var(--pk-mint-edge),0 10px 24px rgba(40,60,50,.22)}
-.pk-fly.is-root{background:var(--pk-lilac);color:var(--pk-lilac-text);box-shadow:0 0 0 3px var(--pk-lilac-edge),0 10px 24px rgba(40,50,110,.24)}
-.pk-ring{position:absolute;z-index:7;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;border:3px solid var(--pk-mint-edge);pointer-events:none;animation:pkRing .65s ease-out both}
-.pk-ring.is-root{border-color:var(--pk-lilac-edge)}
+@keyframes pkLeave{0%{box-shadow:inset 0 -12px 0 var(--pk-note-edge),0 0 0 0 rgba(139,183,230,.0)}40%{box-shadow:inset 0 -4px 0 var(--pk-note-edge),0 0 0 6px rgba(139,183,230,.35)}100%{box-shadow:none}}
+.pk-fly{position:absolute;left:0;top:0;z-index:8;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:820;letter-spacing:-.01em;pointer-events:none;background:var(--pk-note);color:var(--pk-note-text);box-shadow:0 0 0 3px var(--pk-note-edge),0 10px 24px rgba(40,60,50,.22)}
+.pk-fly.is-root{background:var(--pk-root);color:var(--pk-root-text);box-shadow:0 0 0 3px var(--pk-root-edge),0 10px 24px rgba(40,50,110,.24)}
+.pk-ring{position:absolute;z-index:7;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;border:3px solid var(--pk-note-edge);pointer-events:none;animation:pkRing .65s ease-out both}
+.pk-ring.is-root{border-color:var(--pk-root-edge)}
 @keyframes pkRing{from{transform:scale(.5);opacity:1}to{transform:scale(1.9);opacity:0}}
 @media(prefers-reduced-motion:reduce){html body #instrumento #pianoKeyboard .pk-pop,html body #instrumento #pianoKeyboard .pk-leave{animation:none}}
 
@@ -99,8 +99,8 @@ html body #instrumento #pianoKeyboard .white-key.pk-echo{box-shadow:none!importa
 .pk-mini-w{flex:1 1 0;border-right:1px solid #e3e4df;background:#fbfbf8}
 .pk-mini-w:last-child{border-right:0}
 .pk-mini-b{position:absolute;top:0;height:58%;background:#2a2b2a;border-radius:0 0 2px 2px}
-.pk-mini-w.is-on{background:var(--pk-mint)}.pk-mini-w.is-root{background:var(--pk-lilac)}
-.pk-mini-b.is-on{background:var(--pk-mint-edge)}.pk-mini-b.is-root{background:var(--pk-lilac-edge)}
+.pk-mini-w.is-on{background:var(--pk-note)}.pk-mini-w.is-root{background:var(--pk-root)}
+.pk-mini-b.is-on{background:var(--pk-note-edge)}.pk-mini-b.is-root{background:var(--pk-root-edge)}
 .pk-nav-window{position:absolute;top:2px;bottom:2px;border:2.5px solid var(--text);border-radius:9px;box-shadow:0 0 0 999px rgba(23,24,23,.22);pointer-events:none;transition:box-shadow .2s}
 .pk-nav.is-dragging .pk-nav-window{box-shadow:0 0 0 999px rgba(23,24,23,.3),0 0 0 4px rgba(180,166,255,.45) inset}
 .pk-nav-grip{position:absolute;left:50%;bottom:-1px;width:22px;height:5px;margin-left:-11px;border-radius:4px 4px 0 0;background:var(--text)}
@@ -113,11 +113,11 @@ html[data-theme="dark"] .pk-nav-grip{background:#f5f5f2}
 .pk-all:active{transform:scale(.94)}
 .pk-all-dots{display:inline-flex;gap:3px}
 .pk-all-dots i{width:7px;height:7px;border-radius:50%;background:var(--muted);transition:background-color .3s,transform .3s cubic-bezier(.34,1.56,.64,1)}
-.pk-all[aria-pressed="true"]{background:var(--pk-lilac);border-color:var(--pk-lilac-edge);color:var(--pk-lilac-text)}
-.pk-all[aria-pressed="true"] .pk-all-dots i{background:var(--pk-mint-edge)}
-.pk-all[aria-pressed="true"] .pk-all-dots i:first-child{background:var(--pk-lilac-edge)}
+.pk-all[aria-pressed="true"]{background:var(--pk-note);border-color:var(--pk-note-edge);color:var(--pk-note-text)}
+.pk-all[aria-pressed="true"] .pk-all-dots i{background:var(--pk-note-edge)}
+.pk-all[aria-pressed="true"] .pk-all-dots i:first-child{background:var(--pk-root)}
 .pk-all[aria-pressed="true"] .pk-all-dots i:nth-child(2){transform:translateY(-3px)}
-html[data-theme="dark"] .pk-all[aria-pressed="true"]{color:#3b2c9e}
+html[data-theme="dark"] .pk-all[aria-pressed="true"]{color:#2f64a8}
 
 /* ───────── Acordes: "Familia" debajo de "Nota", con el mismo selector tipo píldora de Círculos ───────── */
 html body .chordlib-filter-row{grid-template-columns:minmax(0,1fr)!important;gap:16px!important}
