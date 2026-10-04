@@ -2,7 +2,7 @@
    Guarda la web en el dispositivo para que abra aunque no haya conexión.
    Páginas: primero la red (siempre lo más nuevo) y, sin conexión, la copia guardada.
    Archivos: la copia guardada al instante y se actualiza en segundo plano. */
-const VERSION='circulos-v1';
+const VERSION='circulos-v2';
 const CORE=[
   './','index.html','acordes.html','afinador.html','manifest.webmanifest',
   'style.css','shell.css','circulos.css','chords-library.css','polish.css','tutorial.css','tuner.css',
@@ -46,7 +46,9 @@ async function save(request,response){
 
 async function networkFirst(request){
   try{
-    const response=await fetch(request);
+    // no-cache: pregunta siempre al servidor si la página cambió (así nunca se ve una versión vieja)
+    const response=await fetch(request.url,{cache:'no-cache',credentials:'same-origin'});
+    if(!response.ok)throw new Error(response.status);
     save(request,response.clone());
     return response;
   }catch(err){

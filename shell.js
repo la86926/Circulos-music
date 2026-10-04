@@ -33,6 +33,42 @@ closeBtn?.addEventListener('click',()=>toggleMenu(false));
 backdrop?.addEventListener('click',()=>toggleMenu(false));
 document.addEventListener('keydown',e=>{if(e.key==='Escape')toggleMenu(false);});
 
+/* Las mismas opciones en todas las páginas, siempre en el mismo orden.
+   Si alguna página no trae una de las secciones principales, se agrega aquí. */
+const ICON_SECTION={
+  'index.html':'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" stroke-opacity=".35"/><circle cx="12" cy="12" r="2.6"/><circle cx="12" cy="4" r="1.7"/><circle cx="18.9" cy="8" r="1.7"/><circle cx="18.9" cy="16" r="1.7"/><circle cx="12" cy="20" r="1.7"/><circle cx="5.1" cy="16" r="1.7"/><circle cx="5.1" cy="8" r="1.7"/></svg>',
+  'acordes.html':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4v16M10.67 4v16M15.33 4v16M20 4v16" stroke-opacity=".5"/><path d="M6 4h14" stroke-width="2.4"/><path d="M6 9h14M6 14h14M6 19h14" stroke-opacity=".3"/><circle class="dot" cx="10.67" cy="11.5" r="2"/><circle class="dot" cx="15.33" cy="16.5" r="2"/><circle class="dot" cx="20" cy="6.5" r="2"/></svg>',
+  'afinador.html':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 16.5a8 8 0 1 1 15 0"/><path d="M12 16.5l3.6-6.2"/><circle class="dot" cx="12" cy="16.5" r="1.6"/><path d="M7.2 9.6l.9.9M12 7v1.3M16.8 9.6l-.9.9" stroke-opacity=".55"/></svg>'
+};
+const SECTIONS=[
+  {href:'index.html',title:'Círculos',subtitle:'Tonalidades, sus 7 acordes y posiciones.'},
+  {href:'acordes.html',title:'Acordes',subtitle:'Biblioteca de acordes de guitarra.'},
+  {href:'afinador.html',title:'Afinador',subtitle:'Afina tu guitarra con el micrófono.'}
+];
+const MENU_ORDER=['index.html','acordes.html','afinador.html','favMenuItem','installItem','tuto'];
+const here=(location.pathname.split('/').pop()||'index.html');
+function menuKey(el){return el.classList.contains('tuto-menu-item')?'tuto':(el.id||el.getAttribute('href')||'');}
+function sortMenu(){
+  const picker=document.querySelector('.app-picker');if(!picker)return;
+  const items=[...picker.children];
+  const rank=el=>{const i=MENU_ORDER.indexOf(menuKey(el));return i<0?MENU_ORDER.length:i;};
+  const sorted=[...items].sort((a,b)=>rank(a)-rank(b));
+  if(sorted.some((el,i)=>el!==items[i]))sorted.forEach(el=>picker.appendChild(el));
+}
+function ensureSections(){
+  const picker=document.querySelector('.app-picker');if(!picker)return;
+  SECTIONS.forEach(sec=>{
+    if(picker.querySelector(`.app-choice[href="${sec.href}"]`))return;
+    const a=document.createElement('a');a.className='app-choice'+(sec.href===here?' active':'');a.href=sec.href;
+    if(sec.href===here)a.setAttribute('aria-current','page');
+    a.innerHTML=`<span class="app-choice-icon">${ICON_SECTION[sec.href]}</span><strong>${sec.title}</strong><small>${sec.subtitle}</small>`;
+    picker.appendChild(a);
+  });
+  sortMenu();
+  new MutationObserver(sortMenu).observe(picker,{childList:true});
+}
+ensureSections();
+
 /* Agrega una opción al menú (la usan favoritos, tutorial e instalar) */
 function addMenuItem({id,icon,title,subtitle,onClick,before}){
   const picker=document.querySelector('.app-picker');if(!picker||document.getElementById(id))return null;
