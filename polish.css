@@ -143,12 +143,12 @@ html[data-theme="dark"]:root{--wheel-major-fill:#1d3247;--wheel-major-stroke:#9d
 .harmony-wheel-node.active .harmony-wheel-degree,.harmony-wheel-node.active .harmony-wheel-notes{fill:rgba(20,24,26,.72)}
 .sound-credit{margin:10px 2px 0;color:var(--muted);font-size:10px;line-height:1.4;opacity:.8}
 
-/* ───────── Diagramas de guitarra en pastel (Círculos y Acordes): menta para las notas, lila para la tónica R ───────── */
-html body .library-diagram .diagram-dot{fill:#b4f0d4;stroke:#5fd3a2;stroke-width:2.5}
-html body .library-diagram .diagram-root{fill:#ddd2ff;stroke:#a993f7;stroke-width:2.5}
-html body .library-diagram .diagram-dot-text{fill:#4b36b8}
-html body .library-diagram .diagram-barre{stroke:#9ce8c4;opacity:1}
-html[data-theme="dark"] body .library-diagram .diagram-dot{fill:#7fe3b8;stroke:#b5f3d6}
-html[data-theme="dark"] body .library-diagram .diagram-root{fill:#c4b0ff;stroke:#e3daff}
-html[data-theme="dark"] body .library-diagram .diagram-dot-text{fill:#2c1f80}
-html[data-theme="dark"] body .library-diagram .diagram-barre{stroke:#6fdcae}
+/* ───────── Diagramas de guitarra en azules (Círculos y Acordes): azul hielo para las notas, azul intenso para la tónica R ───────── */
+html body .library-diagram .diagram-dot{fill:#dcebfb;stroke:#8bb7e6;stroke-width:2.5}
+html body .library-diagram .diagram-root{fill:#4f86d6;stroke:#b9d4f4;stroke-width:2.5}
+html body .library-diagram .diagram-dot-text{fill:#ffffff}
+html body .library-diagram .diagram-barre{stroke:#bcd8f5;opacity:1}
+html[data-theme="dark"] body .library-diagram .diagram-dot{fill:#a9cdf3;stroke:#d9e9fb}
+html[data-theme="dark"] body .library-diagram .diagram-root{fill:#5b93e6;stroke:#b3d0f6}
+html[data-theme="dark"] body .library-diagram .diagram-dot-text{fill:#ffffff}
+html[data-theme="dark"] body .library-diagram .diagram-barre{stroke:#7fb1e8}
