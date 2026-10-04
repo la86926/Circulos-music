@@ -23,7 +23,7 @@
 <link rel="stylesheet" href="circle-wheel.css?v=8">
 <link rel="stylesheet" href="chords-library.css?v=14">
 <link rel="stylesheet" href="performance-ui.css?v=11">
-<link rel="stylesheet" href="polish.css?v=5">
+<link rel="stylesheet" href="polish.css?v=6">
 <link rel="stylesheet" href="tutorial.css?v=3">
 </head>
 <body>
@@ -58,20 +58,20 @@
 <section class="panel" id="selector"><div class="panel-head"><div><h3 class="panel-title">Tonalidad principal</h3></div></div><div class="key-scroller" id="toneSelector"></div></section>
 <section class="panel" id="escala"><div class="panel-head"><div><p class="eyebrow" id="scaleEyebrow">Escala natural mayor</p><h3 class="panel-title" id="scaleTitle">Escala de DO mayor</h3></div><div class="mode-picker"><span class="label">Tipo de escala</span><div class="segmented seg2"><button class="seg-btn active" data-mode="major" type="button">Mayor</button><button class="seg-btn" data-mode="minor" type="button">Menor natural</button></div></div></div><div class="scale-summary"><p class="scale-pattern" id="scalePattern"><strong>Patrón fijo:</strong> I, IV y V son mayores; ii, iii y vi son menores; vii° es disminuido.</p></div></section>
 <section class="panel" id="acordes"><div class="panel-head"><div><h3 class="panel-title" id="chordsTitle">Los 7 acordes de DO mayor</h3><p class="panel-subtitle">Selecciona un acorde para ver sus posiciones.</p></div></div><div class="diatonic-grid" id="diatonicGrid"></div></section>
-<section class="panel" id="instrumento"><div class="panel-head selected-head"><div><p class="selected-kicker" id="selectedDegreeLabel">Grado I · Tónica</p><h3 class="selected-title" id="selectedChordTitle">DO mayor</h3><p class="selected-notes" id="selectedChordNotes">Notas: DO · MI · SOL</p></div></div><div class="instrument-tabs"><div class="segmented seg2"><button class="seg-btn active" data-instrument="guitar" type="button">Guitarra</button><button class="seg-btn" data-instrument="piano" type="button">Piano</button></div></div><div class="instrument-body" id="guitarPanel"><div class="chord-detail-section-head"><div><strong id="circleChordTitle"></strong><span id="circleChordCount"></span></div></div><div class="chord-position-grid" id="circleChordPositions" aria-live="polite"></div></div><div class="instrument-body hidden" id="pianoPanel"><div class="visual-top"><div class="inversion-wrap"><div class="segmented seg3"><button class="seg-btn active" data-inversion="0" type="button">Fundamental</button><button class="seg-btn" data-inversion="1" type="button">1.ª inversión</button><button class="seg-btn" data-inversion="2" type="button">2.ª inversión</button></div></div></div><div class="piano-scroll"><div class="piano" id="pianoKeyboard"></div></div><p class="voicing-note-line">Notas: <strong id="pianoVoicingText"></strong></p></div></section>
+<section class="panel" id="instrumento"><div class="panel-head selected-head"><div><p class="selected-kicker" id="selectedDegreeLabel">Grado I · Tónica</p><h3 class="selected-title" id="selectedChordTitle">DO mayor</h3><p class="selected-notes" id="selectedChordNotes">Notas: DO · MI · SOL</p></div></div><div class="instrument-tabs"><div class="segmented seg2"><button class="seg-btn active" data-instrument="guitar" type="button">Guitarra</button><button class="seg-btn" data-instrument="piano" type="button">Piano</button></div></div><div class="instrument-body" id="guitarPanel"><div class="chord-detail-section-head"><div><strong id="circleChordTitle"></strong></div></div><div class="chord-position-grid" id="circleChordPositions" aria-live="polite"></div></div><div class="instrument-body hidden" id="pianoPanel"><div class="visual-top"><div class="inversion-wrap"><div class="segmented seg3"><button class="seg-btn active" data-inversion="0" type="button">Fundamental</button><button class="seg-btn" data-inversion="1" type="button">1.ª inversión</button><button class="seg-btn" data-inversion="2" type="button">2.ª inversión</button></div></div></div><div class="piano-scroll"><div class="piano" id="pianoKeyboard"></div></div><p class="voicing-note-line">Notas: <strong id="pianoVoicingText"></strong></p></div></section>
 
 </main>
 <div class="toast" id="toast"></div>
 <script src="app.js?v=13" defer></script>
 <script src="circle-wheel.js?v=13" defer></script>
 <script src="gift-ui.js?v=5" defer></script>
-<script src="chords-library.js?v=17" defer></script>
-<script src="circle-chords.js?v=1" defer></script>
+<script src="chords-library.js?v=19" defer></script>
+<script src="circle-chords.js?v=2" defer></script>
 <script src="performance-mode.js?v=14" defer></script>
 <script src="piano-sync.js?v=13" defer></script>
 <script src="stability-hotfix.js?v=11" defer></script>
 <script src="piano-colors-fix.js?v=4" defer></script>
-<script src="tutorial.js?v=4" defer></script>
+<script src="tutorial.js?v=5" defer></script>
 <script src="leave-guard.js?v=1" defer></script>
 <script>
 (()=>{

@@ -4,7 +4,6 @@
 'use strict';
 const host=document.getElementById('circleChordPositions');
 const title=document.getElementById('circleChordTitle');
-const count=document.getElementById('circleChordCount');
 if(!host||!window.CirculosChords)return;
 const lib=window.CirculosChords;
 
@@ -20,7 +19,6 @@ function render(){
     if(!entry)return;
     host.innerHTML=lib.positionCardsHtml(entry);
     host.querySelectorAll('.chord-position-card').forEach((card,i)=>card.style.setProperty('--i',i));
-    count.textContent=`${entry.p.length} ${entry.p.length===1?'posición':'posiciones'}`;
   }).catch(()=>{host.innerHTML='<div class="library-error"><strong>No se pudieron cargar las posiciones.</strong><span>Recarga la página para intentarlo de nuevo.</span></div>';});
 }
 document.addEventListener('circulos:chord',render);

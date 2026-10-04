@@ -43,3 +43,13 @@
 /* "Ver tutorial" en el menú: una sola línea, centrada junto a su icono */
 .tuto-menu-item .app-choice-icon{grid-row:1}
 .tuto-menu-item>strong{align-self:center}
+
+/* Acordes: sin el filtro de posición quedan búsqueda por nota y familia */
+.chordlib-filter-row{grid-template-columns:minmax(0,1fr) 240px}
+@media(max-width:900px){.chordlib-filter-row{grid-template-columns:1fr}.chord-filter-block:first-child{grid-column:auto}}
+
+/* Tarjetas de posición: solo el traste como título */
+.chord-position-card .position-card-head{min-height:0}
+.chord-position-card .position-card-head strong{margin-top:0;font-size:15px;letter-spacing:-.01em}
+.chord-detail-meta{grid-template-columns:minmax(0,1fr)}
+.chord-detail-meta>div{max-width:360px}

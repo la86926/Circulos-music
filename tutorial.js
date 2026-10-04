@@ -57,6 +57,9 @@ const rootPick = () => {
   return list[Math.min(2, list.length - 1)] || null;
 };
 const scrolls = sel => { const el = $(sel); return !!el && el.scrollWidth > el.clientWidth + 6; };
+const detailOpen  = () => { if (!$('#chordDetail.open')) $('.chord-catalog-card')?.click(); };
+const detailClose = () => setTimeout(() => { if (!(active && cur && cur.detail)) $('#chordDetail.open [data-detail-close]')?.click(); }, 0);
+const guitarOn = () => { const g = $('#instrumento [data-instrument="guitar"]'); if (g && !g.classList.contains('active')) g.click(); };
 const menuOpen  = () => { if (!$('#sideMenu.open')) $('#menuBtn')?.click(); };
 const menuClose = () => { if ($('#sideMenu.open')) $('#menuCloseBtn')?.click(); };
 
@@ -101,7 +104,7 @@ const STEPS = {
     { variant() {
         if (pick('#circleChordPositions .chord-position-card')) return {
           title: 'Posiciones en guitarra',
-          text: 'Cada tarjeta es una forma distinta de tocarlo. Desliza hacia abajo para ver todas. La R marca la nota tónica.',
+          text: 'Cada tarjeta es una forma de tocarlo y arriba dice en qué traste va. Desliza hacia abajo para ver todas. La R marca la tónica.',
           ring: '#circleChordPositions .chord-position-card', radius: 24, hop: '#circleChordPositions .chord-position-card',
           gesture: 'swipey', at: '#circleChordPositions .chord-position-card' };
         return {
@@ -111,12 +114,17 @@ const STEPS = {
           at: '#pianoPanel [data-inversion]:not(.active)', tap: { sel: '#pianoPanel [data-inversion]' }, ok: '¡Otra forma de tocarlo!' };
       } },
 
+    { title: 'Los números de abajo', text: 'Es la tablatura: cada número es el traste que pisas en cada cuerda. El primero (izquierda) es la 1.ª cuerda, la más delgada, y el último (derecha) es la 6.ª, la más gruesa. 0 = cuerda al aire, × = no se toca.',
+      ring: '#circleChordPositions .chord-position-card code', radius: 12, pad: 5,
+      hop: '#circleChordPositions .chord-position-card code', hopY: '-4px',
+      at: '#circleChordPositions .chord-position-card code', gesture: 'tap', onEnter: guitarOn },
+
     { title: 'Claro, oscuro o automático', text: 'Cambia la apariencia a tu gusto; el sitio la recuerda.',
       ring: '.theme-switch', radius: 16, pad: 5, hop: '.theme-choice', hopY: '-5px',
       at: '.theme-choice:not(.active)', tap: { sel: '.theme-choice' }, ok: '¡Apariencia cambiada!' },
 
     { title: 'Más herramientas',
-      text: 'En el menú está la biblioteca de Acordes: más de 900 acordes de guitarra con todas sus posiciones.',
+      text: 'En el menú está la biblioteca de Acordes: busca cualquier acorde de guitarra y mira todas sus formas.',
       ring: '.app-choice[href="acordes.html"]', radius: 20, hop: '.app-choice[href="acordes.html"]', hopY: '-5px',
       at: '.app-choice[href="acordes.html"]', onEnter: menuOpen, onExit: menuClose },
 
@@ -148,8 +156,8 @@ const STEPS = {
                       : 'Toca una nota para ver solo sus acordes.' };
       } },
 
-    { title: 'Familia y posición',
-      text: 'Elige la familia (mayor, menor, séptimas…). Más abajo también puedes filtrar por posición: abiertas, cejilla o inversiones.',
+    { title: 'Tipo de acorde',
+      text: 'Elige la familia: mayor, menor, séptimas…',
       ring: () => $('#chordFamilyFilter')?.closest('label'), radius: 20, hop: '#chordFamilyFilter', hopY: '-4px',
       at: '#chordFamilyFilter', tap: { sel: '#chordFamilyFilter', ev: 'change' }, ok: '¡Filtrado!' },
 
@@ -158,11 +166,14 @@ const STEPS = {
       at: '.chord-catalog-card', tap: { sel: '.chord-catalog-card' }, ok: '¡Ahí están!' },
 
     { title: 'Todas las posiciones',
-      text: 'Cada tarjeta es una forma distinta de tocarlo. Desliza hacia abajo para ver todas: abiertas, con cejilla e inversiones.',
+      text: 'Cada tarjeta es una forma de tocarlo y arriba dice en qué traste va. Desliza hacia abajo para ver todas.',
       ring: '#chordDetail .chord-position-card', radius: 22, hop: '#chordDetail .chord-position-card',
-      gesture: 'swipey', at: '#chordDetail .chord-position-card',
-      onEnter() { if (!$('#chordDetail.open')) $('.chord-catalog-card')?.click(); },
-      onExit()  { if ($('#chordDetail.open')) $('#chordDetail [data-detail-close]')?.click(); } },
+      gesture: 'swipey', at: '#chordDetail .chord-position-card', detail: true, onEnter: detailOpen, onExit: detailClose },
+
+    { title: 'Los números de abajo', text: 'Es la tablatura: cada número es el traste que pisas en cada cuerda. El primero (izquierda) es la 1.ª cuerda, la más delgada, y el último (derecha) es la 6.ª, la más gruesa. 0 = cuerda al aire, × = no se toca.',
+      ring: '#chordDetail .chord-position-card code', radius: 12, pad: 5,
+      hop: '#chordDetail .chord-position-card code', hopY: '-4px',
+      at: '#chordDetail .chord-position-card code', gesture: 'tap', detail: true, onEnter: detailOpen, onExit: detailClose },
 
     { title: 'Más herramientas',
       text: 'Desde el menú vuelves a los Círculos, para ver los 7 acordes de cada tonalidad.',

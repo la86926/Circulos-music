@@ -21,7 +21,7 @@
 <link rel="stylesheet" href="style.css?v=12">
 <link rel="stylesheet" href="shell.css?v=3">
 <link rel="stylesheet" href="chords-library.css?v=14">
-<link rel="stylesheet" href="polish.css?v=5">
+<link rel="stylesheet" href="polish.css?v=6">
 <link rel="stylesheet" href="tutorial.css?v=3">
 </head>
 <body>
@@ -67,19 +67,18 @@
     <div class="chordlib-filter-row">
       <div class="chord-filter-block"><span class="chord-filter-label">Nota</span><div class="chord-root-scroller" id="chordRootFilters" aria-label="Filtrar por nota"></div></div>
       <label class="chord-filter-block"><span class="chord-filter-label">Familia</span><select class="chord-select" id="chordFamilyFilter"><option value="all">Todas las familias</option></select></label>
-      <label class="chord-filter-block"><span class="chord-filter-label">Posición</span><select class="chord-select" id="chordPositionFilter"><option value="all">Todas las posiciones</option><option value="open">Abiertas</option><option value="barre">Cejilla</option><option value="movable">Móviles</option><option value="inversion">Inversiones</option><option value="slash">Slash / pedal</option><option value="bass">Bajo alternativo</option></select></label>
     </div>
   </section>
   <section class="chordlib-results" aria-labelledby="chordCatalogTitle">
-    <div class="chord-results-head"><div><h2 id="chordCatalogTitle">Acordes</h2><span id="chordResultCount">Biblioteca disponible</span></div><button class="chord-reset" id="chordResetFilters" type="button">Limpiar filtros</button></div>
+    <div class="chord-results-head"><div><h2 id="chordCatalogTitle">Acordes</h2></div><button class="chord-reset" id="chordResetFilters" type="button">Limpiar filtros</button></div>
     <div class="chord-catalog-grid" id="chordCatalogGrid" aria-live="polite"></div>
     <div class="chord-empty" id="chordEmpty" hidden><strong>Sin coincidencias</strong><span>Prueba otra nota, familia o búsqueda.</span></div>
     <button class="chord-load-more" id="chordLoadMore" type="button" hidden>Mostrar más</button>
   </section>
 </main>
-<script src="chords-library.js?v=17" defer></script>
+<script src="chords-library.js?v=19" defer></script>
 <script src="gift-ui.js?v=5" defer></script>
-<script src="tutorial.js?v=4" defer></script>
+<script src="tutorial.js?v=5" defer></script>
 <script src="leave-guard.js?v=1" defer></script>
 <script>
 (()=>{
