@@ -64,30 +64,38 @@ function press(key,velocity){
   key._pkTimer=setTimeout(()=>key.classList.remove('performance-playing'),220);
 }
 const keyUnder=(x,y)=>document.elementFromPoint(x,y)?.closest?.(KEY_SEL)||null;
-let sweep=null;
+/* Cada dedo lleva su propio barrido, así se pueden tocar varias teclas a la vez (acordes) */
+const sweeps=new Map();
 document.addEventListener('pointerdown',e=>{
   const key=e.target.closest?.(KEY_SEL);
   if(!key){if(e.target.closest?.('#instrumento'))unlock();return;}
   if(e.button>0)return;
   unlock();
-  sweep={id:e.pointerId,x:e.clientX,y:e.clientY,first:key,last:null,started:false,touch:e.pointerType==='touch',timer:0};
-  const begin=()=>{if(!sweep||sweep.started)return;sweep.started=true;sweep.last=sweep.first;press(sweep.first,.8);};
-  if(sweep.touch)sweep.timer=setTimeout(begin,70);else{e.preventDefault();begin();}
+  const sw={x:e.clientX,y:e.clientY,first:key,last:null,started:false,touch:e.pointerType==='touch',timer:0};
+  sweeps.set(e.pointerId,sw);
+  const begin=()=>{if(sw.started||sweeps.get(e.pointerId)!==sw)return;sw.started=true;sw.last=sw.first;press(sw.first,.8);};
+  if(sw.touch){
+    if([...sweeps.values()].some(o=>o!==sw&&o.started))begin();   // ya hay otro dedo tocando: suena al instante
+    else sw.timer=setTimeout(begin,70);
+  }else{e.preventDefault();begin();}
 },true);
 addEventListener('pointermove',e=>{
-  if(!sweep||e.pointerId!==sweep.id)return;
-  if(!sweep.touch&&!(e.buttons&1)){sweep=null;return;}
-  const dx=e.clientX-sweep.x,dy=e.clientY-sweep.y;
-  if(!sweep.started){
-    if(Math.abs(dy)>8&&Math.abs(dy)>Math.abs(dx)){clearTimeout(sweep.timer);sweep=null;return;}   // está desplazando la página
+  const sw=sweeps.get(e.pointerId);if(!sw)return;
+  if(!sw.touch&&!(e.buttons&1)){sweeps.delete(e.pointerId);return;}
+  const dx=e.clientX-sw.x,dy=e.clientY-sw.y;
+  if(!sw.started){
+    if(Math.abs(dy)>8&&Math.abs(dy)>Math.abs(dx)){clearTimeout(sw.timer);sweeps.delete(e.pointerId);return;}   // está desplazando la página
     if(Math.abs(dx)<6)return;
-    clearTimeout(sweep.timer);sweep.started=true;sweep.last=sweep.first;press(sweep.first,.75);
+    clearTimeout(sw.timer);sw.started=true;sw.last=sw.first;press(sw.first,.75);
   }
   const key=keyUnder(e.clientX,e.clientY);
-  if(key&&key!==sweep.last){sweep.last=key;press(key,.7);}
+  if(key&&key!==sw.last){sw.last=key;press(key,.7);}
 },true);
-const endSweep=e=>{if(!sweep||e.pointerId!==sweep.id)return;if(!sweep.started&&e.type==='pointerup'){clearTimeout(sweep.timer);press(sweep.first,.8);}else clearTimeout(sweep.timer);sweep=null;};
-addEventListener('pointerup',endSweep,true);
-addEventListener('pointercancel',e=>{if(sweep&&e.pointerId===sweep.id){clearTimeout(sweep.timer);sweep=null;}},true);
+addEventListener('pointerup',e=>{
+  const sw=sweeps.get(e.pointerId);if(!sw)return;
+  clearTimeout(sw.timer);if(!sw.started)press(sw.first,.8);
+  sweeps.delete(e.pointerId);
+},true);
+addEventListener('pointercancel',e=>{const sw=sweeps.get(e.pointerId);if(sw){clearTimeout(sw.timer);sweeps.delete(e.pointerId);}},true);
 document.addEventListener('click',e=>{if(e.target.closest?.('[data-instrument="piano"]'))unlock();},true);
 })();
