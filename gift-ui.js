@@ -38,11 +38,29 @@
         margin:0!important;
         padding:0!important;
         border:0!important;
-        background:radial-gradient(circle at 50% 35%,rgba(28,82,57,.78),rgba(8,26,19,.96))!important;
-        backdrop-filter:blur(10px);
-        -webkit-backdrop-filter:blur(10px);
+        background:#dfe8f5!important;
+        overflow:hidden!important;
         cursor:pointer;
       }
+      /* Fondo tipo Apple: manchas de color muy desenfocadas que se mueven lento */
+      #${PORTAL_ID} .gift-portal-backdrop::before{
+        content:"";position:absolute;inset:-18%;
+        background:
+          radial-gradient(38% 42% at 18% 22%,rgba(157,207,255,.95),transparent 70%),
+          radial-gradient(34% 40% at 82% 18%,rgba(196,176,255,.85),transparent 70%),
+          radial-gradient(40% 44% at 78% 82%,rgba(255,188,174,.72),transparent 70%),
+          radial-gradient(46% 50% at 22% 84%,rgba(79,134,214,.78),transparent 70%),
+          radial-gradient(30% 34% at 52% 52%,rgba(255,255,255,.65),transparent 72%);
+        filter:blur(46px) saturate(1.15);
+        animation:giftDrift 22s ease-in-out infinite alternate;
+      }
+      #${PORTAL_ID} .gift-portal-backdrop::after{
+        content:"";position:absolute;inset:0;background:var(--gift-photo,none) center/cover no-repeat;filter:blur(38px) saturate(1.1);transform:scale(1.2);opacity:.9;
+      }
+      @keyframes giftDrift{from{transform:translate3d(-3%,-2%,0) rotate(0deg) scale(1)}to{transform:translate3d(3%,2%,0) rotate(8deg) scale(1.08)}}
+      @media(prefers-reduced-motion:reduce){#${PORTAL_ID} .gift-portal-backdrop::before{animation:none}}
+      html[data-theme="dark"] #${PORTAL_ID} .gift-portal-backdrop{background:#0f1622!important}
+      html[data-theme="dark"] #${PORTAL_ID} .gift-portal-backdrop::before{opacity:.55}
       #${PORTAL_ID} .gift-portal-card{
         position:relative!important;
         z-index:1!important;
@@ -52,12 +70,14 @@
         overflow:auto!important;
         padding:48px 34px 38px!important;
         margin:0!important;
-        border:1px solid rgba(255,255,255,.72)!important;
+        border:1px solid rgba(255,255,255,.7)!important;
         border-radius:34px!important;
-        background:linear-gradient(145deg,#fffdf7,#f3eddf)!important;
-        color:#183427!important;
+        background:rgba(255,255,255,.58)!important;
+        -webkit-backdrop-filter:blur(28px) saturate(1.6);
+        backdrop-filter:blur(28px) saturate(1.6);
+        color:#1d2b45!important;
         text-align:center!important;
-        box-shadow:0 35px 100px rgba(0,0,0,.34)!important;
+        box-shadow:0 30px 90px rgba(30,50,90,.22)!important;
         transform:translateY(18px) scale(.97);
         transition:transform .25s ease;
         font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif!important;
@@ -73,14 +93,14 @@
         place-items:center!important;
         margin:0!important;
         padding:0!important;
-        border:1px solid rgba(24,52,39,.16)!important;
+        border:1px solid rgba(29,43,69,.12)!important;
         border-radius:50%!important;
         background:rgba(255,255,255,.72)!important;
         cursor:pointer!important;
       }
       #${PORTAL_ID} .gift-portal-close svg{
         width:18px!important;height:18px!important;
-        fill:none!important;stroke:#183427!important;stroke-width:1.8!important;
+        fill:none!important;stroke:#1d2b45!important;stroke-width:1.8!important;
         stroke-linecap:round!important;
       }
       #${PORTAL_ID} .gift-portal-icon{
@@ -92,7 +112,7 @@
       }
       #${PORTAL_ID} .gift-portal-kicker{
         margin:18px 0 10px!important;
-        color:#6d5b32!important;
+        color:#5b7398!important;
         font-size:11px!important;
         font-weight:800!important;
         line-height:1.3!important;
@@ -101,7 +121,7 @@
       }
       #${PORTAL_ID} .gift-portal-title{
         margin:0!important;
-        color:#183427!important;
+        color:#1d2b45!important;
         font-family:Georgia,"Times New Roman",serif!important;
         font-size:clamp(32px,7vw,48px)!important;
         font-weight:500!important;
@@ -111,18 +131,25 @@
       #${PORTAL_ID} .gift-portal-message{
         max-width:390px!important;
         margin:18px auto 0!important;
-        color:#587064!important;
+        color:#53627a!important;
         font-size:15px!important;
         line-height:1.65!important;
       }
       #${PORTAL_ID} .gift-portal-signature{
         margin:24px 0 0!important;
-        color:#1f6d4a!important;
+        color:#3a6fc0!important;
         font-family:Georgia,"Times New Roman",serif!important;
         font-size:21px!important;
         font-style:italic!important;
         line-height:1.3!important;
       }
+      html[data-theme="dark"] #${PORTAL_ID} .gift-portal-card{background:rgba(24,28,36,.6)!important;border-color:rgba(255,255,255,.12)!important;color:#eef2f8!important}
+      html[data-theme="dark"] #${PORTAL_ID} .gift-portal-title{color:#f3f6fb!important}
+      html[data-theme="dark"] #${PORTAL_ID} .gift-portal-message{color:#b9c3d3!important}
+      html[data-theme="dark"] #${PORTAL_ID} .gift-portal-kicker{color:#9fb4d6!important}
+      html[data-theme="dark"] #${PORTAL_ID} .gift-portal-signature{color:#9dc4f5!important}
+      html[data-theme="dark"] #${PORTAL_ID} .gift-portal-close{background:rgba(255,255,255,.1)!important;border-color:rgba(255,255,255,.16)!important}
+      html[data-theme="dark"] #${PORTAL_ID} .gift-portal-close svg{stroke:#eef2f8!important}
       @media(max-width:500px){
         #${PORTAL_ID}{padding:16px!important}
         #${PORTAL_ID} .gift-portal-card{
@@ -221,9 +248,9 @@
             align-items:center;
             gap:12px;
             padding:14px;
-            border:1px solid color-mix(in srgb,#d7a33d 42%,var(--line,#d7d8d2));
+            border:1px solid color-mix(in srgb,#8bb7e6 45%,var(--line,#d7d8d2));
             border-radius:18px;
-            background:linear-gradient(135deg,color-mix(in srgb,#f4d58d 24%,var(--surface,#fff)),var(--surface,#fff));
+            background:linear-gradient(135deg,color-mix(in srgb,#9dcfff 22%,var(--surface,#fff)),color-mix(in srgb,#c4b0ff 10%,var(--surface,#fff)));
             color:var(--text,#171817);
             font:inherit;
             text-align:left;
@@ -233,12 +260,12 @@
           }
           button:hover{
             transform:translateY(-2px);
-            border-color:#d7a33d;
-            box-shadow:0 12px 28px rgba(91,58,18,.12);
+            border-color:#8bb7e6;
+            box-shadow:0 12px 28px rgba(40,80,140,.12);
           }
           button:active{transform:scale(.98)}
           button:focus-visible{
-            outline:3px solid color-mix(in srgb,#d7a33d 38%,transparent);
+            outline:3px solid color-mix(in srgb,#8bb7e6 40%,transparent);
             outline-offset:3px;
           }
           img{
