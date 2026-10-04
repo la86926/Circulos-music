@@ -33,8 +33,6 @@
 .harmony-wheel-legend{display:flex;flex-wrap:wrap;gap:10px 20px;margin-top:0;min-width:0}
 
 /* Posiciones de guitarra en Círculos (mismas tarjetas que la biblioteca de Acordes) */
-#guitarPanel .chord-detail-section-head{margin:2px 2px 16px}
-#guitarPanel .chord-detail-section-head strong{font-size:20px;letter-spacing:-.03em}
 #circleChordPositions .chord-position-card{animation:circleCardIn .42s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 45ms)}
 @keyframes circleCardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){#circleChordPositions .chord-position-card{animation:none}}
@@ -86,7 +84,6 @@ html body #selector .minimal-scale-select{height:36px;padding:0 34px 0 15px;bord
 /* ───────── Piano: no se arrastra con el dedo; se mueve con el mapa de arriba ───────── */
 html body #instrumento #pianoPanel .piano-scroll{overflow-x:hidden!important;touch-action:pan-y!important;cursor:default!important}
 html body #instrumento #pianoKeyboard,html body #instrumento #pianoKeyboard>*{touch-action:pan-y!important}
-html body #pianoPanel .piano-position-control{display:none!important}
 html body #instrumento #pianoKeyboard .white-key.pk-echo{box-shadow:none!important}
 .pk-nav{display:grid;grid-template-columns:36px minmax(0,1fr) 36px;align-items:center;gap:8px;margin:4px 0 14px}
 .pk-nav[hidden]{display:none}
@@ -155,3 +152,69 @@ html[data-theme="dark"] body .library-diagram .diagram-barre{stroke:#7fb1e8}
 /* ───────── Neutros fríos: fondos, bordes y textos sin el tinte verdoso del diseño anterior ───────── */
 html:root{--bg:#f4f6f9;--surface:#ffffff;--surface2:#eef1f6;--surface3:#e3e8f0;--text:#151a22;--muted:#667085;--line:#d8dee8;--accent:#151a22;--contrast:#ffffff;--root:#8bb7e6;--root2:#4f86d6;--shadow:0 18px 50px rgba(21,32,52,.08)}
 html[data-theme="dark"]:root{--bg:#0e1116;--surface:#161a21;--surface2:#1e232c;--surface3:#272d38;--text:#eef2f8;--muted:#a3adbd;--line:#2e3542;--accent:#eef2f8;--contrast:#0e1116;--root:#8bb7e6;--root2:#a9c9f0;--shadow:0 20px 60px rgba(0,0,0,.32)}
+
+/* ───────── Aviso breve por encima de todo ───────── */
+.toast{z-index:30000!important;bottom:calc(28px + env(safe-area-inset-bottom,0px))!important;max-width:calc(100% - 32px);text-align:center}
+
+/* ───────── Opciones extra del menú (Mis acordes, Instalar, Tutorial) en una línea ───────── */
+.app-extra{display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:14px;align-items:center;width:100%;font:inherit}
+.app-extra .app-choice-icon{grid-row:1 / span 2}
+.app-extra>strong{align-self:end}.app-extra>small{grid-column:2}
+.app-extra:not(:has(small))>strong{align-self:center}
+.app-extra:not(:has(small)) .app-choice-icon{grid-row:1}
+
+/* ───────── Acorde elegido en Círculos: nombre + favorito + compartir ───────── */
+#instrumento .chord-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 24px 14px}
+#instrumento .chord-head strong{font-size:22px;letter-spacing:-.035em}
+@media(max-width:560px){#instrumento .chord-head{padding:18px 18px 12px}}
+.chord-actions{display:flex;align-items:center;gap:8px}
+.act-btn{width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;background:var(--surface);color:var(--text);cursor:pointer;transition:transform .3s cubic-bezier(.34,1.56,.64,1),background-color .2s,border-color .2s,color .2s}
+.act-btn:active{transform:scale(.88)}
+.act-btn:disabled{opacity:.45;cursor:default}
+.act-btn svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.act-fav.is-on{background:#dcebfb;border-color:#8bb7e6;color:#3a6fc0}
+.act-fav.is-on svg{fill:#4f86d6;stroke:#4f86d6}
+html[data-theme="dark"] .act-fav.is-on{background:#1d2c44;border-color:#5b8fdb;color:#9dc4f5}
+html[data-theme="dark"] .act-fav.is-on svg{fill:#7fb1e8;stroke:#7fb1e8}
+.act-fav.pop{animation:favPop .45s cubic-bezier(.34,1.56,.64,1)}
+@keyframes favPop{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
+/* En el detalle de Acordes, junto al título */
+.chord-detail-head .chord-actions{margin-top:12px}
+/* Marca de favorito en las tarjetas */
+.chord-catalog-card{position:relative}
+.chord-catalog-card.is-fav::after{content:"";position:absolute;top:12px;right:12px;width:16px;height:16px;background:#4f86d6;
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 20.2s-7.4-4.5-9.1-9.2C1.8 7.8 3.9 4.6 7.2 4.6c2 0 3.6 1.1 4.8 2.8 1.2-1.7 2.8-2.8 4.8-2.8 3.3 0 5.4 3.2 4.3 6.4-1.7 4.7-9.1 9.2-9.1 9.2Z'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 20.2s-7.4-4.5-9.1-9.2C1.8 7.8 3.9 4.6 7.2 4.6c2 0 3.6 1.1 4.8 2.8 1.2-1.7 2.8-2.8 4.8-2.8 3.3 0 5.4 3.2 4.3 6.4-1.7 4.7-9.1 9.2-9.1 9.2Z'/%3E%3C/svg%3E") center/contain no-repeat}
+@media(prefers-reduced-motion:reduce){.act-fav.pop{animation:none}}
+
+/* ───────── Hojas (Mis acordes, Instalar) ───────── */
+.app-sheet{position:fixed;inset:0;z-index:90;display:grid;place-items:end center;visibility:hidden;opacity:0;transition:opacity .2s ease,visibility .2s ease}
+.app-sheet.open{visibility:visible;opacity:1}
+.app-sheet-backdrop{position:absolute;inset:0;background:rgba(10,14,22,.42);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.app-sheet-card{position:relative;width:min(760px,calc(100% - 16px));max-height:calc(100dvh - 24px);overflow:auto;margin:0 auto 8px;padding:24px;border:1px solid var(--line);border-radius:28px;background:var(--bg);color:var(--text);box-shadow:0 30px 90px rgba(10,20,40,.25);transform:translateY(22px);transition:transform .25s cubic-bezier(.2,.8,.2,1)}
+.app-sheet.open .app-sheet-card{transform:none}
+.app-sheet-card h2{margin:4px 52px 16px 2px;font-size:28px;letter-spacing:-.045em}
+.app-sheet-close{position:absolute;top:18px;right:18px;width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--line);border-radius:50%;background:var(--surface);color:var(--text);cursor:pointer}
+.app-sheet-close svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.install-steps{margin:0;padding-left:22px;display:grid;gap:12px;font-size:15px;line-height:1.5;color:var(--text)}
+.install-steps .ios-share{width:18px;height:18px;vertical-align:-3px;fill:none;stroke:#3a6fc0;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media(min-width:700px){.app-sheet{place-items:center}.app-sheet-card{margin:0 auto}}
+
+/* Cuenta con nick */
+.fav-account{margin:0 0 18px}
+.fav-form label{display:block;margin:0 0 10px;color:var(--muted);font-size:13px;line-height:1.45}
+.fav-row{display:flex;gap:8px}
+.fav-row input{flex:1;min-width:0;height:44px;padding:0 16px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--text);font:inherit;font-size:15px;outline:0}
+.fav-row input:focus{border-color:#8bb7e6;box-shadow:0 0 0 3px rgba(139,183,230,.3)}
+.fav-row button{height:44px;padding:0 20px;border:0;border-radius:999px;background:var(--accent);color:var(--contrast);font:inherit;font-weight:760;cursor:pointer}
+.fav-error{min-height:16px;margin:8px 4px 0;color:#c8675a;font-size:12px}
+.fav-user{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:18px;background:var(--surface)}
+.fav-user>div{flex:1;min-width:0}.fav-user strong{display:block;font-size:15px}.fav-user small{display:block;margin-top:2px;color:var(--muted);font-size:12px}
+.fav-dot{width:10px;height:10px;border-radius:50%;background:var(--muted)}
+.fav-dot.is-ok{background:#4f86d6;box-shadow:0 0 0 4px rgba(79,134,214,.18)}
+.fav-dot.is-busy{background:#8bb7e6;animation:favPulse 1s ease-in-out infinite alternate}
+.fav-dot.is-error{background:#f4aa9c}
+@keyframes favPulse{to{opacity:.35}}
+.fav-link{border:0;background:transparent;color:var(--muted);font:inherit;font-size:13px;font-weight:700;cursor:pointer;padding:6px}
+.fav-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+@media(max-width:700px){.fav-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}

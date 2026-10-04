@@ -2,14 +2,15 @@
    - Una mano animada enseña qué tocar o deslizar; el botón señalado "salta" suavemente.
    - Se puede cerrar en cualquier momento (X, "Ahora no" o la tecla Esc).
    - Se muestra solo la primera vez; después se repite con el botón "?" o desde el menú.
-   - Funciona en index.html (Círculos) y en acordes.html (Biblioteca). */
+   - Funciona en index.html (Círculos), acordes.html (Biblioteca) y afinador.html (Afinador). */
 (() => {
 'use strict';
 if (window.__circulosTutorial) return;
 window.__circulosTutorial = true;
 
 const PAGE = document.getElementById('circlesView') ? 'circulos'
-           : document.getElementById('chordsView') ? 'acordes' : null;
+           : document.getElementById('chordsView') ? 'acordes'
+           : document.getElementById('tunerView') ? 'afinador' : null;
 if (!PAGE) return;
 
 /* ───────── Ajustes ───────── */
@@ -97,6 +98,11 @@ const STEPS = {
       at: '#circuloArmonico .harmony-wheel-node[data-wheel-index="4"]',
       tap: { sel: '.harmony-wheel-node' }, ok: '¡Ese es tu acorde!' },
 
+    { title: 'Guárdalo o compártelo',
+      text: 'Con el corazón lo guardas en «Mis acordes», tu cancionero. Con la flecha envías un enlace, por ejemplo «Mira el La menor».',
+      ring: '#chordActions .act-btn', ringAll: true, radius: 26, pad: 5, hop: '#chordActions .act-btn', hopY: '-5px',
+      at: '#chordActions .act-fav', tap: { sel: '#chordActions .act-fav' }, ok: '¡Guardado en Mis acordes!' },
+
     { title: 'Guitarra o piano', text: 'Mira el mismo acorde en el instrumento que tocas.',
       ring: '#instrumento .instrument-tabs .segmented', radius: 22,
       hop: '#instrumento .instrument-tabs .seg-btn', at: '#instrumento .instrument-tabs .seg-btn:not(.active)',
@@ -130,9 +136,15 @@ const STEPS = {
       at: '.theme-choice:not(.active)', tap: { sel: '.theme-choice' }, ok: '¡Apariencia cambiada!' },
 
     { title: 'Más herramientas',
-      text: 'En el menú está la biblioteca de Acordes: busca cualquier acorde de guitarra y mira todas sus formas.',
-      ring: '.app-choice[href="acordes.html"]', radius: 20, hop: '.app-choice[href="acordes.html"]', hopY: '-5px',
-      at: '.app-choice[href="acordes.html"]', onEnter: menuOpen, onExit: menuClose },
+      text: 'En el menú están la biblioteca de Acordes y el Afinador de guitarra.',
+      ring: '.app-choice[href="acordes.html"], .app-choice[href="afinador.html"]', radius: 20, ringAll: true,
+      hop: '.app-choice[href="acordes.html"], .app-choice[href="afinador.html"]', hopY: '-5px',
+      at: '.app-choice[href="afinador.html"]', onEnter: menuOpen, onExit: menuClose },
+
+    { title: 'Mis acordes',
+      text: 'Aquí están los acordes que guardaste. Escribe un nick (sin contraseña) y los verás en cualquier dispositivo donde uses el mismo nick.',
+      ring: '#favMenuItem', radius: 20, hop: '#favMenuItem', hopY: '-5px',
+      at: '#favMenuItem', onEnter: menuOpen, onExit: menuClose },
 
     { modal: true, title: '¡Listo para tocar!',
       text: 'Cuando quieras repetir esta guía, toca el botón “?” o búscala en el menú.',
@@ -181,12 +193,54 @@ const STEPS = {
       hop: '#chordDetail .chord-position-card code', hopY: '-4px',
       at: '#chordDetail .chord-position-card code', gesture: 'tap', detail: true, onEnter: detailOpen, onExit: detailClose },
 
+    { title: 'Guárdalo o compártelo',
+      text: 'Con el corazón lo guardas en «Mis acordes», tu cancionero. Con la flecha envías un enlace del acorde.',
+      ring: '#chordDetail .chord-actions .act-btn', ringAll: true, radius: 26, pad: 5, hop: '#chordDetail .chord-actions .act-btn', hopY: '-5px',
+      at: '#chordDetail .chord-actions .act-fav', tap: { sel: '#chordDetail .act-fav' }, ok: '¡Guardado en Mis acordes!',
+      detail: true, onEnter: detailOpen, onExit: detailClose },
+
+    { title: 'Mis acordes',
+      text: 'Tus acordes guardados están en el menú. Escribe un nick (sin contraseña) y los verás en cualquier dispositivo con el mismo nick.',
+      ring: '#favMenuItem', radius: 20, hop: '#favMenuItem', hopY: '-5px',
+      at: '#favMenuItem', onEnter: menuOpen, onExit: menuClose },
+
     { title: 'Más herramientas',
-      text: 'Desde el menú vuelves a los Círculos, para ver los 7 acordes de cada tonalidad.',
-      ring: '.app-choice[href="index.html"]', radius: 20, hop: '.app-choice[href="index.html"]', hopY: '-5px',
+      text: 'Desde el menú vuelves a los Círculos o abres el Afinador.',
+      ring: '.app-choice[href="index.html"], .app-choice[href="afinador.html"]', radius: 20, ringAll: true,
+      hop: '.app-choice[href="index.html"], .app-choice[href="afinador.html"]', hopY: '-5px',
       at: '.app-choice[href="index.html"]', onEnter: menuOpen, onExit: menuClose },
 
     { modal: true, title: '¡Listo para buscar!',
+      text: 'Cuando quieras repetir esta guía, toca el botón “?” o búscala en el menú.',
+      next: 'Terminar', keepFab: true, at: '.tuto-fab', hop: '.tuto-fab', hopY: '-6px', gesture: 'tap' }
+  ],
+
+  afinador: [
+    { modal: true, title: 'Afinador de guitarra',
+      text: 'Afina las 6 cuerdas con el micrófono de tu celular o computadora. Afinación estándar: E A D G B E, con La = 440 Hz.',
+      next: 'Empezar', skip: 'Ahora no', at: '#tutoNext', gesture: 'tap' },
+
+    { title: 'Activa el micrófono',
+      text: 'Toca aquí y permite el micrófono cuando el navegador lo pida. Busca un lugar sin ruido.',
+      ring: '#tunerStart', radius: 30, pad: 5, hop: '#tunerStart', hopY: '-5px', at: '#tunerStart',
+      tap: { sel: '#tunerStart' }, ok: '¡Te escucho!' },
+
+    { title: 'Lee la aguja',
+      text: 'Toca una cuerda al aire. Si la aguja va a la izquierda, la cuerda está baja: apriétala. Si va a la derecha, aflójala. En el centro y en azul, está afinada.',
+      ring: '#tunerGauge', radius: 26, pad: 8, at: '#tunerGauge', gesture: 'tap' },
+
+    { title: 'Las 6 cuerdas',
+      text: 'En «Auto» reconoce sola la cuerda que tocas. Si quieres, toca una para fijarla. Cada cuerda afinada queda marcada con un visto.',
+      ring: '.tuner-strings-panel', radius: 24, pad: 4, hop: '#tunerStrings .tuner-string', hopY: '-5px',
+      at: '#tunerStrings .tuner-string', gesture: 'tap' },
+
+    { title: 'Más herramientas',
+      text: 'Desde el menú vuelves a los Círculos o a la biblioteca de Acordes.',
+      ring: '.app-choice[href="index.html"], .app-choice[href="acordes.html"]', radius: 20, ringAll: true,
+      hop: '.app-choice[href="index.html"], .app-choice[href="acordes.html"]', hopY: '-5px',
+      at: '.app-choice[href="index.html"]', onEnter: menuOpen, onExit: menuClose },
+
+    { modal: true, title: '¡A afinar!',
       text: 'Cuando quieras repetir esta guía, toca el botón “?” o búscala en el menú.',
       next: 'Terminar', keepFab: true, at: '.tuto-fab', hop: '.tuto-fab', hopY: '-6px', gesture: 'tap' }
   ]
@@ -364,6 +418,14 @@ function syncHops(s) {
   });
 }
 
+/* Rectángulo que abarca varios elementos (para enfocar dos opciones del menú a la vez) */
+function unionRect(list) {
+  const rs = list.map(el => el.getBoundingClientRect());
+  const left = Math.min(...rs.map(r => r.left)), top = Math.min(...rs.map(r => r.top));
+  const right = Math.max(...rs.map(r => r.right)), bottom = Math.max(...rs.map(r => r.bottom));
+  return { left, top, right, bottom, width: right - left, height: bottom - top };
+}
+
 /* Bucle: sigue al elemento aunque la página se desplace o cambie de tamaño */
 function frame() {
   if (!active) return;
@@ -374,7 +436,7 @@ function frame() {
   const target = s.modal ? null : pick(s.ring);
   let rr = null;
   if (target) {
-    rr = target.getBoundingClientRect();
+    rr = s.ringAll ? unionRect(pickAll(s.ring)) : target.getBoundingClientRect();
     const pad = s.pad == null ? 6 : s.pad;
     const own = parseFloat(getComputedStyle(target).borderTopLeftRadius);
     const rad = s.radius != null ? s.radius : (isNaN(own) ? 16 : own + pad);
@@ -446,7 +508,7 @@ function init() {
   window.circulosTutorial = { start, close: () => close(false) };
   const forced = new URLSearchParams(location.search).has('tutorial');
   if (!forced && !SHOW_EVERY_VISIT && isDone()) return;
-  const ready = PAGE === 'circulos' ? '#circuloArmonico .harmony-wheel-node' : '.chord-catalog-card';
+  const ready = { circulos: '#circuloArmonico .harmony-wheel-node', acordes: '.chord-catalog-card', afinador: '#tunerStrings .tuner-string' }[PAGE];
   let tries = 0;
   const timer = setInterval(() => {
     if ($(ready) || ++tries > 30) { clearInterval(timer); setTimeout(start, 450); }

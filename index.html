@@ -21,9 +21,8 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="style.css?v=12">
 <link rel="stylesheet" href="shell.css?v=3">
-<link rel="stylesheet" href="circle-wheel.css?v=8">
 <link rel="stylesheet" href="chords-library.css?v=14">
-<link rel="stylesheet" href="performance-ui.css?v=11">
+<link rel="stylesheet" href="circulos.css?v=1">
 <link rel="stylesheet" href="polish.css?v=14">
 <link rel="stylesheet" href="tutorial.css?v=3">
 </head>
@@ -39,8 +38,6 @@
     </div>
   </div>
 </header>
-<button class="compat-hidden" id="scrollTopBtn" type="button" tabindex="-1" aria-hidden="true"></button>
-<button class="compat-hidden" id="themeBtn" type="button" tabindex="-1" aria-hidden="true"></button>
 <div class="menu-backdrop" id="menuBackdrop" aria-hidden="true"></div>
 <aside class="side-menu" id="sideMenu" aria-hidden="true" aria-label="Elegir herramienta">
   <div class="side-menu-head">
@@ -50,42 +47,40 @@
   <nav class="app-picker" aria-label="Herramientas">
     <a class="app-choice active" href="index.html" aria-current="page"><span class="app-choice-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" stroke-opacity=".35"/><circle cx="12" cy="12" r="2.6"/><circle cx="12" cy="4" r="1.7"/><circle cx="18.9" cy="8" r="1.7"/><circle cx="18.9" cy="16" r="1.7"/><circle cx="12" cy="20" r="1.7"/><circle cx="5.1" cy="16" r="1.7"/><circle cx="5.1" cy="8" r="1.7"/></svg></span><strong>Círculos</strong><small>Tonalidades, sus 7 acordes y posiciones.</small></a>
     <a class="app-choice" href="acordes.html"><span class="app-choice-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4v16M10.67 4v16M15.33 4v16M20 4v16" stroke-opacity=".5"/><path d="M6 4h14" stroke-width="2.4"/><path d="M6 9h14M6 14h14M6 19h14" stroke-opacity=".3"/><circle class="dot" cx="10.67" cy="11.5" r="2"/><circle class="dot" cx="15.33" cy="16.5" r="2"/><circle class="dot" cx="20" cy="6.5" r="2"/></svg></span><strong>Acordes</strong><small>Biblioteca de acordes de guitarra.</small></a>
+    <a class="app-choice" href="afinador.html"><span class="app-choice-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 16.5a8 8 0 1 1 15 0"/><path d="M12 16.5l3.6-6.2"/><circle class="dot" cx="12" cy="16.5" r="1.6"/><path d="M7.2 9.6l.9.9M12 7v1.3M16.8 9.6l-.9.9" stroke-opacity=".55"/></svg></span><strong>Afinador</strong><small>Afina tu guitarra con el micrófono.</small></a>
   </nav>
   <gift-card-widget></gift-card-widget>
 </aside>
 <main class="container app-view" id="circlesView">
-<section class="hero" id="inicio"><div><h1>Círculos de acordes</h1></div><aside class="hero-status"><div class="status-row"><span class="status-label">Escala</span><strong id="statusKey" class="status-value">DO mayor</strong></div><div class="status-row"><span class="status-label">Acorde</span><strong id="statusChord" class="status-value">DO mayor</strong></div><div class="status-row"><span class="status-label">Posición</span><strong id="statusPosition" class="status-value">Fundamental</strong></div></aside></section>
-<section class="toolbar"><div class="control-card"><span class="label">Nomenclatura</span><div class="segmented seg2"><button class="seg-btn active" data-nomenclature="latin" type="button">Latina</button><button class="seg-btn" data-nomenclature="english" type="button">Inglesa</button></div></div><div class="control-card"><span class="label">Instrumento</span><div class="segmented seg2"><button class="seg-btn active" data-instrument="guitar" type="button">Guitarra</button><button class="seg-btn" data-instrument="piano" type="button">Piano</button></div></div></section>
-<section class="panel" id="selector"><div class="panel-head"><div><h3 class="panel-title">Tonalidad principal</h3></div></div><div class="key-scroller" id="toneSelector"></div></section>
-<section class="panel" id="escala"><div class="panel-head"><div><p class="eyebrow" id="scaleEyebrow">Escala natural mayor</p><h3 class="panel-title" id="scaleTitle">Escala de DO mayor</h3></div><div class="mode-picker"><span class="label">Tipo de escala</span><div class="segmented seg2"><button class="seg-btn active" data-mode="major" type="button">Mayor</button><button class="seg-btn" data-mode="minor" type="button">Menor natural</button></div></div></div><div class="scale-summary"><p class="scale-pattern" id="scalePattern"><strong>Patrón fijo:</strong> I, IV y V son mayores; ii, iii y vi son menores; vii° es disminuido.</p></div></section>
-<section class="panel" id="acordes"><div class="panel-head"><div><h3 class="panel-title" id="chordsTitle">Los 7 acordes de DO mayor</h3><p class="panel-subtitle">Selecciona un acorde para ver sus posiciones.</p></div></div><div class="diatonic-grid" id="diatonicGrid"></div></section>
-<section class="panel" id="instrumento"><div class="panel-head selected-head"><div><p class="selected-kicker" id="selectedDegreeLabel">Grado I · Tónica</p><h3 class="selected-title" id="selectedChordTitle">DO mayor</h3><p class="selected-notes" id="selectedChordNotes">Notas: DO · MI · SOL</p></div></div><div class="instrument-tabs"><div class="segmented seg2"><button class="seg-btn active" data-instrument="guitar" type="button">Guitarra</button><button class="seg-btn" data-instrument="piano" type="button">Piano</button></div></div><div class="instrument-body" id="guitarPanel"><div class="chord-detail-section-head"><div><strong id="circleChordTitle"></strong></div></div><div class="chord-position-grid" id="circleChordPositions" aria-live="polite"></div></div><div class="instrument-body hidden" id="pianoPanel"><div class="visual-top"><div class="inversion-wrap"><div class="segmented seg3"><button class="seg-btn active" data-inversion="0" type="button">Fundamental</button><button class="seg-btn" data-inversion="1" type="button">1.ª inversión</button><button class="seg-btn" data-inversion="2" type="button">2.ª inversión</button></div></div></div><div class="piano-scroll"><div class="piano" id="pianoKeyboard"></div></div><p class="voicing-note-line">Notas: <strong id="pianoVoicingText"></strong></p></div></section>
-
+<section class="hero" id="inicio"><div><h1>Círculos de acordes</h1></div></section>
+<section class="toolbar"><div class="control-card"><span class="label">Nomenclatura</span><div class="segmented seg2"><button class="seg-btn active" data-nomenclature="english" type="button">Inglés</button><button class="seg-btn" data-nomenclature="latin" type="button">Latina</button></div></div></section>
+<section class="panel" id="selector">
+  <div class="key-scroller" id="toneSelector"></div>
+  <div class="panel-head"><div><h3 class="panel-title">Tonalidad principal</h3></div><label class="minimal-scale-control"><select class="minimal-scale-select" id="minimalScaleSelect" aria-label="Tipo de escala"><option value="major">Mayor</option><option value="minor">Menor natural</option></select><span class="minimal-scale-arrow" aria-hidden="true">⌄</span></label></div>
+</section>
+<section class="panel harmony-wheel-panel" id="circuloArmonico"><div class="harmony-wheel-wrap"><div class="harmony-wheel-stage" id="harmonyWheel"></div><aside class="harmony-wheel-info"><div class="harmony-wheel-legend"><div class="harmony-wheel-legend-item"><span class="harmony-wheel-dot major"></span><span>Mayor</span></div><div class="harmony-wheel-legend-item"><span class="harmony-wheel-dot minor"></span><span>Menor</span></div><div class="harmony-wheel-legend-item"><span class="harmony-wheel-dot diminished"></span><span>Disminuido</span></div></div></aside></div></section>
+<section class="panel" id="instrumento">
+  <div class="chord-head"><strong id="circleChordTitle"></strong><div class="chord-actions" id="chordActions"></div></div>
+  <div class="instrument-tabs"><div class="segmented seg2"><button class="seg-btn active" data-instrument="guitar" type="button">Guitarra</button><button class="seg-btn" data-instrument="piano" type="button">Piano</button></div></div>
+  <div class="instrument-body" id="guitarPanel"><div class="chord-position-grid" id="circleChordPositions" aria-live="polite"></div></div>
+  <div class="instrument-body hidden" id="pianoPanel">
+    <div class="visual-top"><div class="inversion-wrap"><div class="segmented seg3"><button class="seg-btn active" data-inversion="0" type="button">Fundamental</button><button class="seg-btn" data-inversion="1" type="button">1.ª inversión</button><button class="seg-btn" data-inversion="2" type="button">2.ª inversión</button></div></div></div>
+    <div class="piano-scroll"><div class="piano" id="pianoKeyboard"></div></div>
+    <p class="voicing-note-line">Notas: <strong id="pianoVoicingText"></strong></p>
+  </div>
+</section>
 </main>
-<div class="toast" id="toast"></div>
-<script src="app.js?v=14" defer></script>
-<script src="circle-wheel.js?v=13" defer></script>
+<div class="toast" id="toast" role="status"></div>
+<script src="shell.js?v=1"></script>
+<script src="circulos.js?v=2" defer></script>
 <script src="gift-ui.js?v=6" defer></script>
-<script src="chords-library.js?v=20" defer></script>
-<script src="circle-chords.js?v=2" defer></script>
-<script src="performance-mode.js?v=15" defer></script>
-<script src="piano-sync.js?v=13" defer></script>
-<script src="piano-sound.js?v=3" defer></script>
-<script src="piano-voicing.js?v=3" defer></script>
-<script src="stability-hotfix.js?v=12" defer></script>
-<script src="tutorial.js?v=12" defer></script>
-<script src="leave-guard.js?v=1" defer></script>
-<script>
-(()=>{
-const root=document.documentElement,menu=document.getElementById('sideMenu'),backdrop=document.getElementById('menuBackdrop'),menuBtn=document.getElementById('menuBtn'),closeBtn=document.getElementById('menuCloseBtn'),media=matchMedia('(prefers-color-scheme: dark)');
-function currentTheme(){return localStorage.getItem('circulos-theme')||'system'}
-function paintTheme(choice=currentTheme()){const resolved=choice==='system'?(media.matches?'dark':'light'):choice;root.dataset.theme=resolved;document.querySelectorAll('img[data-logo]').forEach(img=>{const src=resolved==='dark'?'logo-dark.svg?v=3':'logo.svg?v=3';if(!img.src.endsWith(src))img.src=src;});const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=resolved==='dark'?'#0e1116':'#f4f6f9';document.querySelectorAll('[data-theme-choice]').forEach(btn=>btn.classList.toggle('active',btn.dataset.themeChoice===choice))}
-function chooseTheme(choice){localStorage.setItem('circulos-theme',choice);paintTheme(choice)}
-function toggleMenu(open){document.body.classList.toggle('menu-open',open);menu?.classList.toggle('open',open);backdrop?.classList.toggle('open',open);menu?.setAttribute('aria-hidden',String(!open));backdrop?.setAttribute('aria-hidden',String(!open));menuBtn?.setAttribute('aria-expanded',String(open))}
-document.querySelectorAll('[data-theme-choice]').forEach(btn=>btn.addEventListener('click',()=>chooseTheme(btn.dataset.themeChoice)));
-menuBtn?.addEventListener('click',()=>toggleMenu(true));closeBtn?.addEventListener('click',()=>toggleMenu(false));backdrop?.addEventListener('click',()=>toggleMenu(false));
-document.addEventListener('keydown',e=>{if(e.key==='Escape')toggleMenu(false)});media.addEventListener?.('change',()=>{if(currentTheme()==='system')paintTheme('system')});paintTheme();
-})();
-</script>
+<script src="chords-library.js?v=21" defer></script>
+<script src="circle-chords.js?v=3" defer></script>
+<script src="piano-sound.js?v=4" defer></script>
+<script src="piano-voicing.js?v=4" defer></script>
+<script src="share.js?v=1" defer></script>
+<script src="favoritos.js?v=1" type="module"></script>
+<script src="tutorial.js?v=14" defer></script>
+<script src="leave-guard.js?v=3" defer></script>
 </body>
 </html>

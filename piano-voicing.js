@@ -11,7 +11,6 @@ let last=null,allOn=store.get('circulos-piano-all')==='1',nav=null,allBtn=null;
 
 const keys=()=>[...host.children].filter(k=>k.classList.contains('white-key')||k.classList.contains('black-key'));
 const scrollBox=()=>host.closest('.piano-scroll');
-const range=()=>document.querySelector('[data-piano-position="pianoKeyboard"] input[type="range"]');
 function snapshot(){
   const voicing=[];let root=null;
   keys().forEach((k,i)=>{                                    // las teclas van en orden cromático desde DO 48
@@ -34,16 +33,15 @@ function paint(state){
 }
 function centerOf(k){return{x:k.offsetLeft+k.offsetWidth/2,y:k.offsetTop+k.offsetHeight-(k.classList.contains('black-key')?34:58)};}
 
-/* ── Posición del teclado: todo pasa por la barra original (piano-sync la guarda y la aplica) ── */
+/* ── Posición del teclado: se mueve solo con el mapa, las flechas o al centrar el acorde ── */
 function maxScroll(){const s=scrollBox();return s?Math.max(0,s.scrollWidth-s.clientWidth):0;}
 function goTo(left,animate=true){
-  const r=range(),max=maxScroll();if(!r||max<2)return;
-  const target=Math.max(0,Math.min(1000,Math.round(left/max*1000))),from=Number(r.value)||0;
-  const dur=animate&&!reduced.matches?480:0,t0=performance.now();
+  const s=scrollBox(),max=maxScroll();if(!s||max<2)return;
+  const target=Math.max(0,Math.min(max,left)),from=s.scrollLeft,dur=animate&&!reduced.matches?480:0,t0=performance.now();
   cancelAnimationFrame(goTo.raf);
   const step=now=>{
     const p=dur?Math.min(1,(now-t0)/dur):1,e=1-Math.pow(1-p,3);
-    r.value=String(Math.round(from+(target-from)*e));r.dispatchEvent(new Event('input'));syncWindow();
+    s.scrollLeft=from+(target-from)*e;syncWindow();
     if(p<1)goTo.raf=requestAnimationFrame(step);
   };
   goTo.raf=requestAnimationFrame(step);
@@ -146,6 +144,7 @@ function update(){
   const prev=last;last={...state,sig};
   const visible=!!host.offsetParent;
   if(prev&&visible)window.CirculosPiano?.play(state.voicing,{roll:.028});
+  if(!prev&&visible)requestAnimationFrame(()=>recenter(state));
   if(!visible||reduced.matches){if(prev)recenter(state);return;}
   const nowKeys=state.voicing.map(keyAt).filter(Boolean);
   if(prev&&prev.pcs===state.pcs&&prev.root===state.root){        // mismo acorde, otra inversión
@@ -168,5 +167,4 @@ new MutationObserver(muts=>{
 }).observe(host,{childList:true});
 document.addEventListener('click',e=>{if(e.target.closest?.('[data-instrument="piano"]'))setTimeout(()=>{syncMini();if(last)recenter(last);},60);});
 update();
-setTimeout(update,400);                                       // piano-sync crea su barra un instante después
 })();

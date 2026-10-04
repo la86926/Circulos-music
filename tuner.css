@@ -1,0 +1,53 @@
+/* Círculos Music · Afinador */
+#tunerView .tuner-hero{grid-template-columns:1fr;margin-bottom:22px}
+.tuner-card{padding:26px 22px 24px;text-align:center;overflow:hidden}
+.tuner-gauge{position:relative;width:min(100%,420px);margin:0 auto;--off:0}
+.tuner-gauge svg{display:block;width:100%;height:auto;overflow:visible}
+.tuner-arc{fill:none;stroke:url(#tgArc);stroke-width:10;stroke-linecap:round;opacity:.55}
+.tuner-zone{fill:none;stroke:#4f86d6;stroke-width:14;stroke-linecap:round;opacity:.25;transition:opacity .3s,stroke-width .3s}
+.tuner-ticks line{stroke:var(--muted);stroke-linecap:round}
+.tuner-ticks .tick-minor{stroke-width:1.4;opacity:.45}.tuner-ticks .tick-major{stroke-width:2;opacity:.7}.tuner-ticks .tick-zero{stroke:#4f86d6;stroke-width:3}
+.tuner-scale{fill:var(--muted);font-size:11px;font-weight:700}
+.tuner-needle{transform-origin:150px 150px;transform-box:view-box;transition:transform .12s linear}
+.tuner-needle line{stroke:var(--text);stroke-width:4;stroke-linecap:round}
+.tuner-needle circle{fill:var(--text)}
+.tuner-readout{display:grid;justify-items:center;margin-top:6px}
+.tuner-note{font-size:clamp(64px,18vw,96px);font-weight:820;line-height:1;letter-spacing:-.06em;color:var(--text);transition:color .3s,transform .3s cubic-bezier(.34,1.56,.64,1)}
+.tuner-cents{min-height:20px;margin-top:4px;color:var(--muted);font-size:14px;font-weight:760;font-variant-numeric:tabular-nums}
+.tuner-sub{margin:8px 0 0;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.tuner-status{min-height:24px;margin:10px 0 0;font-size:16px;font-weight:760;color:var(--text);transition:color .25s}
+.tuner-status[data-kind="low"],.tuner-status[data-kind="high"]{color:#c8675a}
+.tuner-status[data-kind="good"]{color:#3a6fc0}
+html[data-theme="dark"] .tuner-status[data-kind="good"]{color:#9dc4f5}
+html[data-theme="dark"] .tuner-status[data-kind="low"],html[data-theme="dark"] .tuner-status[data-kind="high"]{color:#ffbcae}
+body.tuner-quiet .tuner-needle{opacity:.35}
+body.tuner-good .tuner-zone{opacity:.9;stroke-width:18}
+body.tuner-good .tuner-note{color:#3a6fc0;transform:scale(1.06)}
+html[data-theme="dark"] body.tuner-good .tuner-note{color:#9dc4f5}
+body.tuner-good .tuner-card{box-shadow:0 0 0 3px rgba(79,134,214,.18),var(--shadow)}
+.tuner-start{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-width:220px;height:50px;margin:18px auto 0;padding:0 26px;border:0;border-radius:999px;background:var(--accent);color:var(--contrast);font:inherit;font-size:15px;font-weight:780;cursor:pointer;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.tuner-start:active{transform:scale(.95)}
+.tuner-start-dot{width:9px;height:9px;border-radius:50%;background:#f4aa9c;animation:tunerRec 1.2s ease-in-out infinite alternate}
+@keyframes tunerRec{to{opacity:.3}}
+.tuner-msg{min-height:0;margin:12px auto 0;max-width:340px;color:#c8675a;font-size:13px;line-height:1.45}
+.tuner-msg:empty{display:none}
+
+.tuner-strings-panel{margin-top:18px;padding:18px 22px 22px}
+.tuner-strings-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.tuner-auto{height:34px;padding:0 16px;border:1px solid var(--line);border-radius:999px;background:var(--surface2);color:var(--muted);font:inherit;font-size:12px;font-weight:780;cursor:pointer}
+.tuner-auto.is-on{background:#dcebfb;border-color:#8bb7e6;color:#2f64a8}
+html[data-theme="dark"] .tuner-auto.is-on{background:#1d2c44;border-color:#5b8fdb;color:#9dc4f5}
+.tuner-strings{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.tuner-string{position:relative;display:grid;justify-items:center;gap:2px;padding:12px 0 10px;border:1px solid var(--line);border-radius:18px;background:var(--surface);color:var(--text);font:inherit;cursor:pointer;transition:transform .3s cubic-bezier(.34,1.56,.64,1),background-color .25s,border-color .25s}
+.tuner-string:active{transform:scale(.92)}
+.ts-name{font-size:20px;font-weight:820;letter-spacing:-.03em}
+.ts-num{font-size:10px;font-weight:760;color:var(--muted)}
+.tuner-string.is-active{border-color:#8bb7e6;background:#eef5fd}
+html[data-theme="dark"] .tuner-string.is-active{background:#1a2638;border-color:#5b8fdb}
+.tuner-string.is-locked{background:var(--accent);color:var(--contrast);border-color:var(--accent)}
+.tuner-string.is-locked .ts-num{color:color-mix(in srgb,var(--contrast) 70%,transparent)}
+.tuner-string.is-tuned::after{content:"";position:absolute;top:6px;right:6px;width:14px;height:14px;border-radius:50%;background:#4f86d6 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 12.5 4 4 8-9'/%3E%3C/svg%3E") center/10px no-repeat}
+.tuner-string.just-tuned{animation:tunedPop .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes tunedPop{40%{transform:scale(1.12)}}
+@media(max-width:420px){.ts-name{font-size:17px}.tuner-strings{gap:6px}.tuner-string{padding:11px 0 9px;border-radius:15px}}
+@media(prefers-reduced-motion:reduce){.tuner-needle{transition:none}.tuner-start-dot{animation:none}}

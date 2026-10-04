@@ -10,7 +10,7 @@ const LATIN={C:'DO',D:'RE',E:'MI',F:'FA',G:'SOL',A:'LA',B:'SI'};
 const ROOT_QUERY={c:'C',do:'C','c#':'C#/Db',db:'C#/Db','do#':'C#/Db',reb:'C#/Db',d:'D',re:'D','d#':'D#/Eb',eb:'D#/Eb','re#':'D#/Eb',mib:'D#/Eb',e:'E',mi:'E',f:'F',fa:'F','f#':'F#/Gb',gb:'F#/Gb','fa#':'F#/Gb',solb:'F#/Gb',g:'G',sol:'G','g#':'G#/Ab',ab:'G#/Ab','sol#':'G#/Ab',lab:'G#/Ab',a:'A',la:'A','a#':'A#/Bb',bb:'A#/Bb','la#':'A#/Bb',sib:'A#/Bb',b:'B',si:'B'};
 const FAMILY_LABEL={mayor:'Mayor',m:'Menor',dim:'Disminuido',aug:'Aumentado',inversiones:'Inversiones',slash:'Slash / pedal'};
 const BATCH=72;
-const state={data:null,loading:false,notation:localStorage.getItem('circulos-library-notation')||'latin',root:'all',family:'all',query:'',visible:BATCH,filtered:[]};
+const state={data:null,loading:false,notation:(()=>{try{return localStorage.getItem('circulos-notation')==='latin'?'latin':'english';}catch(e){return'english';}})(),root:'all',family:'all',query:'',visible:BATCH,filtered:[]};
 const $=id=>document.getElementById(id);
 
 function stripAccents(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
@@ -193,8 +193,8 @@ function openDetail(id,rerender=false){
   if(!state.data)return;const entry=state.data.entries.find(e=>e.id===id);if(!entry)return;
   let modal=$('chordDetail');if(!modal){modal=document.createElement('div');modal.id='chordDetail';modal.className='chord-detail';modal.innerHTML='<div class="chord-detail-backdrop" data-detail-close></div><section class="chord-detail-sheet" role="dialog" aria-modal="true" aria-labelledby="chordDetailTitle"><button class="chord-detail-close" type="button" data-detail-close aria-label="Cerrar">×</button><div id="chordDetailContent"></div></section>';document.body.appendChild(modal);}
   modal.dataset.entryId=id;const content=$('chordDetailContent');
-  content.innerHTML=`<header class="chord-detail-head"><h2 id="chordDetailTitle">${escapeHtml(displaySymbol(entry.s))}</h2><div class="chord-detail-meta">${detailMeta(entry)}</div></header><div class="chord-position-grid">${positionCardsHtml(entry)}</div>`;
-  modal.classList.add('open');document.body.classList.add('chord-detail-open');if(!rerender)modal.querySelector('.chord-detail-close')?.focus({preventScroll:true});
+  content.innerHTML=`<header class="chord-detail-head"><h2 id="chordDetailTitle">${escapeHtml(displaySymbol(entry.s))}</h2><div class="chord-actions" data-entry-id="${entry.id}"></div><div class="chord-detail-meta">${detailMeta(entry)}</div></header><div class="chord-position-grid">${positionCardsHtml(entry)}</div>`;
+  modal.classList.add('open');document.dispatchEvent(new CustomEvent('circulos:detail',{detail:{entry,container:content.querySelector('.chord-actions')}}));document.body.classList.add('chord-detail-open');if(!rerender)modal.querySelector('.chord-detail-close')?.focus({preventScroll:true});
 }
 function closeDetail(){const modal=$('chordDetail');if(!modal?.classList.contains('open'))return;modal.classList.remove('open');document.body.classList.remove('chord-detail-open');}
 function resetFilters(){state.root=state.family='all';state.query='';$('chordSearch').value='';$('chordFamilyFilter').value='all';renderRoots();applyFilters();}
@@ -205,13 +205,23 @@ function bind(){
   $('chordCatalogGrid')?.addEventListener('click',event=>{const card=event.target.closest('[data-chord-id]');if(card)openDetail(card.dataset.chordId);});
   $('chordLoadMore')?.addEventListener('click',()=>{state.visible+=BATCH;renderResults();});
   $('chordResetFilters')?.addEventListener('click',resetFilters);
-  document.querySelectorAll('[data-library-notation]').forEach(btn=>btn.addEventListener('click',()=>{state.notation=btn.dataset.libraryNotation;localStorage.setItem('circulos-library-notation',state.notation);syncNotation();}));
+  document.querySelectorAll('[data-library-notation]').forEach(btn=>btn.addEventListener('click',()=>{state.notation=btn.dataset.libraryNotation;try{localStorage.setItem('circulos-notation',state.notation);}catch(e){}syncNotation();}));
   document.addEventListener('click',event=>{if(event.target.closest('[data-detail-close]'))closeDetail();});
   document.addEventListener('keydown',event=>{if(event.key==='Escape')closeDetail();});
   document.querySelectorAll('[data-app-view="chords"]').forEach(btn=>btn.addEventListener('click',ensureData));
   const view=$('chordsView');if(view)new MutationObserver(()=>{if(!view.classList.contains('view-hidden'))ensureData();}).observe(view,{attributes:true,attributeFilter:['class']});
 }
-function init(){bind();syncNotation();if($('chordsView'))ensureData().catch(()=>{});}
-window.CirculosChords={load:ensureData,findTriad,positionCardsHtml};
+/* Enlace compartido: acordes.html?acorde=Am7 abre ese acorde */
+function openFromLink(){
+  const wanted=new URLSearchParams(location.search).get('acorde');if(!wanted||!state.data)return;
+  const n=normalize(wanted),entry=state.data.entries.find(e=>e.id===wanted)||state.data.entries.find(e=>e.s.split(' / ').some(t=>normalize(t)===n));
+  if(entry)openDetail(entry.id);
+}
+document.addEventListener('circulos:notation',e=>{state.notation=e.detail==='latin'?'latin':'english';syncNotation();});
+function init(){bind();syncNotation();if($('chordsView'))ensureData().then(openFromLink).catch(()=>{});}
+window.CirculosChords={load:ensureData,findTriad,positionCardsHtml,cardHtml,openDetail,
+  byId:id=>state.data?.entries.find(e=>e.id===id)||null,
+  symbol:entry=>displaySymbol(entry.s),
+  shareFor(entry){const url=new URL('acordes.html',location.href);url.search='';url.searchParams.set('acorde',entry.s.split(' / ')[0]);return{title:'Círculos Music',text:`Mira el acorde ${displaySymbol(entry.s)}`,url:url.toString()};}};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
