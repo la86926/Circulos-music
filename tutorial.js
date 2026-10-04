@@ -91,7 +91,7 @@ const STEPS = {
       at: '#minimalScaleSelect', tap: { sel: '#minimalScaleSelect', ev: 'change' }, ok: '¡Escala cambiada!' },
 
     { title: 'Los 7 acordes de la tonalidad',
-      text: 'En el centro está la tónica y alrededor los otros seis. Menta = mayor, lavanda = menor, durazno punteado = disminuido. Toca uno.',
+      text: 'En el centro está la tónica y alrededor los otros seis. Celeste = mayor, lila = menor, melón punteado = disminuido. Toca uno.',
       ring: '#circuloArmonico .harmony-wheel-stage', radius: 28, pad: 4,
       hop: '#circuloArmonico .harmony-wheel-node', hopY: '-16px',
       at: '#circuloArmonico .harmony-wheel-node[data-wheel-index="4"]',
