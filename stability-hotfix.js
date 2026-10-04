@@ -47,40 +47,4 @@ html body #pianoKeyboard .black-key.piano-chord-color,html body .performance-bla
 `;
 document.head.appendChild(style);
 
-const watchedPianos=new WeakSet();
-function normalizePianoColors(host){
-  if(!host)return;
-  host.querySelectorAll('.white-key,.black-key,.performance-white-key,.performance-black-key').forEach(key=>{
-    const tonic=key.classList.contains('triad-tone-1')||key.classList.contains('root-tone');
-    const chord=tonic||key.classList.contains('triad-tone-2')||key.classList.contains('triad-tone-3')||key.classList.contains('triad-tone-4')||key.classList.contains('voicing-tone')||key.classList.contains('chord-tone');
-    key.classList.toggle('piano-tonic-color',tonic);
-    key.classList.toggle('piano-chord-color',!tonic&&chord);
-  });
-}
-function watchPiano(host){
-  if(!host||watchedPianos.has(host))return;
-  watchedPianos.add(host);
-  let scheduled=false;
-  const refresh=()=>{
-    if(scheduled)return;
-    scheduled=true;
-    requestAnimationFrame(()=>{scheduled=false;normalizePianoColors(host);});
-  };
-  new MutationObserver(refresh).observe(host,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
-  refresh();
-}
-function discoverPianos(){
-  watchPiano(document.getElementById('pianoKeyboard'));
-  watchPiano(document.getElementById('performancePianoKeyboard'));
-}
-
-function init(){
-  discoverPianos();
-  const observer=new MutationObserver(()=>{
-    discoverPianos();
-    if(document.getElementById('pianoKeyboard'))observer.disconnect();
-  });
-  observer.observe(document.body,{childList:true,subtree:true});
-}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

@@ -148,12 +148,11 @@ function diagramSvg(entry,position,index,options={}){
     svg+=`<line class="${start===1&&f===0?'diagram-nut':'diagram-fret'}" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`;
   }
   const nutX=rotateCW(left,top)[0];
-  if(stripAccents(position.l).toLowerCase().includes('cejilla')&&positive.length){
-    const barreFret=min,from=frets.findIndex(v=>Number.isFinite(v)&&v>0),to=frets.map((v,i)=>Number.isFinite(v)&&v>0?i:-1).reduce((a,b)=>Math.max(a,b),-1);
-    if(from>=0&&to>from&&barreFret>=start&&barreFret<start+fretCount){
-      const y=top+(barreFret-start+.5)*fretGap,a=rotateCW(stringX(from),y),b=rotateCW(stringX(to),y);
-      svg+=`<line class="diagram-barre" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`;
-    }
+  const barre=barreFret(position);
+  if(barre&&barre>=start&&barre<start+fretCount){
+    const from=frets.findIndex(v=>Number.isFinite(v)&&v>0),to=frets.map((v,i)=>Number.isFinite(v)&&v>0?i:-1).reduce((a,b)=>Math.max(a,b),-1);
+    const y=top+(barre-start+.5)*fretGap,a=rotateCW(stringX(from),y),b=rotateCW(stringX(to),y);
+    svg+=`<line class="diagram-barre" x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}"/>`;
   }
   frets.forEach((fret,dataIndex)=>{
     const verticalX=stringX(dataIndex),stringNumber=dataIndex+1,stringY=rotateCW(verticalX,top)[1];
@@ -174,13 +173,16 @@ function detailMeta(entry){
   if(entry.nt?.length)items.push(`<div><span>Notas</span><strong>${entry.nt.map(([label,notes])=>entry.nt.length>1?`${escapeHtml(noteDisplay(label))}: ${escapeHtml(displayNotesText(notes))}`:escapeHtml(displayNotesText(notes))).join('<br>')}</strong></div>`);
   return items.join('');
 }
-/* Traste donde se toca el acorde: el más bajo que se pisa */
-function fretLabel(position){
-  const pressed=shapeTokens(position.x).map(Number).filter(v=>Number.isFinite(v)&&v>0);
-  return pressed.length?`Traste ${Math.min(...pressed)}`:'Cuerdas al aire';
+/* Traste de la cejilla (el dedo que pisa varias cuerdas a la vez); null si la forma no lleva cejilla */
+function barreFret(position){
+  if(!stripAccents(position.l).toLowerCase().includes('cejilla'))return null;
+  const frets=shapeTokens(position.x).map(v=>v.toLowerCase()==='x'?null:Number(v));
+  const pressed=frets.filter(v=>Number.isFinite(v)&&v>0);if(!pressed.length)return null;
+  const from=frets.findIndex(v=>Number.isFinite(v)&&v>0),to=frets.map((v,i)=>Number.isFinite(v)&&v>0?i:-1).reduce((a,b)=>Math.max(a,b),-1);
+  return to>from?Math.min(...pressed):null;
 }
 function positionCardsHtml(entry){
-  return entry.p.map((p,i)=>`<article class="chord-position-card"><div class="position-card-head"><strong>${fretLabel(p)}</strong></div>${diagramSvg(entry,p,i)}<code aria-label="Tablatura de la 1.ª a la 6.ª cuerda">${escapeHtml(p.x.replace(/x/g,'×'))}</code></article>`).join('');
+  return entry.p.map((p,i)=>`<article class="chord-position-card">${barreFret(p)?`<div class="position-card-head"><strong>Traste ${barreFret(p)}</strong></div>`:''}${diagramSvg(entry,p,i)}<code aria-label="Tablatura de la 1.ª a la 6.ª cuerda">${escapeHtml(p.x.replace(/x/g,'×'))}</code></article>`).join('');
 }
 /* Tríada (mayor, menor o disminuida) de una nota: la usa la página Círculos con los mismos datos y tarjetas */
 function findTriad(pitchClass,quality){

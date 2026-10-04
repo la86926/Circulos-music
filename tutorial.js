@@ -109,7 +109,7 @@ const STEPS = {
           gesture: 'swipey', at: '#circleChordPositions .chord-position-card' };
         return {
           title: 'Posiciones en piano',
-          text: 'Las teclas de color son las notas del acorde. Prueba las inversiones para ver otras formas de tocarlo.',
+          text: 'La tecla lila es la tónica y las verdes, las otras notas. Toca una inversión y mira cómo una nota salta de octava.',
           ring: '#pianoPanel', radius: 22, hop: '#pianoPanel [data-inversion]', gesture: 'tap',
           at: '#pianoPanel [data-inversion]:not(.active)', tap: { sel: '#pianoPanel [data-inversion]' }, ok: '¡Otra forma de tocarlo!' };
       } },

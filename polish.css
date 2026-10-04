@@ -53,3 +53,32 @@
 .chord-position-card .position-card-head strong{margin-top:0;font-size:15px;letter-spacing:-.01em}
 .chord-detail-meta{grid-template-columns:minmax(0,1fr)}
 .chord-detail-meta>div{max-width:360px}
+
+/* ───────── Piano en tonos pastel ─────────
+   Solo brillan las teclas de la posición: lila = tónica, menta = las otras notas del acorde. */
+:root{--pk-mint:#d4f1e0;--pk-mint-edge:#9fdbb9;--pk-mint-text:#2f6b4c;--pk-lilac:#dfe3ff;--pk-lilac-edge:#aab4f6;--pk-lilac-text:#36418a}
+html body #instrumento #pianoKeyboard .white-key{background:#fbfbf8!important;color:#a2a49f!important;border-color:#d6d7d1!important;box-shadow:none!important;filter:none!important;transition:background-color .35s ease,color .35s ease,box-shadow .35s ease}
+html body #instrumento #pianoKeyboard .black-key{background:#1d1e1d!important;color:#8d908b!important;box-shadow:none!important;filter:none!important;transition:background-color .35s ease,color .35s ease}
+html body #instrumento #pianoKeyboard .white-key.pk-on{background:var(--pk-mint)!important;color:var(--pk-mint-text)!important;box-shadow:inset 0 -12px 0 var(--pk-mint-edge)!important}
+html body #instrumento #pianoKeyboard .white-key.pk-root{background:var(--pk-lilac)!important;color:var(--pk-lilac-text)!important;box-shadow:inset 0 -12px 0 var(--pk-lilac-edge)!important}
+html body #instrumento #pianoKeyboard .black-key.pk-on{background:var(--pk-mint-edge)!important;color:#143826!important}
+html body #instrumento #pianoKeyboard .black-key.pk-root{background:var(--pk-lilac-edge)!important;color:#1d2560!important}
+html body #instrumento #pianoKeyboard .white-key.pk-wait{background:#fbfbf8!important;color:#a2a49f!important;box-shadow:none!important}
+html body #instrumento #pianoKeyboard .black-key.pk-wait{background:#1d1e1d!important;color:#8d908b!important}
+html body #instrumento #pianoKeyboard .pk-leave{animation:pkLeave .5s ease both}
+html body #instrumento #pianoKeyboard .pk-pop{animation:pkPop .55s cubic-bezier(.34,1.56,.64,1) both;animation-delay:var(--pk-d,0ms)}
+@keyframes pkPop{0%{transform:translateY(0)}35%{transform:translateY(5px)}100%{transform:translateY(0)}}
+@keyframes pkLeave{0%{box-shadow:inset 0 -12px 0 var(--pk-mint-edge),0 0 0 0 rgba(170,180,246,.0)}40%{box-shadow:inset 0 -4px 0 var(--pk-mint-edge),0 0 0 6px rgba(170,180,246,.35)}100%{box-shadow:none}}
+.pk-fly{position:absolute;left:0;top:0;z-index:8;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:820;letter-spacing:-.01em;pointer-events:none;background:var(--pk-mint);color:var(--pk-mint-text);box-shadow:0 0 0 3px var(--pk-mint-edge),0 10px 24px rgba(40,60,50,.22)}
+.pk-fly.is-root{background:var(--pk-lilac);color:var(--pk-lilac-text);box-shadow:0 0 0 3px var(--pk-lilac-edge),0 10px 24px rgba(40,50,110,.24)}
+.pk-ring{position:absolute;z-index:7;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;border:3px solid var(--pk-mint-edge);pointer-events:none;animation:pkRing .65s ease-out both}
+.pk-ring.is-root{border-color:var(--pk-lilac-edge)}
+@keyframes pkRing{from{transform:scale(.5);opacity:1}to{transform:scale(1.9);opacity:0}}
+@media(prefers-reduced-motion:reduce){html body #instrumento #pianoKeyboard .pk-pop,html body #instrumento #pianoKeyboard .pk-leave{animation:none}}
+
+/* Tonalidad: el selector de escala va junto al título, no en el extremo opuesto */
+html body #selector>.panel-head{display:flex!important;justify-content:flex-start!important;align-items:center!important;flex-wrap:wrap;gap:10px 14px!important}
+html body #selector .minimal-scale-control{min-width:0}
+html body #selector .minimal-scale-select{height:36px;padding:0 34px 0 15px;border-radius:999px}
+/* En el celular las teclas son más angostas para que la posición completa quepa en pantalla */
+@media(max-width:560px){:root{--key-w:44px;--key-black-w:28px}html body #instrumento #pianoKeyboard .white-key{font-size:10px}}
