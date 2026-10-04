@@ -53,7 +53,18 @@ function detect(buf,sampleRate,{minFreq=60,maxFreq=1100,threshold=0.12}={}){
   let freq=sampleRate/better;
   if(freq<minFreq||freq>maxFreq)return null;
   freq=refine(buf,sampleRate,freq);
-  return{freq,clarity:1-cmnd[tau]};
+  return{freq,clarity:1-cmnd[tau],tau,cmnd,tauMin,tauMax,sampleRate,buf};
+}
+
+/* La misma lectura una octava abajo (período doble): sirve cuando el 2.º armónico de una cuerda grave
+   se impone a la fundamental. Devuelve null si el período doble no es claramente periódico. */
+function octaveDown(r,minClarity=0.6){
+  const {cmnd,tauMax,sampleRate,buf}=r,t2=r.tau*2;
+  if(t2+2>=tauMax)return null;
+  let b=t2;for(let t=Math.round(t2*0.97);t<=Math.min(tauMax-1,Math.round(t2*1.03));t++)if(cmnd[t]<cmnd[b])b=t;
+  if(1-cmnd[b]<minClarity)return null;
+  let better=b;const a=cmnd[b-1],m=cmnd[b],c=cmnd[b+1],den=a+c-2*m;if(den!==0)better=b+(a-c)/(2*den);
+  return{freq:refine(buf,sampleRate,sampleRate/better),clarity:1-cmnd[b]};
 }
 
 /* Afinado fino de la fundamental por la fase: se mide cuánto avanza la fase de la fundamental entre
@@ -85,6 +96,6 @@ function nearestString(freq){
   return best;
 }
 
-const api={A4,STRINGS,detect,rms,nearestString,centsBetween,midiToFreq};
+const api={A4,STRINGS,detect,octaveDown,rms,nearestString,centsBetween,midiToFreq};
 if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.TunerCore=api;
 })(typeof self!=='undefined'?self:this);

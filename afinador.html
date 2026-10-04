@@ -21,7 +21,7 @@
 <link rel="stylesheet" href="style.css?v=12">
 <link rel="stylesheet" href="shell.css?v=3">
 <link rel="stylesheet" href="chords-library.css?v=14">
-<link rel="stylesheet" href="tuner.css?v=2">
+<link rel="stylesheet" href="tuner.css?v=3">
 <link rel="stylesheet" href="polish.css?v=14">
 <link rel="stylesheet" href="tutorial.css?v=3">
 </head>
@@ -65,6 +65,7 @@
       <div class="tuner-readout"><div class="tuner-note" id="tunerNote">—</div><div class="tuner-cents" id="tunerCents"></div></div>
     </div>
     <p class="tuner-sub" id="tunerSub"></p>
+    <div class="tuner-level" id="tunerLevel" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg><span class="tuner-level-bar"><i></i></span></div>
     <p class="tuner-status" id="tunerStatus" data-kind="idle" aria-live="polite"></p>
     <button class="tuner-start" id="tunerStart" type="button" aria-pressed="false">Empezar a afinar</button>
     <p class="tuner-msg" id="tunerMsg" role="alert"></p>
@@ -76,8 +77,8 @@
 </main>
 <div class="toast" id="toast" role="status"></div>
 <script src="shell.js?v=2"></script>
-<script src="tuner-core.js?v=1" defer></script>
-<script src="tuner.js?v=1" defer></script>
+<script src="tuner-core.js?v=2" defer></script>
+<script src="tuner.js?v=4" defer></script>
 <script src="chords-library.js?v=21" defer></script>
 <script src="gift-ui.js?v=6" defer></script>
 <script src="share.js?v=1" defer></script>

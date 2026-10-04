@@ -15,6 +15,11 @@
 .tuner-note{font-size:clamp(64px,18vw,96px);font-weight:820;line-height:1;letter-spacing:-.06em;color:var(--text);transition:color .3s,transform .3s cubic-bezier(.34,1.56,.64,1)}
 .tuner-cents{min-height:20px;margin-top:4px;color:var(--muted);font-size:14px;font-weight:760;font-variant-numeric:tabular-nums}
 .tuner-sub{margin:8px 0 0;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.tuner-level{display:none;align-items:center;justify-content:center;gap:8px;margin:10px auto 0;color:var(--muted)}
+body.tuner-on .tuner-level{display:flex}
+.tuner-level svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.tuner-level-bar{position:relative;width:120px;height:6px;border-radius:99px;background:var(--surface2);overflow:hidden}
+.tuner-level-bar i{position:absolute;inset:0;transform-origin:left;transform:scaleX(var(--lvl,0));background:#8bb7e6;border-radius:inherit;transition:transform .08s linear}
 .tuner-status{min-height:24px;margin:10px 0 0;font-size:16px;font-weight:760;color:var(--text);transition:color .25s}
 .tuner-status[data-kind="low"],.tuner-status[data-kind="high"]{color:#c8675a}
 .tuner-status[data-kind="good"]{color:#3a6fc0}
