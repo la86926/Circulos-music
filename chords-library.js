@@ -193,10 +193,6 @@ function openDetail(id,rerender=false){
 }
 function closeDetail(){const modal=$('chordDetail');if(!modal?.classList.contains('open'))return;modal.classList.remove('open');document.body.classList.remove('chord-detail-open');}
 function resetFilters(){state.root=state.family=state.position='all';state.query='';$('chordSearch').value='';$('chordFamilyFilter').value='all';$('chordPositionFilter').value='all';renderRoots();applyFilters();}
-function applyGiftCopy(){
-  const gift=document.querySelector('.side-menu-gift'),title=gift?.querySelector('strong'),subtitle=gift?.querySelector('small'),kicker=document.querySelector('.gift-kicker'),modalTitle=document.getElementById('giftTitle'),message=document.querySelector('.gift-message');if(!gift||!title||!subtitle||!kicker||!modalTitle||!message)return false;
-  title.textContent='UN REGALO MUSICAL';subtitle.textContent='Lo que hay preparado aquí.';kicker.textContent='UN REGALO MUSICAL';modalTitle.textContent='Por José H. Rico, todo esto';message.textContent='Todo lo que encuentras aquí fue preparado con dedicación para que, explorar los acordes, sea sencillo y claro.';document.querySelector('.gift-signature')?.remove();gift.setAttribute('aria-label','Abrir regalo musical');return true;
-}
 function bind(){
   $('chordSearch')?.addEventListener('input',event=>{state.query=event.target.value;applyFilters();});
   $('chordFamilyFilter')?.addEventListener('change',event=>{state.family=event.target.value;applyFilters();});
@@ -211,6 +207,6 @@ function bind(){
   document.querySelectorAll('[data-app-view="chords"]').forEach(btn=>btn.addEventListener('click',ensureData));
   const view=$('chordsView');if(view)new MutationObserver(()=>{if(!view.classList.contains('view-hidden'))ensureData();}).observe(view,{attributes:true,attributeFilter:['class']});
 }
-function init(){bind();syncNotation();if(!$('chordsView')?.classList.contains('view-hidden'))ensureData();if(!applyGiftCopy()){const observer=new MutationObserver(()=>{if(applyGiftCopy())observer.disconnect();});observer.observe(document.body,{childList:true,subtree:true});}}
+function init(){bind();syncNotation();if(!$('chordsView')?.classList.contains('view-hidden'))ensureData();}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

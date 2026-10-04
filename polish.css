@@ -1,0 +1,29 @@
+/* Círculos Music · pulido visual
+   Se carga al final en index.html y acordes.html, así que estas reglas tienen la última palabra. */
+
+/* Cabecera: el nombre ya no se parte en dos líneas en pantallas angostas */
+.appearance-header{grid-template-columns:auto minmax(0,1fr) auto}
+.brand-wrap{min-width:0}
+.brand{white-space:nowrap}
+.brand-icon,.side-menu-brand img{border-radius:0;object-fit:contain}
+@media(max-width:430px){.brand{font-size:17px}.brand-icon{width:30px;height:30px}.brand-wrap{gap:8px}}
+@media(max-width:370px){.brand-sub{display:none}}
+
+/* Tarjetas del menú lateral, ahora con icono */
+.app-choice{display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:14px;align-items:center}
+.app-choice>strong,.app-choice>small{grid-column:2}
+.app-choice small{margin-top:3px}
+.app-choice-icon{grid-column:1;grid-row:1 / span 2;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:var(--surface2);color:var(--text);transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.app-choice-icon svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.app-choice-icon .dot{fill:currentColor;stroke:none}
+.app-choice.active .app-choice-icon{background:color-mix(in srgb,var(--contrast) 14%,transparent);color:var(--contrast)}
+.app-choice:hover .app-choice-icon{transform:scale(1.08) rotate(-4deg)}
+
+/* Rueda armónica: "Superdominante" ya no toca el borde del círculo */
+.harmony-wheel-node:not(.harmony-wheel-center-node) .harmony-wheel-function{font-size:16px}
+
+/* Respuesta táctil con rebote suave en los botones principales */
+.tone-btn,.seg-btn,.icon-btn,.theme-choice,.chord-catalog-card,[data-root]{transition:transform .3s cubic-bezier(.34,1.56,.64,1),background-color .2s,color .2s,border-color .2s,box-shadow .2s}
+.tone-btn:active,.seg-btn:active,.icon-btn:active,.chord-catalog-card:active,[data-root]:active{transform:scale(.94)}
+@media(hover:hover){.tone-btn:not(.active):hover{transform:translateY(-2px)}}
+@media(prefers-reduced-motion:reduce){.tone-btn,.seg-btn,.icon-btn,.theme-choice,.chord-catalog-card,[data-root],.app-choice-icon{transition:none}.app-choice:hover .app-choice-icon{transform:none}}
