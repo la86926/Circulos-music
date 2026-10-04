@@ -59,6 +59,7 @@ const rootPick = () => {
 const scrolls = sel => { const el = $(sel); return !!el && el.scrollWidth > el.clientWidth + 6; };
 const detailOpen  = () => { if (!$('#chordDetail.open')) $('.chord-catalog-card')?.click(); };
 const detailClose = () => setTimeout(() => { if (!(active && cur && cur.detail)) $('#chordDetail.open [data-detail-close]')?.click(); }, 0);
+const pianoOn = () => { const p = $('#instrumento [data-instrument="piano"]'); if (p && !p.classList.contains('active')) p.click(); };
 const guitarOn = () => { const g = $('#instrumento [data-instrument="guitar"]'); if (g && !g.classList.contains('active')) g.click(); };
 const menuOpen  = () => { if (!$('#sideMenu.open')) $('#menuBtn')?.click(); };
 const menuClose = () => { if ($('#sideMenu.open')) $('#menuCloseBtn')?.click(); };
@@ -90,7 +91,7 @@ const STEPS = {
       at: '#minimalScaleSelect', tap: { sel: '#minimalScaleSelect', ev: 'change' }, ok: '¡Escala cambiada!' },
 
     { title: 'Los 7 acordes de la tonalidad',
-      text: 'En el centro está la tónica y alrededor los otros seis. Verde = mayor, azul = menor, naranja punteado = disminuido. Toca uno.',
+      text: 'En el centro está la tónica y alrededor los otros seis. Menta = mayor, lavanda = menor, durazno punteado = disminuido. Toca uno.',
       ring: '#circuloArmonico .harmony-wheel-stage', radius: 28, pad: 4,
       hop: '#circuloArmonico .harmony-wheel-node', hopY: '-16px',
       at: '#circuloArmonico .harmony-wheel-node[data-wheel-index="4"]',
@@ -109,10 +110,15 @@ const STEPS = {
           gesture: 'swipey', at: '#circleChordPositions .chord-position-card' };
         return {
           title: 'Posiciones en piano',
-          text: 'La tecla lila es la tónica y las verdes, las otras notas. Toca una inversión y mira cómo una nota salta de octava.',
+          text: 'La tecla lila es la tónica y las verdes, las otras notas. Toca las teclas para escucharlas y prueba una inversión: una nota salta de octava.',
           ring: '#pianoPanel', radius: 22, hop: '#pianoPanel [data-inversion]', gesture: 'tap',
           at: '#pianoPanel [data-inversion]:not(.active)', tap: { sel: '#pianoPanel [data-inversion]' }, ok: '¡Otra forma de tocarlo!' };
       } },
+
+    { title: 'Mueve el teclado',
+      text: 'El piano no se arrastra con el dedo: desliza el recuadro de este mapa o usa las flechas para ver otra parte. Con «Todo el teclado» ves el acorde en todas las octavas.',
+      ring: '.pk-nav', radius: 16, pad: 6, hop: '.pk-nav-btn, .pk-all', hopY: '-4px',
+      at: '.pk-nav-track', gesture: 'swipe', onEnter: pianoOn },
 
     { title: 'Los números de abajo', text: 'Es la tablatura: cada número es el traste que pisas en cada cuerda. El primero (izquierda) es la 1.ª cuerda, la más delgada, y el último (derecha) es la 6.ª, la más gruesa. 0 = cuerda al aire, × = no se toca.',
       ring: '#circleChordPositions .chord-position-card code', radius: 12, pad: 5,
