@@ -27,3 +27,19 @@
 .tone-btn:active,.seg-btn:active,.icon-btn:active,.chord-catalog-card:active,[data-root]:active{transform:scale(.94)}
 @media(hover:hover){.tone-btn:not(.active):hover{transform:translateY(-2px)}}
 @media(prefers-reduced-motion:reduce){.tone-btn,.seg-btn,.icon-btn,.theme-choice,.chord-catalog-card,[data-root],.app-choice-icon{transition:none}.app-choice:hover .app-choice-icon{transform:none}}
+
+/* Rueda: la leyenda de colores es lo único que queda junto al círculo */
+.harmony-wheel-info{padding:14px 18px}
+.harmony-wheel-legend{display:flex;flex-wrap:wrap;gap:10px 20px;margin-top:0;min-width:0}
+
+/* Posiciones de guitarra en Círculos (mismas tarjetas que la biblioteca de Acordes) */
+#guitarPanel .chord-detail-section-head{margin:2px 2px 16px}
+#guitarPanel .chord-detail-section-head strong{font-size:20px;letter-spacing:-.03em}
+#circleChordPositions .chord-position-card{animation:circleCardIn .42s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * 45ms)}
+@keyframes circleCardIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){#circleChordPositions .chord-position-card{animation:none}}
+@media(min-width:851px){.harmony-wheel-legend{flex-direction:column}}
+
+/* "Ver tutorial" en el menú: una sola línea, centrada junto a su icono */
+.tuto-menu-item .app-choice-icon{grid-row:1}
+.tuto-menu-item>strong{align-self:center}

@@ -63,7 +63,7 @@ const menuClose = () => { if ($('#sideMenu.open')) $('#menuCloseBtn')?.click(); 
 const STEPS = {
   circulos: [
     { modal: true, title: 'Bienvenido a Círculos Music',
-      text: 'Elige una tonalidad y descubre sus 7 acordes, con su forma en guitarra y en piano. Te lo muestro en menos de un minuto.',
+      text: 'Elige una tonalidad, mira sus 7 acordes y cómo se tocan en guitarra y piano.',
       next: 'Empezar', skip: 'Ahora no', at: '#tutoNext', gesture: 'tap' },
 
     { title: '¿Cómo quieres ver las notas?',
@@ -99,10 +99,11 @@ const STEPS = {
       tap: { sel: '#instrumento .instrument-tabs .seg-btn' }, ok: '¡Instrumento cambiado!' },
 
     { variant() {
-        if (pick('#guitarVoicings')) return {
+        if (pick('#circleChordPositions .chord-position-card')) return {
           title: 'Posiciones en guitarra',
-          text: 'Desliza hacia los lados para ver más formas de tocarlo: abiertas, con cejilla y tríadas. La R marca la nota tónica.',
-          ring: '#guitarVoicings', radius: 22, hop: '#guitarVoicings .voicing-card', gesture: 'swipe', at: '#guitarVoicings' };
+          text: 'Cada tarjeta es una forma distinta de tocarlo. Desliza hacia abajo para ver todas. La R marca la nota tónica.',
+          ring: '#circleChordPositions .chord-position-card', radius: 24, hop: '#circleChordPositions .chord-position-card',
+          gesture: 'swipey', at: '#circleChordPositions .chord-position-card' };
         return {
           title: 'Posiciones en piano',
           text: 'Las teclas de color son las notas del acorde. Prueba las inversiones para ver otras formas de tocarlo.',
@@ -192,6 +193,7 @@ function build() {
     '<section class="tuto-card" role="dialog" aria-label="Tutorial" aria-live="polite">' +
       `<button class="tuto-x" type="button" aria-label="Cerrar tutorial" title="Cerrar tutorial">${ICON.close}</button>` +
       '<img class="tuto-mark" src="logo.svg" alt="" width="64" height="64">' +
+      '<img class="tuto-art" src="hero-light.webp" alt="" width="240" height="240">' +
       '<p class="tuto-kicker"></p><h2 class="tuto-title"></h2><p class="tuto-text"></p>' +
       '<p class="tuto-ok" role="status"></p>' +
       '<div class="tuto-foot"><div class="tuto-dots" aria-hidden="true"></div>' +
@@ -220,7 +222,7 @@ function injectEntrypoints() {
   if (picker) {
     const item = document.createElement('button');
     item.type = 'button'; item.className = 'app-choice tuto-menu-item';
-    item.innerHTML = `<span class="app-choice-icon">${ICON.help}</span><strong>Ver tutorial</strong><small>Repite la guía paso a paso.</small>`;
+    item.innerHTML = `<span class="app-choice-icon">${ICON.help}</span><strong>Ver tutorial</strong>`;
     item.addEventListener('click', () => { $('#menuCloseBtn')?.click(); setTimeout(start, 320); });
     picker.appendChild(item);
   }
@@ -261,6 +263,7 @@ function enter(n) {
   token++; succeeded = false;
 
   layer.classList.toggle('is-modal', !!cur.modal);
+  layer.classList.toggle('is-welcome', n === 0);
   document.body.classList.toggle('tuto-show-fab', !!cur.keepFab);
   ringEl.classList.add('is-moving'); handEl.classList.add('is-moving');
   clearTimeout(movingTimer);

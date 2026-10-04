@@ -85,59 +85,6 @@ if(!document.querySelector('link[href*="circle-wheel.css"]')){
   document.head.appendChild(link);
 }
 
-const menuChoices=[...document.querySelectorAll('[data-app-view]')];
-const circlesChoice=menuChoices.find(button=>button.dataset.appView==='circles');
-const chordsChoice=menuChoices.find(button=>button.dataset.appView==='chords');
-if(circlesChoice){
-  const description=circlesChoice.querySelector('small');
-  if(description)description.textContent='Tonalidades, escalas y sus 7 acordes en un círculo armónico.';
-}
-if(chordsChoice){
-  const description=chordsChoice.querySelector('small');
-  if(description)description.textContent='Acordes de guitarra y sus posiciones más conocidas en el diapasón.';
-}
-
-
-const chordsView=document.getElementById('chordsView');
-if(chordsView){
-  const hero=chordsView.querySelector('.library-hero');
-  const heroTitle=hero?.querySelector('h1');
-  if(heroTitle)heroTitle.textContent='Acordes de guitarra.';
-
-  const toolbar=chordsView.querySelector(':scope>.toolbar');
-  const notationCard=toolbar?.querySelector('.control-card:first-child');
-  const notationSegment=notationCard?.querySelector('.segmented');
-  const english=notationSegment?.querySelector('[data-library-notation="english"]');
-  const latin=notationSegment?.querySelector('[data-library-notation="latin"]');
-  if(english&&latin){
-    english.textContent='Inglés';
-    latin.textContent='Latina';
-    notationSegment.append(english,latin);
-    if(!english.classList.contains('active'))english.click();
-  }
-
-  const panels=[...chordsView.querySelectorAll(':scope>.panel')];
-  const selectorPanel=panels[0];
-  const selectorTitle=selectorPanel?.querySelector('.panel-title');
-  const selectorSubtitle=selectorPanel?.querySelector('.panel-subtitle');
-  if(selectorTitle)selectorTitle.textContent='Acorde principal';
-  if(selectorSubtitle)selectorSubtitle.textContent='Selecciona la tónica.';
-
-  const selectorPanelHead=selectorPanel?.querySelector('.panel-head');
-  if(selectorPanelHead&&!document.getElementById('libraryQualitySelect')){
-    const compact=document.createElement('label');
-    compact.className='minimal-library-quality';
-    compact.innerHTML='<select id="libraryQualitySelect" aria-label="Tipo de acorde"><option value="major">Mayor</option><option value="minor">Menor</option><option value="dominant7">Séptima</option><option value="major7">Mayor 7</option><option value="minor7">Menor 7</option><option value="diminished">Disminuido</option></select><span aria-hidden="true">⌄</span>';
-    selectorPanelHead.appendChild(compact);
-    const select=compact.querySelector('select');
-    const sync=()=>{const active=document.querySelector('#libraryQualities [data-library-quality].active');if(active)select.value=active.dataset.libraryQuality;};
-    select.addEventListener('change',()=>document.querySelector(`#libraryQualities [data-library-quality="${select.value}"]`)?.click());
-    const qualityHost=document.getElementById('libraryQualities');
-    if(qualityHost)new MutationObserver(sync).observe(qualityHost,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
-    sync();
-  }
-}
-
 const chordsSection=document.getElementById('acordes');
 if(!chordsSection)return;
 let section=document.getElementById('circuloArmonico');
@@ -147,28 +94,16 @@ if(!section){
 }
 section.className='panel harmony-wheel-panel';
 section.id='circuloArmonico';
-section.innerHTML='<div class="harmony-wheel-wrap"><div class="harmony-wheel-stage" id="harmonyWheel"></div><aside class="harmony-wheel-info"><div><h4>Distribución armónica</h4><p id="harmonyWheelSummary">3 mayores · 3 menores · 1 disminuido</p></div><div class="harmony-wheel-legend"><div class="harmony-wheel-legend-item"><span class="harmony-wheel-dot major"></span><span>Mayor</span></div><div class="harmony-wheel-legend-item"><span class="harmony-wheel-dot minor"></span><span>Menor</span></div><div class="harmony-wheel-legend-item"><span class="harmony-wheel-dot diminished"></span><span>Disminuido</span></div></div></aside></div>';
+section.innerHTML='<div class="harmony-wheel-wrap"><div class="harmony-wheel-stage" id="harmonyWheel"></div><aside class="harmony-wheel-info"><div class="harmony-wheel-legend"><div class="harmony-wheel-legend-item"><span class="harmony-wheel-dot major"></span><span>Mayor</span></div><div class="harmony-wheel-legend-item"><span class="harmony-wheel-dot minor"></span><span>Menor</span></div><div class="harmony-wheel-legend-item"><span class="harmony-wheel-dot diminished"></span><span>Disminuido</span></div></div></aside></div>';
 
 const grid=document.getElementById('diatonicGrid');
 const host=document.getElementById('harmonyWheel');
-const summary=document.getElementById('harmonyWheelSummary');
 if(!grid||!host)return;
 let pending=false;
 function svgEl(name,attrs={}){const node=document.createElementNS(NS,name);for(const [key,value] of Object.entries(attrs))node.setAttribute(key,String(value));return node;}
 function qualityClass(text){const value=(text||'').toLowerCase();if(value.includes('dismin'))return'diminished';if(value.includes('menor'))return'minor';return'major';}
 function schedule(){if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;render();});}
 function addText(group,cls,x,y,value){const text=svgEl('text',{class:cls,x,y});text.textContent=value;group.appendChild(text);}
-function showSelectedChord(){
-  const instrument=document.getElementById('instrumento');
-  if(!instrument)return;
-  instrument.style.setProperty('display','block','important');
-  requestAnimationFrame(()=>{
-    const guitarButton=instrument.querySelector('[data-instrument="guitar"]');
-    if(guitarButton&&!guitarButton.classList.contains('active'))guitarButton.click();
-    const carousel=document.getElementById('guitarVoicings');
-    if(carousel)carousel.classList.add('circle-voicing-carousel');
-  });
-}
 function nodeGroup(item,x,y,r,isCenter=false){
   const type=qualityClass(item.quality);
   const group=svgEl('g',{class:`harmony-wheel-node ${type}${item.active?' active':''}${isCenter?' harmony-wheel-center-node':''}`,role:'button','aria-label':`${item.degree}, ${item.name}, ${item.functionName}, notas ${item.notes}`,'data-wheel-index':item.index,focusable:'false'});
@@ -186,7 +121,6 @@ function nodeGroup(item,x,y,r,isCenter=false){
   }
   const activate=()=>{
     item.card?.click();
-    showSelectedChord();
     setTimeout(()=>document.activeElement?.blur?.(),0);
   };
   group.addEventListener('click',activate);
@@ -217,9 +151,6 @@ function render(){
   });
   svg.appendChild(nodeGroup(data[0],cx,cy,centerRadius,true));
   host.replaceChildren(svg);
-  const counts=data.reduce((acc,item)=>{acc[qualityClass(item.quality)]++;return acc;},{major:0,minor:0,diminished:0});
-  if(summary)summary.textContent=`${counts.major} mayores · ${counts.minor} menores · ${counts.diminished} disminuido${counts.diminished===1?'':'s'}`;
-  showSelectedChord();
 }
 new MutationObserver(schedule).observe(grid,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
 window.addEventListener('DOMContentLoaded',schedule);

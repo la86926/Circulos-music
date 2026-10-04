@@ -18,8 +18,7 @@ style.textContent=`
 .keyboard-mode-slider,.keyboard-move-toggle{display:none!important}
 .piano-scroll,.performance-piano-scroll{overflow-x:hidden!important;touch-action:pan-y!important;overscroll-behavior-x:none!important;-webkit-overflow-scrolling:auto!important}
 html body #pianoKeyboard,html body #performancePianoKeyboard,html body #pianoKeyboard button,html body #performancePianoKeyboard button{touch-action:none!important;-webkit-touch-callout:none!important;user-select:none!important;-webkit-user-select:none!important}
-.piano-position-control{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;margin:12px 0 14px;padding:0;background:transparent;border:0;box-shadow:none}
-.piano-position-title{color:var(--muted);font-size:11px;font-weight:800;white-space:nowrap}
+.piano-position-control{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;margin:12px 0 14px;padding:0;background:transparent;border:0;box-shadow:none}
 .piano-position-arrows{color:var(--muted);font-size:17px;font-weight:760;line-height:1;letter-spacing:-.12em}
 .piano-position-range{width:100%;height:30px;margin:0;appearance:none;-webkit-appearance:none;background:transparent;cursor:ew-resize;touch-action:none!important}
 .piano-position-range::-webkit-slider-runnable-track{height:6px;border-radius:999px;background:var(--surface3);box-shadow:inset 0 0 0 1px var(--line)}
@@ -50,7 +49,7 @@ html body #pianoKeyboard .white-key.synced-chord-tone,html body #performancePian
 html body #pianoKeyboard .white-key.synced-root-tone,html body #performancePianoKeyboard .white-key.synced-root-tone{background:#D5DCF9!important;color:#263252!important;box-shadow:inset 0 -8px 0 #AAB6EA!important}
 html body #pianoKeyboard .black-key.synced-chord-tone,html body #performancePianoKeyboard .black-key.synced-chord-tone{background:#4f9a70!important;color:#fff!important;box-shadow:inset 0 0 0 3px #e2f4e8!important}
 html body #pianoKeyboard .black-key.synced-root-tone,html body #performancePianoKeyboard .black-key.synced-root-tone{background:#D5DCF9!important;color:#263252!important;box-shadow:inset 0 0 0 3px #AAB6EA!important}
-@media(max-width:560px){.piano-position-control{grid-template-columns:1fr auto;gap:7px}.piano-position-title{grid-column:1/-1}.piano-position-range{min-width:0}#libraryPianoPanel{padding:0 16px 20px!important}#libraryPerformanceSwitch{margin:0 16px 12px!important}#libraryPianoPanel .performance-piano-summary strong{font-size:25px!important}}
+@media(max-width:560px){.piano-position-control{gap:7px}.piano-position-range{min-width:0}#libraryPianoPanel{padding:0 16px 20px!important}#libraryPerformanceSwitch{margin:0 16px 12px!important}#libraryPianoPanel .performance-piano-summary strong{font-size:25px!important}}
 `;
 document.head.appendChild(style);
 
@@ -153,7 +152,7 @@ function makePositionControl(host){
   if(!host)return;document.querySelectorAll(`[data-keyboard-toggle="${host.id}"]`).forEach(node=>node.remove());
   const existing=document.querySelector(`[data-piano-position="${host.id}"]`);if(existing){if(!rangeBindings.has(host))bindRange(host,existing);else applyPosition(rangeBindings.get(host));return;}
   const control=document.createElement('div');control.className='piano-position-control';control.dataset.pianoPosition=host.id;
-  control.innerHTML='<span class="piano-position-title">Desliza para mover el piano</span><input class="piano-position-range" type="range" min="0" max="1000" value="1000" step="1" aria-label="Mover el piano horizontalmente"><span class="piano-position-arrows" aria-hidden="true">← →</span>';
+  control.innerHTML='<input class="piano-position-range" type="range" min="0" max="1000" value="1000" step="1" aria-label="Mover el piano horizontalmente"><span class="piano-position-arrows" aria-hidden="true">← →</span>';
   if(host.id==='pianoKeyboard')scrollForHost(host)?.before(control);else document.querySelector('#libraryPianoPanel .performance-piano-summary')?.after(control);
   bindRange(host,control);
 }
