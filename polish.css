@@ -57,14 +57,14 @@
 /* ───────── Piano en tonos pastel ─────────
    Solo brillan las teclas de la posición: azul intenso = tónica, azul hielo = las otras notas del acorde. */
 :root{--pk-note:#dcebfb;--pk-note-edge:#8bb7e6;--pk-note-text:#2f64a8;--pk-root:#5b8fdb;--pk-root-edge:#3a6fc0;--pk-root-text:#ffffff}
-html body #instrumento #pianoKeyboard .white-key{background:#fbfbf8!important;color:#a2a49f!important;border-color:#d6d7d1!important;box-shadow:none!important;filter:none!important;transition:background-color .35s ease,color .35s ease,box-shadow .35s ease}
-html body #instrumento #pianoKeyboard .black-key{background:#1d1e1d!important;color:#8d908b!important;box-shadow:none!important;filter:none!important;transition:background-color .35s ease,color .35s ease}
+html body #instrumento #pianoKeyboard .white-key{background:#fdfdff!important;color:#9aa3b2!important;border-color:#d8dee8!important;box-shadow:none!important;filter:none!important;transition:background-color .35s ease,color .35s ease,box-shadow .35s ease}
+html body #instrumento #pianoKeyboard .black-key{background:#1b1f27!important;color:#8e97a6!important;box-shadow:none!important;filter:none!important;transition:background-color .35s ease,color .35s ease}
 html body #instrumento #pianoKeyboard .white-key.pk-on{background:var(--pk-note)!important;color:var(--pk-note-text)!important;box-shadow:inset 0 -12px 0 var(--pk-note-edge)!important}
 html body #instrumento #pianoKeyboard .white-key.pk-root{background:var(--pk-root)!important;color:var(--pk-root-text)!important;box-shadow:inset 0 -12px 0 var(--pk-root-edge)!important}
 html body #instrumento #pianoKeyboard .black-key.pk-on{background:var(--pk-note-edge)!important;color:#12345f!important}
 html body #instrumento #pianoKeyboard .black-key.pk-root{background:var(--pk-root)!important;color:#fff!important}
-html body #instrumento #pianoKeyboard .white-key.pk-wait{background:#fbfbf8!important;color:#a2a49f!important;box-shadow:none!important}
-html body #instrumento #pianoKeyboard .black-key.pk-wait{background:#1d1e1d!important;color:#8d908b!important}
+html body #instrumento #pianoKeyboard .white-key.pk-wait{background:#fdfdff!important;color:#9aa3b2!important;box-shadow:none!important}
+html body #instrumento #pianoKeyboard .black-key.pk-wait{background:#1b1f27!important;color:#8e97a6!important}
 html body #instrumento #pianoKeyboard .pk-leave{animation:pkLeave .5s ease both}
 html body #instrumento #pianoKeyboard .pk-pop{animation:pkPop .55s cubic-bezier(.34,1.56,.64,1) both;animation-delay:var(--pk-d,0ms)}
 @keyframes pkPop{0%{transform:translateY(0)}35%{transform:translateY(5px)}100%{transform:translateY(0)}}
@@ -93,12 +93,12 @@ html body #instrumento #pianoKeyboard .white-key.pk-echo{box-shadow:none!importa
 .pk-nav-btn{width:36px;height:36px;border:1px solid var(--line);border-radius:50%;background:var(--surface);color:var(--text);display:grid;place-items:center;cursor:pointer;transition:transform .25s cubic-bezier(.34,1.56,.64,1),background-color .2s}
 .pk-nav-btn:active{transform:scale(.88)}
 .pk-nav-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.pk-nav-track{position:relative;height:40px;border-radius:12px;overflow:hidden;cursor:grab;touch-action:none;background:#fbfbf8;border:1px solid var(--line)}
+.pk-nav-track{position:relative;height:40px;border-radius:12px;overflow:hidden;cursor:grab;touch-action:none;background:#fdfdff;border:1px solid var(--line)}
 .pk-nav.is-dragging .pk-nav-track{cursor:grabbing}
 .pk-nav-keys{position:absolute;inset:0;display:flex}
-.pk-mini-w{flex:1 1 0;border-right:1px solid #e3e4df;background:#fbfbf8}
+.pk-mini-w{flex:1 1 0;border-right:1px solid #e2e7ef;background:#fdfdff}
 .pk-mini-w:last-child{border-right:0}
-.pk-mini-b{position:absolute;top:0;height:58%;background:#2a2b2a;border-radius:0 0 2px 2px}
+.pk-mini-b{position:absolute;top:0;height:58%;background:#262b34;border-radius:0 0 2px 2px}
 .pk-mini-w.is-on{background:var(--pk-note)}.pk-mini-w.is-root{background:var(--pk-root)}
 .pk-mini-b.is-on{background:var(--pk-note-edge)}.pk-mini-b.is-root{background:var(--pk-root-edge)}
 .pk-nav-window{position:absolute;top:2px;bottom:2px;border:2.5px solid var(--text);border-radius:9px;box-shadow:0 0 0 999px rgba(23,24,23,.22);pointer-events:none;transition:box-shadow .2s}
@@ -141,7 +141,6 @@ html[data-theme="dark"]:root{--wheel-major-fill:#1d3247;--wheel-major-stroke:#9d
 .harmony-wheel-node.active .harmony-wheel-node-bg{filter:drop-shadow(0 10px 18px rgba(60,50,120,.22))}
 .harmony-wheel-node.active .harmony-wheel-name,.harmony-wheel-node.active .harmony-wheel-function{fill:#14181a}
 .harmony-wheel-node.active .harmony-wheel-degree,.harmony-wheel-node.active .harmony-wheel-notes{fill:rgba(20,24,26,.72)}
-.sound-credit{margin:10px 2px 0;color:var(--muted);font-size:10px;line-height:1.4;opacity:.8}
 
 /* ───────── Diagramas de guitarra en azules (Círculos y Acordes): azul hielo para las notas, azul intenso para la tónica R ───────── */
 html body .library-diagram .diagram-dot{fill:#dcebfb;stroke:#8bb7e6;stroke-width:2.5}
@@ -152,3 +151,7 @@ html[data-theme="dark"] body .library-diagram .diagram-dot{fill:#a9cdf3;stroke:#
 html[data-theme="dark"] body .library-diagram .diagram-root{fill:#5b93e6;stroke:#b3d0f6}
 html[data-theme="dark"] body .library-diagram .diagram-dot-text{fill:#ffffff}
 html[data-theme="dark"] body .library-diagram .diagram-barre{stroke:#7fb1e8}
+
+/* ───────── Neutros fríos: fondos, bordes y textos sin el tinte verdoso del diseño anterior ───────── */
+html:root{--bg:#f4f6f9;--surface:#ffffff;--surface2:#eef1f6;--surface3:#e3e8f0;--text:#151a22;--muted:#667085;--line:#d8dee8;--accent:#151a22;--contrast:#ffffff;--root:#8bb7e6;--root2:#4f86d6;--shadow:0 18px 50px rgba(21,32,52,.08)}
+html[data-theme="dark"]:root{--bg:#0e1116;--surface:#161a21;--surface2:#1e232c;--surface3:#272d38;--text:#eef2f8;--muted:#a3adbd;--line:#2e3542;--accent:#eef2f8;--contrast:#0e1116;--root:#8bb7e6;--root2:#a9c9f0;--shadow:0 20px 60px rgba(0,0,0,.32)}

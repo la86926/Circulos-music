@@ -209,7 +209,7 @@ function build() {
     `<div class="tuto-hand" aria-hidden="true"><div class="tuto-hand-in">${ICON.hand}</div><span class="tuto-ripple"></span></div>` +
     '<section class="tuto-card" role="dialog" aria-label="Tutorial" aria-live="polite">' +
       `<button class="tuto-x" type="button" aria-label="Cerrar tutorial" title="Cerrar tutorial">${ICON.close}</button>` +
-      `<img class="tuto-mark" data-logo src="${document.documentElement.dataset.theme === 'dark' ? 'logo-dark.svg?v=2' : 'logo.svg?v=2'}" alt="" width="64" height="64">` +
+      `<img class="tuto-mark" data-logo src="${document.documentElement.dataset.theme === 'dark' ? 'logo-dark.svg?v=3' : 'logo.svg?v=3'}" alt="" width="64" height="64">` +
       '<img class="tuto-art" src="hero-light.webp" alt="" width="240" height="240">' +
       '<p class="tuto-kicker"></p><h2 class="tuto-title"></h2><p class="tuto-text"></p>' +
       '<p class="tuto-ok" role="status"></p>' +

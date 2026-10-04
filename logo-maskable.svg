@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Círculos Music">
-  <rect width="512" height="512" fill="#f6f4ef"/>
+  <rect width="512" height="512" fill="#f8fafd"/>
   <g transform="translate(256 256) scale(0.8) translate(-256 -256)">
   <path d="M273.18 79.84A177 177 0 0 1 383.02 132.73L335.66 178.70A111 111 0 0 0 266.77 145.52Z" fill="#c4b0ff" stroke="#c4b0ff" stroke-width="14" stroke-linejoin="round"/>
   <path d="M404.44 159.60A177 177 0 0 1 431.57 278.45L366.10 270.08A111 111 0 0 0 349.09 195.54Z" fill="#9dcfff" stroke="#9dcfff" stroke-width="14" stroke-linejoin="round"/>
