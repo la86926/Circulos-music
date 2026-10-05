@@ -10,7 +10,7 @@ if(!pdfjsLib||!E||!A)return;
 pdfjsLib.GlobalWorkerOptions.workerSrc='vendor/pdfjs/pdf.worker.min.js';
 const toast=m=>window.CirculosShell?.toast(m);
 const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:v;}catch(e){return d;}},set(k,v){try{localStorage.setItem(k,v);}catch(e){}}};
-const prefs={tempo:+store.get('tab-tempo',80),chords:store.get('tab-chords','1')==='1',mode:store.get('tab-mode','mid'),verse:+store.get('tab-verse',0)};
+const prefs={tempo:100,chords:store.get('tab-chords','1')==='1',mode:store.get('tab-mode','mid'),verse:+store.get('tab-verse',0)};
 
 /* ───────── Guardado en el dispositivo (para no volver a leer el PDF cada vez) ───────── */
 const DB={
@@ -235,9 +235,9 @@ document.addEventListener('circulos:notation',()=>{if(song)render();});
 
 /* ───────── Escuchar ───────── */
 const tempo=$('tabTempo');tempo.value=prefs.tempo;$('tabTempoVal').textContent=prefs.tempo;
-tempo.addEventListener('input',()=>{$('tabTempoVal').textContent=tempo.value;store.set('tab-tempo',tempo.value);});
+tempo.addEventListener('input',()=>{$('tabTempoVal').textContent=tempo.value;});
 let timer=0,playing=false,soundReady=false;
-function stop(){playing=false;clearTimeout(timer);document.querySelectorAll('.tl-note.is-now').forEach(n=>n.classList.remove('is-now'));const b=$('tabPlay');b.classList.remove('is-on');b.querySelector('span').textContent='Escuchar';}
+function stop(){playing=false;clearTimeout(timer);window.CirculosPiano?.stopAll?.();document.querySelectorAll('.tl-note.is-now').forEach(n=>n.classList.remove('is-now'));const b=$('tabPlay');b.classList.remove('is-on');b.querySelector('span').textContent='Escuchar';}
 function play(from){
   if(playing&&from==null){stop();return;}
   if(playing)stop();
@@ -260,6 +260,10 @@ function play(from){
   timer=setTimeout(step,soundReady?60:450);soundReady=true;      // la primera vez deja cargar el sonido
 }
 $('tabPlay').addEventListener('click',()=>play());
+/* Al cambiar de pantalla o de pestaña, el sonido se corta */
+document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
+addEventListener('pagehide',stop);
+document.addEventListener('click',e=>{if(e.target.closest('a[href],#menuBtn,.app-choice'))stop();},true);
 /* Tocar una nota de la tablatura: suena desde ahí (si ya estaba sonando, salta a esa nota) */
 $('tabSheet').addEventListener('click',e=>{const h=e.target.closest('.tl-hit');if(h)play(+h.dataset.i);});
 $('tabPrint').addEventListener('click',()=>{stop();print();});
