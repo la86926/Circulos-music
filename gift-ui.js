@@ -181,7 +181,7 @@
         <p class="gift-portal-kicker">UN REGALO MUSICAL PARA TI</p>
         <h2 class="gift-portal-title" id="giftPortalTitle">Hecho para compartir la música.</h2>
         <p class="gift-portal-message">Todo lo que encuentras aquí fue preparado con dedicación para que explorar los acordes sea sencillo, claro y especial.</p>
-        <p class="gift-portal-signature">Por José H. R.</p>
+        <p class="gift-portal-signature">Con cariño, para quien ama la música.</p>
       </section>
     `;
     document.body.appendChild(portal);
@@ -304,11 +304,11 @@
             stroke-linejoin:round;
           }
         </style>
-        <button type="button" aria-haspopup="dialog" aria-label="Abrir regalo de José H. R.">
+        <button type="button" aria-haspopup="dialog" aria-label="Abrir regalo">
           <img src="gift.svg" alt="">
           <span class="copy">
             <strong>Un regalo para ti</strong>
-            <small>Descubre quién preparó todo esto.</small>
+            <small>Un mensaje especial para ti.</small>
           </span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
         </button>
