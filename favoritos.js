@@ -1,4 +1,4 @@
-/* Círculos Music · Mis acordes (favoritos) con nick, sin contraseña
+/* Círculos Music · Favoritos con nick, sin contraseña
    Los favoritos se guardan siempre en el dispositivo. Si la persona crea un nick, además se guardan en la nube
    y aparecen en cualquier dispositivo donde escriba ese mismo nick.
    Usa el mismo proyecto de Firebase que la app de ajedrez (inicio de sesión anónimo + Firestore).
@@ -36,8 +36,8 @@ function saveLocal(){store.set(KEY_FAVS,JSON.stringify(favs));refreshAll();}
 function toggleKey(key){
   const [id,k]=String(key).split(':'),entry=lib()?.byId(id);if(!entry)return;
   const what=!k?'':k[0]==='p'?'Forma de piano ':'Posición ';
-  if(has(key)){favs=favs.filter(f=>keyOf(f)!==key);toast(`${what?what+'quitada':'Quitado'} de Mis acordes`);}
-  else{favs=[{id,...(k?{k}:{}),s:entry.s,t:Date.now()},...favs];toast(`${what?what+'guardada':'Guardado'} en Mis acordes`);}
+  if(has(key)){favs=favs.filter(f=>keyOf(f)!==key);toast(`${what?what+'quitada':'Quitado'} de Favoritos`);}
+  else{favs=[{id,...(k?{k}:{}),s:entry.s,t:Date.now()},...favs];toast(`${what?what+'guardada':'Guardado'} en Favoritos`);}
   saveLocal();scheduleUpload();
 }
 const toggle=entry=>entry&&toggleKey(entry.id);
@@ -104,7 +104,7 @@ document.addEventListener('click',e=>{
 });
 function markHearts(root=document){
   root.querySelectorAll('[data-fav-key]').forEach(b=>{const on=!!b.dataset.favKey&&has(b.dataset.favKey);
-    if(b.classList.contains('is-on')!==on){b.classList.toggle('is-on',on);b.setAttribute('aria-pressed',String(on));b.title=on?'Quitar de Mis acordes':'Guardar en Mis acordes';}});
+    if(b.classList.contains('is-on')!==on){b.classList.toggle('is-on',on);b.setAttribute('aria-pressed',String(on));b.title=on?'Quitar de Favoritos':'Guardar en Favoritos';}});
 }
 let markQueued=false;
 new MutationObserver(()=>{if(markQueued)return;markQueued=true;requestAnimationFrame(()=>{markQueued=false;markHearts();markCards();});}).observe(document.documentElement,{childList:true,subtree:true});
@@ -114,7 +114,7 @@ const HEART='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.2s-7.4-
 const circleHead=document.getElementById('chordActions');
 if(circleHead){
   const heart=document.createElement('button');heart.type='button';heart.className='act-btn act-fav';heart.innerHTML=HEART;
-  heart.setAttribute('aria-label','Guardar este acorde en Mis acordes');circleHead.prepend(heart);
+  heart.setAttribute('aria-label','Guardar este acorde en Favoritos');circleHead.prepend(heart);
   const pianoBox=document.getElementById('pianoActions');
   const refresh=()=>{
     const c=window.circulosChord,entry=c&&lib()?.findTriad(c.rootPc,c.quality);
@@ -134,7 +134,7 @@ if(circleHead){
 function markCards(root=document){root.querySelectorAll('.chord-catalog-card[data-chord-id]').forEach(c=>c.classList.toggle('is-fav',c.dataset.var?has(c.dataset.chordId+':'+c.dataset.var):hasAny(c.dataset.chordId)));}
 const grid=document.getElementById('chordCatalogGrid');
 
-/* ───────── Hoja "Mis acordes" ───────── */
+/* ───────── Hoja "Favoritos" ───────── */
 let sheet=null;
 function openSheet(){
   if(!sheet){
@@ -142,7 +142,7 @@ function openSheet(){
     sheet.innerHTML=`<div class="app-sheet-backdrop" data-close></div>
       <section class="app-sheet-card fav-card" role="dialog" aria-modal="true" aria-labelledby="favTitle">
         <button class="app-sheet-close" type="button" data-close aria-label="Cerrar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
-        <h2 id="favTitle">Mis acordes</h2>
+        <h2 id="favTitle">Favoritos</h2>
         <div class="fav-account" id="favAccount"></div>
         <div class="chord-catalog-grid fav-grid" id="favGrid"></div>
       </section>`;
@@ -180,7 +180,7 @@ function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':
 function refreshAll(){markHearts();markCards();refreshSheet();}
 
 const ICON_FAV='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19.5s-6.8-4.1-8.4-8.4C2.6 8.2 4.5 5.3 7.5 5.3c1.8 0 3.3 1 4.5 2.6 1.2-1.6 2.7-2.6 4.5-2.6 3 0 4.9 2.9 3.9 5.8-1.6 4.3-8.4 8.4-8.4 8.4Z"/></svg>';
-window.CirculosShell?.addMenuItem({id:'favMenuItem',icon:ICON_FAV,title:'Mis acordes',subtitle:'Tus favoritos, en todos tus dispositivos.',onClick:openSheet});
+window.CirculosShell?.addMenuItem({id:'favMenuItem',icon:ICON_FAV,title:'Favoritos',subtitle:'Tus acordes guardados, en todos tus dispositivos.',onClick:openSheet});
 window.CirculosFavs={open:openSheet,has,toggle,toggleKey,isOpen:()=>!!sheet?.classList.contains('open'),get nick(){return nick;},get count(){return favs.length;}};
 
 /* Si ya tenía nick, se reconecta solo */

@@ -200,7 +200,7 @@ const ICON_SHARE='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v1
 /* Corazón y compartir. key = "ch12" (el acorde completo) o "ch12:g3" / "ch12:p1" (una sola variación) */
 function actionsHtml(key,{small=false,what='este acorde'}={}){
   const cls=small?' act-sm':'';
-  return `<div class="chord-actions${small?' pos-actions':''}"><button class="act-btn act-fav${cls}" type="button" data-fav-key="${key}" aria-label="Guardar ${what} en Mis acordes" title="Guardar en Mis acordes">${ICON_HEART}</button><button class="act-btn act-share${cls}" type="button" data-share-key="${key}" aria-label="Compartir ${what}" title="Compartir">${ICON_SHARE}</button></div>`;
+  return `<div class="chord-actions${small?' pos-actions':''}"><button class="act-btn act-fav${cls}" type="button" data-fav-key="${key}" aria-label="Guardar ${what} en Favoritos" title="Guardar en Favoritos">${ICON_HEART}</button><button class="act-btn act-share${cls}" type="button" data-share-key="${key}" aria-label="Compartir ${what}" title="Compartir">${ICON_SHARE}</button></div>`;
 }
 function positionLabel(p,i){const b=barreFret(p);return `Posición ${i+1}${b?` · Traste ${b}`:''}`;}
 function positionCardsHtml(entry){

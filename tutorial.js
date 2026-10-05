@@ -2,7 +2,7 @@
    - Una mano animada enseña qué tocar o deslizar; el botón señalado "salta" suavemente.
    - Se puede cerrar en cualquier momento (X, "Ahora no" o la tecla Esc).
    - Se muestra solo la primera vez; después se repite con el botón "?" o desde el menú.
-   - Funciona en index.html (Círculos) y en acordes.html (Biblioteca), y en la hoja «Mis acordes». */
+   - Funciona en index.html (Círculos) y en acordes.html (Biblioteca), y en la hoja «Favoritos». */
 (() => {
 'use strict';
 if (window.__circulosTutorial) return;
@@ -14,7 +14,7 @@ if (!PAGE) return;
 
 /* ───────── Ajustes ───────── */
 const SHOW_EVERY_VISIT = false;               // true = aparece en cada visita (por defecto solo la primera vez)
-let kind = PAGE;                                 // guía en curso: la de la página o la de "Mis acordes"
+let kind = PAGE;                                 // guía en curso: la de la página o la de "Favoritos"
 const storageKey = k => `circulos-tutorial-${k}`;
 const favOpen = () => !!document.querySelector('#favSheet.open');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -101,9 +101,9 @@ const STEPS = {
       tap: { sel: '.harmony-wheel-node' }, ok: '¡Ese es tu acorde!' },
 
     { title: 'Guárdalo o compártelo',
-      text: 'Con el corazón guardas el acorde en «Mis acordes», tu cancionero. Cada posición de abajo tiene su propio corazón para guardar solo esa. Con la flecha envías el enlace.',
+      text: 'Con el corazón guardas el acorde en «Favoritos», tu cancionero. Cada posición de abajo tiene su propio corazón para guardar solo esa. Con la flecha envías el enlace.',
       ring: '#chordActions .act-btn', ringAll: true, radius: 26, pad: 5, hop: '#chordActions .act-btn', hopY: '-5px',
-      at: '#chordActions .act-fav', tap: { sel: '#chordActions .act-fav' }, ok: '¡Guardado en Mis acordes!' },
+      at: '#chordActions .act-fav', tap: { sel: '#chordActions .act-fav' }, ok: '¡Guardado en Favoritos!' },
 
     { title: 'Guitarra o piano', text: 'Mira el mismo acorde en el instrumento que tocas.',
       ring: '#instrumento .instrument-tabs .segmented', radius: 22,
@@ -142,7 +142,7 @@ const STEPS = {
       ring: '.app-choice[href="acordes.html"]', radius: 20, hop: '.app-choice[href="acordes.html"]', hopY: '-5px',
       at: '.app-choice[href="acordes.html"]', onEnter: menuOpen, onExit: menuClose },
 
-    { title: 'Mis acordes',
+    { title: 'Favoritos',
       text: 'Aquí están los acordes que guardaste. Escribe un nick (sin contraseña) y los verás en cualquier dispositivo donde uses el mismo nick.',
       ring: '#favMenuItem', radius: 20, hop: '#favMenuItem', hopY: '-5px',
       at: '#favMenuItem', onEnter: menuOpen, onExit: menuClose },
@@ -202,10 +202,10 @@ const STEPS = {
     { title: 'Guárdalo o compártelo',
       text: 'Arriba a la derecha guardas o compartes el acorde completo. Cada posición tiene su propio corazón para guardar solo esa.',
       ring: '#chordDetail .detail-title-row .act-btn', ringAll: true, radius: 26, pad: 5, hop: '#chordDetail .detail-title-row .act-btn, #chordDetail .pos-actions .act-fav', hopY: '-5px',
-      at: '#chordDetail .detail-title-row .act-fav', tap: { sel: '#chordDetail .act-fav' }, ok: '¡Guardado en Mis acordes!',
+      at: '#chordDetail .detail-title-row .act-fav', tap: { sel: '#chordDetail .act-fav' }, ok: '¡Guardado en Favoritos!',
       detail: true, onEnter: detailOpen, onExit: detailClose },
 
-    { title: 'Mis acordes',
+    { title: 'Favoritos',
       text: 'Tus acordes guardados están en el menú. Escribe un nick (sin contraseña) y los verás en cualquier dispositivo con el mismo nick.',
       ring: '#favMenuItem', radius: 20, hop: '#favMenuItem', hopY: '-5px',
       at: '#favMenuItem', onEnter: menuOpen, onExit: menuClose },
@@ -222,7 +222,7 @@ const STEPS = {
   ],
 
   favoritos: [
-    { modal: true, title: 'Mis acordes',
+    { modal: true, title: 'Favoritos',
       text: 'Tu cancionero: aquí quedan los acordes, las posiciones y las formas de piano que guardaste con el corazón.',
       next: 'Empezar', skip: 'Ahora no', at: '#tutoNext', gesture: 'tap' },
 
@@ -243,7 +243,7 @@ const STEPS = {
       } },
 
     { modal: true, title: '¡Listo!',
-      text: 'Cuando quieras repetir esta guía, toca el botón “?” con «Mis acordes» abierto.',
+      text: 'Cuando quieras repetir esta guía, toca el botón “?” con «Favoritos» abierto.',
       next: 'Terminar', keepFab: true, at: '.tuto-fab', hop: '.tuto-fab', hopY: '-6px', gesture: 'tap' }
   ],
 
@@ -510,7 +510,7 @@ addEventListener('keydown', e => {
 function init() {
   injectEntrypoints();
   window.circulosTutorial = { start, close: () => close(false) };
-  /* "Mis acordes": el botón "?" queda encima de la hoja y la guía aparece sola la primera vez */
+  /* "Favoritos": el botón "?" queda encima de la hoja y la guía aparece sola la primera vez */
   document.addEventListener('circulos:favsheet', e => {
     document.body.classList.toggle('favsheet-open', !!e.detail);
     if (e.detail && !active && !isDone('favoritos')) setTimeout(() => { if (favOpen()) start('favoritos'); }, 500);
