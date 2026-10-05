@@ -37,6 +37,8 @@ html[data-theme=dark] .tab-drop.is-over{background:#1a2638}
 .tab-tempo b{min-width:26px;color:var(--text)}
 .tab-select select{height:36px;padding:0 10px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--text);font:inherit;font-size:13px}
 .tab-check input{width:18px;height:18px;accent-color:#5b8fdb}
+.tab-mode-hint{margin:14px 22px 0;padding:10px 14px;border-radius:14px;background:#eef5fd;color:#2f64a8;font-size:13px;font-weight:650;line-height:1.45}
+html[data-theme=dark] .tab-mode-hint{background:#1a2638;color:#9dc4f5}
 .tab-legend{margin:12px 22px 0;color:var(--muted);font-size:12px;line-height:1.5}
 .tab-sheet{padding:10px 18px 26px;overflow:hidden}
 .tab-line{display:block;margin:6px 0 10px;overflow:visible}
@@ -56,9 +58,9 @@ html[data-theme=dark] .tl-chord{fill:#9dc4f5}
 .tl-whole{fill:none;stroke:var(--text);stroke-width:1.2}
 .tl-rest{fill:var(--muted)}
 .tl-tie{fill:none;stroke:var(--muted);stroke-width:1.2}
-@media(max-width:560px){.tab-controls{padding:12px 16px}.tab-song-head{padding:18px 16px 6px}.tab-sheet{padding:8px 10px 22px}.tab-legend{margin:10px 16px 0}.tab-list{padding:10px 14px 18px}.tab-search{margin:14px 14px 4px}}
+@media(max-width:560px){.tab-mode-hint{margin:12px 16px 0}.tab-controls{padding:12px 16px}.tab-song-head{padding:18px 16px 6px}.tab-sheet{padding:8px 10px 22px}.tab-legend{margin:10px 16px 0}.tab-list{padding:10px 14px 18px}.tab-search{margin:14px 14px 4px}}
 @media print{
-  .app-header,.side-menu,.menu-backdrop,.tab-hero,.tab-load,.tab-list-panel,.tab-controls,.tab-back,.tuto-fab,gift-card-widget,.toast{display:none!important}
+  .app-header,.side-menu,.menu-backdrop,.tab-hero,.tab-load,.tab-list-panel,.tab-controls,.tab-mode-hint,.tab-back,.tuto-fab,gift-card-widget,.toast{display:none!important}
   body{background:#fff}.container{padding:0;width:100%}.panel{border:0;box-shadow:none}
   .tab-line{break-inside:avoid}
 }

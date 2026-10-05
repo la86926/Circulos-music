@@ -10,7 +10,7 @@ if(!pdfjsLib||!E||!A)return;
 pdfjsLib.GlobalWorkerOptions.workerSrc='vendor/pdfjs/pdf.worker.min.js';
 const toast=m=>window.CirculosShell?.toast(m);
 const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:v;}catch(e){return d;}},set(k,v){try{localStorage.setItem(k,v);}catch(e){}}};
-const prefs={tempo:+store.get('tab-tempo',80),chords:store.get('tab-chords','1')==='1',open:store.get('tab-open','0')==='1',verse:+store.get('tab-verse',0)};
+const prefs={tempo:+store.get('tab-tempo',80),chords:store.get('tab-chords','1')==='1',mode:store.get('tab-mode','mid'),verse:+store.get('tab-verse',0)};
 
 /* ───────── Guardado en el dispositivo (para no volver a leer el PDF cada vez) ───────── */
 const DB={
@@ -74,18 +74,31 @@ $('tabOther').addEventListener('click',()=>{$('tabListPanel').hidden=true;$('tab
 $('tabBack').addEventListener('click',()=>{stop();$('tabSong').hidden=true;$('tabListPanel').hidden=false;history.replaceState(null,'','#');});
 
 /* ───────── Digitación: dónde tocar cada nota ─────────
-   Cuerdas de la 1.ª (MI agudo) a la 6.ª (MI grave). La guitarra suena una octava más grave que lo escrito.
-   Sin cuerdas al aire: una nota de cuerda al aire va en la cuerda siguiente (traste 5, o 4 al pasar de SI a SOL). */
+   Cuerdas de la 1.ª (MI agudo, índice 0) a la 6.ª (MI grave, índice 5). Tres formas de repartir las notas:
+   · mid  «Mitad del mástil» (predeterminada): cuerdas 1.ª a 3.ª entre los trastes 3 y 12, mejor 1.ª y 2.ª entre 5 y 10.
+          Suena a la altura real de la melodía (una octava más aguda que la guitarra normal).
+   · low  «Cerca de la cejuela»: trastes bajos sin cuerdas al aire; una nota de cuerda al aire va en la cuerda
+          siguiente (traste 5, o 4 al pasar de SI a SOL). Suena una octava más grave, como la guitarra normal.
+   · open «Con cuerdas al aire»: como la anterior, pero usando cuerdas al aire. */
 const OPEN=[64,59,55,50,45,40];
+const MODES={
+  mid:{shift:0,open:false,stat(o){
+    const sp=[0,0.1,0.6,2.6,4,5][o.s];
+    const fp=o.f<3?(3-o.f)*1.3+0.5:o.f>12?(o.f-12)*1.1+0.5:(o.f<5?(5-o.f)*0.18:o.f>10?(o.f-10)*0.18:0);
+    return sp+fp;}},
+  low:{shift:-12,open:false,stat:o=>(o.f>12?(o.f-12)*0.7:0)+o.f*0.025},
+  open:{shift:-12,open:true,stat:o=>(o.f>12?(o.f-12)*0.7:0)+o.f*0.025}
+};
 function positions(p,allowOpen){const out=[];for(let s=0;s<6;s++){const f=p-OPEN[s];if(f>=(allowOpen?0:1)&&f<=17)out.push({s,f});}return out;}
-function fingering(notes,allowOpen){
+function fingering(notes,modeName){
+  const mode=MODES[modeName]||MODES.mid;
   const cand=notes.map(n=>{
-    let p=n.midi-12,opts=positions(p,allowOpen);
-    if(!opts.length){p+=12;opts=positions(p,allowOpen);}         // muy grave: una octava arriba
-    if(!opts.length){p-=24;opts=positions(p,allowOpen);}         // muy aguda: una octava abajo
+    let p=n.midi+mode.shift,opts=positions(p,mode.open);
+    if(!opts.length){p+=12;opts=positions(p,mode.open);}         // muy grave: una octava arriba
+    if(!opts.length){p-=24;opts=positions(p,mode.open);}         // muy aguda: una octava abajo
     return{p,opts};
   });
-  const stat=o=>(o.f>12?(o.f-12)*0.7:0)+o.f*0.025;
+  const stat=mode.stat;
   const move=(a,b)=>{
     if(a.f===0||b.f===0)return Math.abs(a.s-b.s)*0.15;
     const df=Math.abs(a.f-b.f);
@@ -108,6 +121,12 @@ function fingering(notes,allowOpen){
   for(let i=notes.length-1;i>=0;i--){const o=cand[i].opts[j];out[i]=o?{...o,p:cand[i].p}:null;j=back[i][j];}
   return out;
 }
+
+const MODE_HINT={
+  mid:'Mitad del mástil: la melodía va en las cuerdas 1.ª, 2.ª y 3.ª, entre los trastes 3 y 12. Suena a la altura real de la melodía.',
+  low:'Cerca de la cejuela: trastes bajos, sin cuerdas al aire. Suena una octava más grave, como la guitarra normal.',
+  open:'Con cuerdas al aire: trastes bajos usando también cuerdas al aire. Suena una octava más grave, como la guitarra normal.'
+};
 
 /* ───────── Dibujo de la tablatura ───────── */
 const LATIN={C:'DO',D:'RE',E:'MI',F:'FA',G:'SOL',A:'LA',B:'SI'};
@@ -133,11 +152,12 @@ function openSong(i){
 let events=[];
 function render(){
   if(!song)return;
-  const verse=+$('tabVerse').value,showChords=$('tabChords').checked,allowOpen=$('tabOpen').checked;
+  const verse=+$('tabVerse').value,showChords=$('tabChords').checked,mode=$('tabMode').value;
   const [num,den]=(song.time||'4/4').split('/').map(Number),L=num*4/den||4,beat=den===8&&num%3===0?1.5:1;
   // eventos en orden con su digitación
   events=[];song.measures.forEach((m,mi)=>m.notes.forEach(n=>events.push({...n,mi,dur:n.dur||L})));
-  const notes=events.filter(e=>!e.rest),pos=fingering(notes,allowOpen);
+  const notes=events.filter(e=>!e.rest),pos=fingering(notes,mode);
+  $('tabModeHint').textContent=MODE_HINT[mode]||'';
   notes.forEach((n,i)=>{n.pos=pos[i];});
   // ancho natural de cada nota y de cada compás
   const sheet=$('tabSheet'),W=Math.max(300,sheet.clientWidth);
@@ -204,11 +224,11 @@ function render(){
   });
   sheet.innerHTML=html;
 }
-['tabVerse','tabChords','tabOpen'].forEach(id=>$(id).addEventListener('change',()=>{
-  prefs.verse=+$('tabVerse').value;store.set('tab-verse',prefs.verse);store.set('tab-chords',$('tabChords').checked?'1':'0');store.set('tab-open',$('tabOpen').checked?'1':'0');
+['tabVerse','tabChords','tabMode'].forEach(id=>$(id).addEventListener('change',()=>{
+  prefs.verse=+$('tabVerse').value;store.set('tab-verse',prefs.verse);store.set('tab-chords',$('tabChords').checked?'1':'0');store.set('tab-mode',$('tabMode').value);
   stop();render();
 }));
-$('tabChords').checked=prefs.chords;$('tabOpen').checked=prefs.open;
+$('tabChords').checked=prefs.chords;$('tabMode').value=MODES[prefs.mode]?prefs.mode:'mid';
 let rz=0;addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>{if(!$('tabSong').hidden)render();},200);});
 document.addEventListener('circulos:notation',()=>{if(song)render();});
 
