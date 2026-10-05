@@ -136,7 +136,8 @@ function markCards(root=document){root.querySelectorAll('.chord-catalog-card[dat
 const grid=document.getElementById('chordCatalogGrid');
 
 /* ───────── Hoja "Favoritos" ───────── */
-let sheet=null;
+let sheet=null,favTab='guitar';
+const instOf=f=>f.k&&f.k[0]==='p'?'piano':'guitar';
 function openSheet(){
   if(!sheet){
     sheet=document.createElement('div');sheet.className='app-sheet';sheet.id='favSheet';
@@ -145,6 +146,10 @@ function openSheet(){
         <button class="app-sheet-close" type="button" data-close aria-label="Cerrar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
         <h2 id="favTitle">Favoritos</h2>
         <div class="fav-account" id="favAccount"></div>
+        <div class="segmented seg2 fav-tabs" id="favTabs" role="tablist" aria-label="Instrumento">
+          <button class="seg-btn active" type="button" role="tab" data-fav-tab="guitar" aria-selected="true">Guitarra <span class="fav-count"></span></button>
+          <button class="seg-btn" type="button" role="tab" data-fav-tab="piano" aria-selected="false">Piano <span class="fav-count"></span></button>
+        </div>
         <div class="chord-catalog-grid fav-grid" id="favGrid"></div>
       </section>`;
     document.body.appendChild(sheet);
@@ -157,7 +162,9 @@ function openSheet(){
       try{msg.textContent='';await connect(input.value);}catch(err){msg.textContent=err.message||'No se pudo conectar. Revisa tu internet.';setCloud(nick?'error':'off');}
     });
     sheet.addEventListener('click',e=>{if(e.target.closest('[data-signout]'))signOut();});
+    sheet.addEventListener('click',e=>{const t=e.target.closest('[data-fav-tab]');if(t){favTab=t.dataset.favTab;refreshSheet();}});
   }
+  favTab='guitar';                                   // siempre abre en Guitarra
   refreshSheet();
   lib()?.load().then(refreshSheet).catch(()=>{});
   requestAnimationFrame(()=>{sheet.classList.add('open');document.dispatchEvent(new CustomEvent('circulos:favsheet',{detail:true}));});
@@ -173,9 +180,12 @@ function refreshSheet(){
       <div class="fav-row"><input id="favNick" maxlength="24" placeholder="Tu nick" autocapitalize="off" spellcheck="false" inputmode="text"><button type="submit">Entrar</button></div><p class="fav-error" role="alert"></p></form>`;
   }
   const g=sheet.querySelector('#favGrid'),L=lib();
-  if(!favs.length){g.innerHTML='<div class="chord-empty"><strong>Aún no tienes acordes</strong><span>Toca ♡ en un acorde, o en una sola posición, para guardarlo aquí.</span></div>';return;}
+  sheet.querySelectorAll('[data-fav-tab]').forEach(b=>{const on=b.dataset.favTab===favTab,n=favs.filter(f=>instOf(f)===b.dataset.favTab).length;
+    b.classList.toggle('active',on);b.setAttribute('aria-selected',String(on));b.querySelector('.fav-count').textContent=n?`(${n})`:'';});
+  const list=favs.filter(f=>instOf(f)===favTab);
+  if(!list.length){g.innerHTML=`<div class="chord-empty"><strong>Aún no tienes acordes de ${favTab==='piano'?'piano':'guitarra'}</strong><span>Toca ♡ en un acorde, o en una sola ${favTab==='piano'?'forma de piano':'posición'}, para guardarlo aquí.</span></div>`;return;}
   // Cada guardado se muestra en el instrumento en que se guardó: acorde completo en guitarra (sin k) o en piano (k = "p")
-  g.innerHTML=favs.map(f=>{const e=L?.byId(f.id);if(!e)return '';return !f.k?L.cardHtml(e,'guitar',{label:'Guitarra · todas'}):f.k==='p'?L.cardHtml(e,'piano',{label:'Piano · todas'}):L.variantCardHtml(e,f.k);}).join('')||'<div class="chord-empty"><strong>Cargando…</strong></div>';
+  g.innerHTML=list.map(f=>{const e=L?.byId(f.id);if(!e)return '';return !f.k?L.cardHtml(e,'guitar',{label:'Guitarra · todas'}):f.k==='p'?L.cardHtml(e,'piano',{label:'Piano · todas'}):L.variantCardHtml(e,f.k);}).join('')||'<div class="chord-empty"><strong>Cargando…</strong></div>';
   markCards(g);
 }
 function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}

@@ -234,6 +234,11 @@ const STEPS = {
           : { text: 'Escribe un nick (letras y números, sin contraseña) y toca Entrar. En otro celular o computadora escribe el mismo nick y aparecerán tus acordes.', at: '#favNick', gesture: 'tap', hop: '#favAccount button[type="submit"]', hopY: '-4px' };
       } },
 
+    { title: 'Guitarra o piano',
+      text: 'Tus favoritos se separan por instrumento. Siempre empieza en Guitarra; toca Piano para ver los de piano. El número indica cuántos tienes en cada uno.',
+      ring: '#favTabs', radius: 22, hop: '#favTabs [data-fav-tab]', hopY: '-4px',
+      at: '#favTabs [data-fav-tab]:not(.active)', tap: { sel: '#favTabs [data-fav-tab]' }, ok: '¡Así de fácil!' },
+
     { title: 'Tus guardados',
       variant() {
         if (pick('#favGrid .chord-catalog-card')) return {
