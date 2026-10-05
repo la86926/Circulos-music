@@ -2,7 +2,8 @@
    Los favoritos se guardan siempre en el dispositivo. Si la persona crea un nick, además se guardan en la nube
    y aparecen en cualquier dispositivo donde escriba ese mismo nick.
    Usa el mismo proyecto de Firebase que la app de ajedrez (inicio de sesión anónimo + Firestore).
-   Para no mezclar datos, cada nick se guarda en el documento "circulos<nick>" de la colección "progresos". */
+   Cada nick se guarda en el documento "circulos<nick>" de la colección "progresos", con la misma forma que los
+   perfiles del ajedrez. Los cambios llegan solos a los demás dispositivos y siempre gana la versión más reciente. */
 'use strict';
 
 const FIREBASE='https://www.gstatic.com/firebasejs/12.18.0/';
@@ -42,8 +43,13 @@ function toggleKey(key){
 }
 const toggle=entry=>entry&&toggleKey(entry.id);
 
-/* ───────── Nube (Firebase) ───────── */
-let fb=null,ref=null,stopSnap=null,uploadTimer=0,lastUpload=0;
+/* ───────── Nube (Firebase) ─────────
+   El documento tiene la misma forma que los perfiles de la app de ajedrez (l1.storage, timestamp, updatedBy,
+   schemaVersion), para que las reglas de seguridad del proyecto lo acepten igual que aquellos.
+   Gana siempre la última versión guardada: cada cambio lleva la hora en que se hizo ("circulos-favs-at"). */
+let fb=null,ref=null,stopSnap=null,uploadTimer=0,lastUpload=0,connecting=null;
+const KEY_AT='circulos-favs-at',KEY_SYNCED='circulos-favs-synced';
+const localAt=()=>Number(store.get(KEY_AT))||0;
 async function firebase(){
   if(fb)return fb;
   const [appMod,authMod,fs]=await Promise.all([import(FIREBASE+'firebase-app.js'),import(FIREBASE+'firebase-auth.js'),import(FIREBASE+'firebase-firestore.js')]);
@@ -59,40 +65,93 @@ function merge(remote,local){
   local.forEach(f=>{if(!ids.has(keyOf(f)))out.push(f);});
   return out;
 }
+/* Lee los favoritos y su hora desde el documento (formato nuevo y el de la primera versión) */
+function readRemote(d){
+  if(!d)return null;
+  const st=d.l1&&d.l1.storage;
+  if(st&&typeof st[KEY_FAVS]==='string'){
+    try{const list=JSON.parse(st[KEY_FAVS]);if(Array.isArray(list))return{list:list.filter(f=>f&&f.id),at:Number(st[KEY_AT])||0};}catch(e){}
+  }
+  if(Array.isArray(d.favoritos))return{list:d.favoritos.filter(f=>f&&f.id),at:d.timestamp?.toMillis?.()||0};
+  return null;
+}
+function applyRemote(r){
+  if(!r)return false;
+  const same=JSON.stringify(r.list)===JSON.stringify(favs);
+  favs=r.list;store.set(KEY_AT,String(r.at||Date.now()));
+  if(!same)saveLocal();
+  return !same;
+}
+function errorText(err){
+  const code=err&&err.code||'';
+  if(code.includes('permission-denied'))return 'Firebase no dio permiso para guardar (reglas de seguridad).';
+  if(code.includes('unavailable')||!navigator.onLine)return 'Sin internet: se guarda en este dispositivo y se sincroniza al volver la conexión.';
+  if(code.includes('admin-restricted')||code.includes('operation-not-allowed'))return 'El inicio de sesión anónimo de Firebase está desactivado.';
+  return 'No se pudo sincronizar'+(code?` (${code})`:'')+'.';
+}
 async function connect(name,{silent=false}={}){
   name=String(name||'').trim();
   if(!NICK_RE.test(name))throw new Error('Usa solo letras y números, de 4 a 24 caracteres.');
   setCloud('busy','Conectando…');
   const {db,fs}=await firebase();
-  stopSnap?.();
-  ref=fs.doc(db,COLLECTION,DOC_PREFIX+name.toLowerCase());
+  stopSnap?.();stopSnap=null;
+  const id=DOC_PREFIX+name.toLowerCase();
+  ref=fs.doc(db,COLLECTION,id);
   const snap=await fs.getDoc(ref);
-  const remote=snap.exists()&&Array.isArray(snap.data().favoritos)?snap.data().favoritos:[];
-  favs=merge(remote,favs);
-  nick=name;store.set(KEY_NICK,nick);saveLocal();
-  await upload();
-  stopSnap=fs.onSnapshot(ref,s=>{
+  const remote=snap.exists()?readRemote(snap.data()):null;
+  const firstTimeHere=store.get(KEY_SYNCED)!==id;
+  nick=name;store.set(KEY_NICK,nick);
+  if(!remote){await upload();}                                       // nick nuevo: sube lo de este dispositivo
+  else if(firstTimeHere){                                            // primera vez en este dispositivo: se juntan ambos
+    const joined=merge(remote.list,favs),changed=joined.length!==remote.list.length;
+    favs=joined;store.set(KEY_AT,String(changed?Date.now():remote.at));saveLocal();
+    if(changed)await upload();
+  }
+  else if(remote.at>=localAt())applyRemote(remote);                  // la nube es más reciente
+  else await upload();                                               // este dispositivo es más reciente
+  store.set(KEY_SYNCED,id);
+  listen();
+  setCloud('ok');
+  if(!silent)toast(remote?`¡Hola, ${nick}! Tus acordes ya están aquí.`:`Listo, ${nick}. Tus acordes se guardan en la nube.`);
+}
+function listen(){
+  if(!ref||!fb)return;
+  stopSnap?.();
+  stopSnap=fb.fs.onSnapshot(ref,{includeMetadataChanges:false},s=>{
     if(!s.exists())return;
     const d=s.data();
-    if(d.updatedBy===clientId&&Date.now()-lastUpload<2500)return;
-    if(Array.isArray(d.favoritos)){favs=d.favoritos;saveLocal();}
+    if(d.updatedBy===clientId&&Date.now()-lastUpload<4000){setCloud('ok');return;}
+    const r=readRemote(d);
+    if(r&&r.at>=localAt()){if(applyRemote(r))toast('Favoritos actualizados desde otro dispositivo');}
+    else if(r){upload().catch(()=>{});}                            // llegó una versión más vieja que la de aquí: gana la más reciente
     setCloud('ok');
-  },()=>setCloud('error'));
-  setCloud('ok');
-  if(!silent)toast(snap.exists()?`¡Hola, ${nick}! Tus acordes ya están aquí.`:`Listo, ${nick}. Tus acordes se guardan en la nube.`);
+  },err=>{console.error('Favoritos:',err);setCloud('error',errorText(err));});
 }
 async function upload(){
   if(!ref||!fb)return;
   lastUpload=Date.now();
-  await fb.fs.setDoc(ref,{app:'circulos-music',nick,favoritos:favs,timestamp:fb.fs.serverTimestamp(),updatedBy:clientId,schemaVersion:1},{merge:true});
+  const at=localAt()||Date.now();
+  await fb.fs.setDoc(ref,{l1:{storage:{[KEY_FAVS]:JSON.stringify(favs),[KEY_AT]:String(at)},page:{}},timestamp:fb.fs.serverTimestamp(),updatedBy:clientId,schemaVersion:1},{merge:true});
 }
 function scheduleUpload(){
+  store.set(KEY_AT,String(Date.now()));                              // hora de este cambio
   if(!nick)return;
   clearTimeout(uploadTimer);
-  uploadTimer=setTimeout(()=>{setCloud('busy','Guardando…');upload().then(()=>setCloud('ok')).catch(()=>setCloud('error'));},600);
+  uploadTimer=setTimeout(()=>{
+    if(!ref){reconnect();return;}
+    setCloud('busy','Guardando…');
+    upload().then(()=>setCloud('ok')).catch(err=>{console.error('Favoritos:',err);setCloud('error',errorText(err));});
+  },500);
 }
+/* Si no había conexión al abrir la página, vuelve a intentarlo cuando regresa internet o la página */
+function reconnect(){
+  if(!nick||connecting||(ref&&cloud.state==='ok'))return;
+  connecting=connect(nick,{silent:true}).catch(err=>{console.error('Favoritos:',err);setCloud('error',errorText(err));}).finally(()=>{connecting=null;});
+}
+addEventListener('online',reconnect);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)reconnect();});
 function signOut(){
-  stopSnap?.();stopSnap=null;ref=null;nick='';store.del(KEY_NICK);setCloud('off');
+  stopSnap?.();stopSnap=null;ref=null;nick='';store.del(KEY_NICK);store.del(KEY_SYNCED);setCloud('off');
   toast('Saliste. Tus acordes siguen en este dispositivo.');
 }
 
@@ -159,7 +218,7 @@ function openSheet(){
     });
     sheet.addEventListener('submit',async e=>{
       e.preventDefault();const input=sheet.querySelector('#favNick'),msg=sheet.querySelector('.fav-error');
-      try{msg.textContent='';await connect(input.value);}catch(err){msg.textContent=err.message||'No se pudo conectar. Revisa tu internet.';setCloud(nick?'error':'off');}
+      try{msg.textContent='';await connect(input.value);}catch(err){console.error('Favoritos:',err);msg.textContent=err.code?errorText(err):(err.message||'No se pudo conectar. Revisa tu internet.');if(nick)setCloud('error',errorText(err));else setCloud('off');}
     });
     sheet.addEventListener('click',e=>{if(e.target.closest('[data-signout]'))signOut();});
     sheet.addEventListener('click',e=>{const t=e.target.closest('[data-fav-tab]');if(t){favTab=t.dataset.favTab;refreshSheet();}});
@@ -173,7 +232,7 @@ function refreshSheet(){
   if(!sheet)return;
   const acc=sheet.querySelector('#favAccount');
   if(nick){
-    const label={ok:'Sincronizado',busy:cloud.text||'Conectando…',error:'Sin conexión: guardado en este dispositivo',off:''}[cloud.state];
+    const label={ok:'Sincronizado · se actualiza solo en tus dispositivos',busy:cloud.text||'Conectando…',error:cloud.text||'Sin conexión: guardado en este dispositivo',off:''}[cloud.state];
     acc.innerHTML=`<div class="fav-user"><span class="fav-dot is-${cloud.state}"></span><div><strong>${escapeHtml(nick)}</strong><small>${label}</small></div><button type="button" class="fav-link" data-signout>Salir</button></div>`;
   }else if(!acc.querySelector('form')){
     acc.innerHTML=`<form class="fav-form" autocomplete="off"><label for="favNick">Crea o escribe tu nick para tener tus acordes en cualquier dispositivo.</label>
@@ -196,4 +255,4 @@ window.CirculosShell?.addMenuItem({id:'favMenuItem',icon:ICON_FAV,title:'Favorit
 window.CirculosFavs={open:openSheet,has,toggle,toggleKey,isOpen:()=>!!sheet?.classList.contains('open'),get nick(){return nick;},get count(){return favs.length;}};
 
 /* Si ya tenía nick, se reconecta solo */
-if(nick)connect(nick,{silent:true}).catch(()=>setCloud('error'));
+if(nick)reconnect();
