@@ -35,7 +35,7 @@ const hasAny=id=>favs.some(f=>f.id===id);
 function saveLocal(){store.set(KEY_FAVS,JSON.stringify(favs));refreshAll();}
 function toggleKey(key){
   const [id,k]=String(key).split(':'),entry=lib()?.byId(id);if(!entry)return;
-  const what=!k?'':k[0]==='p'?'Forma de piano ':'Posición ';
+  const what=!k||k==='p'?'':k[0]==='p'?'Forma de piano ':'Posición ';
   if(has(key)){favs=favs.filter(f=>keyOf(f)!==key);toast(`${what?what+'quitada':'Quitado'} de Favoritos`);}
   else{favs=[{id,...(k?{k}:{}),s:entry.s,t:Date.now()},...favs];toast(`${what?what+'guardada':'Guardado'} en Favoritos`);}
   saveLocal();scheduleUpload();
@@ -118,7 +118,8 @@ if(circleHead){
   const pianoBox=document.getElementById('pianoActions');
   const refresh=()=>{
     const c=window.circulosChord,entry=c&&lib()?.findTriad(c.rootPc,c.quality);
-    heart.dataset.favKey=entry?entry.id:'';heart.disabled=!entry;
+    const piano=document.querySelector('#instrumento [data-instrument].active')?.dataset.instrument==='piano';
+    heart.dataset.favKey=entry?(piano?`${entry.id}:p`:entry.id):'';heart.disabled=!entry;
     if(pianoBox){
       const inv=document.querySelector('#pianoPanel [data-inversion].active')?.dataset.inversion||'0';
       pianoBox.innerHTML=entry?lib().actionsHtml(`${entry.id}:p${inv}`,{small:true,what:'esta inversión'}):'';
@@ -126,7 +127,7 @@ if(circleHead){
     markHearts();
   };
   document.addEventListener('circulos:chord',()=>lib()?.load().then(refresh).catch(()=>{}));
-  document.addEventListener('click',e=>{if(e.target.closest?.('[data-inversion]'))setTimeout(refresh,0);});
+  document.addEventListener('click',e=>{if(e.target.closest?.('[data-inversion],[data-instrument]'))setTimeout(refresh,0);});
   lib()?.load().then(refresh).catch(()=>{});
 }
 
@@ -149,7 +150,7 @@ function openSheet(){
     document.body.appendChild(sheet);
     sheet.addEventListener('click',e=>{
       if(e.target.closest('[data-close]')){sheet.classList.remove('open');document.dispatchEvent(new CustomEvent('circulos:favsheet',{detail:false}));return;}
-      const card=e.target.closest('[data-chord-id]');if(card)lib()?.openDetail(card.dataset.chordId,card.dataset.var?{focus:card.dataset.var}:{});
+      const card=e.target.closest('[data-chord-id]');if(card)lib()?.openDetail(card.dataset.chordId,{inst:card.dataset.inst,...(card.dataset.var?{focus:card.dataset.var}:{})});
     });
     sheet.addEventListener('submit',async e=>{
       e.preventDefault();const input=sheet.querySelector('#favNick'),msg=sheet.querySelector('.fav-error');
@@ -173,7 +174,8 @@ function refreshSheet(){
   }
   const g=sheet.querySelector('#favGrid'),L=lib();
   if(!favs.length){g.innerHTML='<div class="chord-empty"><strong>Aún no tienes acordes</strong><span>Toca ♡ en un acorde, o en una sola posición, para guardarlo aquí.</span></div>';return;}
-  g.innerHTML=favs.map(f=>{const e=L?.byId(f.id);return e?(f.k?L.variantCardHtml(e,f.k):L.cardHtml(e)):'';}).join('')||'<div class="chord-empty"><strong>Cargando…</strong></div>';
+  // Cada guardado se muestra en el instrumento en que se guardó: acorde completo en guitarra (sin k) o en piano (k = "p")
+  g.innerHTML=favs.map(f=>{const e=L?.byId(f.id);if(!e)return '';return !f.k?L.cardHtml(e,'guitar',{label:'Guitarra · todas'}):f.k==='p'?L.cardHtml(e,'piano',{label:'Piano · todas'}):L.variantCardHtml(e,f.k);}).join('')||'<div class="chord-empty"><strong>Cargando…</strong></div>';
   markCards(g);
 }
 function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}

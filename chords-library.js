@@ -77,11 +77,11 @@ function preferredPosition(entry){
   const list=entry.p||[];
   return list.find(p=>/(principal|est[aá]ndar|tradicional|com[uú]n)/i.test(stripAccents(p.l)))||list[0]||null;
 }
-function cardHtml(entry,inst=state.inst){
+function cardHtml(entry,inst=state.inst,{label=''}={}){
   const pos=preferredPosition(entry),pv=inst==='piano'?pianoVariants(entry)[0]:null;
   const visual=inst==='piano'?(pv?pianoSvg(pv,{mini:true}):'<span class="diagram-empty">Sin diagrama</span>'):(pos?diagramSvg(entry,pos,0,{mini:true}):'<span class="diagram-empty">Sin diagrama</span>');
-  return `<button class="chord-catalog-card" type="button" data-chord-id="${entry.id}" aria-label="Abrir ${escapeHtml(displaySymbol(entry.s))}">
-    <span class="chord-catalog-top"><strong>${escapeHtml(displaySymbol(entry.s))}</strong></span>
+  return `<button class="chord-catalog-card" type="button" data-chord-id="${entry.id}" data-inst="${inst}" aria-label="Abrir ${escapeHtml(displaySymbol(entry.s))}">
+    <span class="chord-catalog-top"><strong>${escapeHtml(displaySymbol(entry.s))}</strong>${label?`<small>${escapeHtml(label)}</small>`:''}</span>
     ${visual}
   </button>`;
 }
@@ -89,7 +89,7 @@ function cardHtml(entry,inst=state.inst){
 function variantCardHtml(entry,k){
   const v=variantOf(entry,k);if(!v)return cardHtml(entry);
   const visual=v.inst==='piano'?pianoSvg(v.data,{mini:true}):diagramSvg(entry,v.data,v.index,{mini:true});
-  return `<button class="chord-catalog-card fav-var" type="button" data-chord-id="${entry.id}" data-var="${k}" aria-label="Abrir ${escapeHtml(displaySymbol(entry.s))}, ${escapeHtml(v.label)}">
+  return `<button class="chord-catalog-card fav-var" type="button" data-chord-id="${entry.id}" data-var="${k}" data-inst="${v.inst}" aria-label="Abrir ${escapeHtml(displaySymbol(entry.s))}, ${escapeHtml(v.label)}">
     <span class="chord-catalog-top"><strong>${escapeHtml(displaySymbol(entry.s))}</strong><small>${escapeHtml(v.short)}</small></span>
     ${visual}
   </button>`;
@@ -279,7 +279,7 @@ function pianoCardsHtml(entry){
 /* Datos de una variación: "g3" = 4.ª posición de guitarra, "p1" = 2.ª forma de piano */
 function variantOf(entry,k){
   const m=String(k||'').match(/^([gp])(\d+)$/);if(!m)return null;const i=Number(m[2]);
-  if(m[1]==='g'){const p=entry.p?.[i];if(!p)return null;const b=barreFret(p);return{inst:'guitar',index:i,data:p,label:`posición ${i+1}${b?`, traste ${b}`:''}`,short:`Posición ${i+1}`};}
+  if(m[1]==='g'){const p=entry.p?.[i];if(!p)return null;const b=barreFret(p);return{inst:'guitar',index:i,data:p,label:`posición ${i+1}${b?`, traste ${b}`:''}`,short:`Guitarra · Posición ${i+1}`};}
   const v=pianoVariants(entry)[i];if(!v)return null;return{inst:'piano',index:i,data:v,label:`piano, ${v.label.toLowerCase()}`,short:`Piano · ${v.label}`};
 }
 /* Tríada (mayor, menor o disminuida) de una nota: la usa la página Círculos con los mismos datos y tarjetas */
@@ -294,7 +294,7 @@ function openDetail(id,opts={}){
   let modal=$('chordDetail');if(!modal){modal=document.createElement('div');modal.id='chordDetail';modal.className='chord-detail';modal.innerHTML='<div class="chord-detail-backdrop" data-detail-close></div><section class="chord-detail-sheet" role="dialog" aria-modal="true" aria-labelledby="chordDetailTitle"><button class="chord-detail-close" type="button" data-detail-close aria-label="Cerrar">×</button><div id="chordDetailContent"></div></section>';document.body.appendChild(modal);}
   const inst=opts.inst||(opts.focus?(opts.focus[0]==='p'?'piano':'guitar'):null)||(rerender&&modal.dataset.entryId===id&&modal.dataset.inst)||state.inst;
   modal.dataset.entryId=id;modal.dataset.inst=inst;const content=$('chordDetailContent');
-  content.innerHTML=`<header class="chord-detail-head"><div class="detail-title-row"><h2 id="chordDetailTitle">${escapeHtml(displaySymbol(entry.s))}</h2>${actionsHtml(entry.id)}</div><div class="chord-detail-meta">${detailMeta(entry)}</div></header><div class="chord-position-grid${inst==='piano'?' is-piano':''}">${inst==='piano'?pianoCardsHtml(entry):positionCardsHtml(entry)}</div>`;
+  content.innerHTML=`<header class="chord-detail-head"><div class="detail-title-row"><h2 id="chordDetailTitle">${escapeHtml(displaySymbol(entry.s))}</h2>${actionsHtml(inst==='piano'?`${entry.id}:p`:entry.id)}</div><div class="chord-detail-meta">${detailMeta(entry)}</div></header><div class="chord-position-grid${inst==='piano'?' is-piano':''}">${inst==='piano'?pianoCardsHtml(entry):positionCardsHtml(entry)}</div>`;
   modal.classList.add('open');document.dispatchEvent(new CustomEvent('circulos:detail',{detail:{entry,container:content.querySelector('.chord-actions')}}));document.body.classList.add('chord-detail-open');if(!rerender)modal.querySelector('.chord-detail-close')?.focus({preventScroll:true});
   if(opts.focus){
     const card=content.querySelector(`[data-var="${opts.focus}"]`);
@@ -341,7 +341,7 @@ function openFromLink(){
   const n=normalize(wanted),entry=state.data.entries.find(e=>e.id===wanted)||state.data.entries.find(e=>e.s.split(' / ').some(t=>normalize(t)===n));
   if(!entry)return;
   const v=new URLSearchParams(location.search).get('var');
-  if(v&&/^[gp]\d+$/.test(v)){if(v[0]==='p'&&state.inst!=='piano'){state.inst='piano';syncInst();renderResults();}openDetail(entry.id,{focus:v});}
+  if(v&&/^[gp]\d*$/.test(v)){const inst=v[0]==='p'?'piano':'guitar';if(state.inst!==inst){state.inst=inst;syncInst();renderResults();}openDetail(entry.id,v.length>1?{focus:v}:{inst});}
   else openDetail(entry.id);
 }
 document.addEventListener('circulos:notation',e=>{state.notation=e.detail==='latin'?'latin':'english';syncNotation();});
@@ -351,7 +351,7 @@ window.CirculosChords={load:ensureData,findTriad,positionCardsHtml,cardHtml,vari
   symbol:entry=>displaySymbol(entry.s),
   shareFor(entry,k){
     const url=new URL('acordes.html',location.href);url.search='';url.searchParams.set('acorde',entry.s.split(' / ')[0]);
-    const v=k?variantOf(entry,k):null;if(v)url.searchParams.set('var',k);
+    const v=k==='p'?{label:'piano'}:k?variantOf(entry,k):null;if(v)url.searchParams.set('var',k);
     return{text:`Mira el acorde ${displaySymbol(entry.s)}${v?` (${v.label})`:''}`,url:url.toString()};
   }};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
