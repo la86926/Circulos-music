@@ -6,7 +6,7 @@
 (() => {
 'use strict';
 let dirty = false, leaving = false;
-const CHANGERS = '.tone-btn,[data-mode],.harmony-wheel-node,[data-instrument],[data-nomenclature],[data-inversion],.chord-catalog-card,[data-root],[data-library-notation],#tunerStart,.tuner-string';
+const CHANGERS = '.tone-btn,[data-mode],.harmony-wheel-node,[data-instrument],[data-nomenclature],[data-inversion],.chord-catalog-card,[data-root],[data-library-notation]';
 const tutorialOn = () => document.body.classList.contains('tuto-on');
 
 addEventListener('click', e => {
