@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#f4f6f9">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="description" content="Convierte una partitura en PDF en tablatura de guitarra.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Acordes · Círculos Music">
+<meta property="og:description" content="Biblioteca visual de más de 900 acordes de guitarra con todas sus posiciones.">
+<meta property="og:image" content="https://la86926.github.io/Circulos-music/og-image.png?v=4">
+<meta name="twitter:card" content="summary_large_image">
+<title>Tablatura · Círculos Music</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="logo.svg?v=3" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png?v=3" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="shell.css?v=3">
+<link rel="stylesheet" href="chords-library.css?v=15">
+<link rel="stylesheet" href="tablatura.css?v=1">
+<link rel="stylesheet" href="polish.css?v=18">
+<link rel="stylesheet" href="tutorial.css?v=4">
+</head>
+<body>
+<header class="app-header">
+  <div class="header-inner appearance-header">
+    <button class="icon-btn" id="menuBtn" type="button" aria-label="Abrir menú" aria-controls="sideMenu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7.5h16M4 12h11M4 16.5h16"/></svg></button>
+    <div class="brand-wrap"><img data-logo src="logo.svg?v=3" alt="" class="brand-icon" width="34" height="34"><h2 class="brand">Círculos<span class="brand-sub"> Music</span></h2></div>
+    <div class="theme-switch" role="group" aria-label="Apariencia">
+      <button class="theme-choice" data-theme-choice="light" type="button" aria-label="Modo claro" title="Claro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"/></svg><span>Claro</span></button>
+      <button class="theme-choice" data-theme-choice="dark" type="button" aria-label="Modo oscuro" title="Oscuro"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9Z"/></svg><span>Oscuro</span></button>
+      <button class="theme-choice" data-theme-choice="system" type="button" aria-label="Usar apariencia del sistema" title="Sistema"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg><span>Sistema</span></button>
+    </div>
+  </div>
+</header>
+<div class="menu-backdrop" id="menuBackdrop" aria-hidden="true"></div>
+<aside class="side-menu" id="sideMenu" aria-hidden="true" aria-label="Elegir herramienta">
+  <div class="side-menu-head">
+    <div class="side-menu-brand"><img data-logo src="logo.svg?v=3" alt="" width="40" height="40"><div><strong>Círculos Music</strong></div></div>
+    <button class="icon-btn" id="menuCloseBtn" type="button" aria-label="Cerrar menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  </div>
+  <nav class="app-picker" aria-label="Herramientas">
+    <a class="app-choice" href="index.html"><span class="app-choice-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" stroke-opacity=".35"/><circle cx="12" cy="12" r="2.6"/><circle cx="12" cy="4" r="1.7"/><circle cx="18.9" cy="8" r="1.7"/><circle cx="18.9" cy="16" r="1.7"/><circle cx="12" cy="20" r="1.7"/><circle cx="5.1" cy="16" r="1.7"/><circle cx="5.1" cy="8" r="1.7"/></svg></span><strong>Círculos</strong><small>Tonalidades, sus 7 acordes y posiciones.</small></a>
+    <a class="app-choice" href="acordes.html"><span class="app-choice-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4v16M10.67 4v16M15.33 4v16M20 4v16" stroke-opacity=".5"/><path d="M6 4h14" stroke-width="2.4"/><path d="M6 9h14M6 14h14M6 19h14" stroke-opacity=".3"/><circle class="dot" cx="10.67" cy="11.5" r="2"/><circle class="dot" cx="15.33" cy="16.5" r="2"/><circle class="dot" cx="20" cy="6.5" r="2"/></svg></span><strong>Acordes</strong><small>Biblioteca de acordes de guitarra y piano.</small></a>
+  </nav>
+  <gift-card-widget></gift-card-widget>
+</aside>
+<main class="container app-view" id="tabView">
+  <section class="hero tab-hero">
+    <div>
+      <p class="eyebrow">Prueba privada</p>
+      <h1>Partitura a tablatura</h1>
+      <p class="hero-copy">Sube una partitura en PDF y la melodía se pasa a tablatura de guitarra, sin cuerdas al aire. Todo se hace en tu dispositivo: el archivo no se sube a internet.</p>
+    </div>
+  </section>
+
+  <section class="panel tab-load" id="tabLoad">
+    <label class="tab-drop" id="tabDrop">
+      <input type="file" id="tabFile" accept="application/pdf,.pdf" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5M12 18v-6M9.5 14.5 12 12l2.5 2.5"/></svg>
+      <strong id="tabDropTitle">Elegir partitura en PDF</strong>
+      <small id="tabDropSub">Funciona con PDF hechos en programas de partituras (Sibelius, Finale, MuseScore). Las fotos o escaneos no se pueden leer.</small>
+    </label>
+    <div class="tab-progress" id="tabProgress" hidden><div class="tab-progress-bar"><i id="tabProgressBar"></i></div><p id="tabProgressText">Leyendo…</p></div>
+    <p class="tab-error" id="tabError" role="alert"></p>
+  </section>
+
+  <section class="panel tab-list-panel" id="tabListPanel" hidden>
+    <div class="panel-head"><div><h3 class="panel-title" id="tabListTitle">Canciones</h3><p class="panel-subtitle" id="tabListSub"></p></div><button class="tab-link" id="tabOther" type="button">Otro PDF</button></div>
+    <label class="chord-search tab-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="tabSearch" type="search" autocomplete="off" placeholder="Busca por número o nombre"></label>
+    <div class="tab-list" id="tabList"></div>
+  </section>
+
+  <section class="panel tab-song" id="tabSong" hidden>
+    <div class="tab-song-head">
+      <button class="icon-btn tab-back" id="tabBack" type="button" aria-label="Volver a la lista"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <div><p class="eyebrow" id="tabSongNum"></p><h2 id="tabSongTitle"></h2><p class="panel-subtitle" id="tabSongInfo"></p></div>
+    </div>
+    <div class="tab-controls">
+      <button class="tab-play" id="tabPlay" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5Z"/></svg><span>Escuchar</span></button>
+      <label class="tab-tempo"><span>Velocidad</span><input type="range" id="tabTempo" min="40" max="140" step="5" value="80"><b id="tabTempoVal">80</b></label>
+      <label class="tab-select"><span>Letra</span><select id="tabVerse"></select></label>
+      <label class="tab-check"><input type="checkbox" id="tabChords" checked><span>Acordes</span></label>
+      <label class="tab-check"><input type="checkbox" id="tabOpen"><span>Permitir cuerdas al aire</span></label>
+      <button class="tab-link" id="tabPrint" type="button">Imprimir</button>
+    </div>
+    <p class="tab-legend">Cada línea es una cuerda: arriba la 1.ª (la más delgada) y abajo la 6.ª. El número es el traste. Debajo, el ritmo: <b>|</b> negra, <b>╷</b> blanca, unidas con barra = corcheas.</p>
+    <div class="tab-sheet" id="tabSheet"></div>
+  </section>
+</main>
+<div class="toast" id="toast" role="status"></div>
+<script src="shell.js?v=3"></script>
+<script src="vendor/pdfjs/pdf.min.js"></script>
+<script src="partitura-extract.js?v=1" defer></script>
+<script src="partitura-analyze.js?v=1" defer></script>
+<script src="piano-sound.js?v=4" defer></script>
+<script src="tablatura.js?v=1" defer></script>
+<script src="gift-ui.js?v=7" defer></script>
+</body>
+</html>
