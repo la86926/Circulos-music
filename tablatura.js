@@ -197,6 +197,7 @@ function render(){
           stems.push({x:c,t,dur:e.dur});
         }
         if(hasLyr&&e.lyrics&&e.lyrics[verse])svg+=`<text class="tl-lyr" x="${c.toFixed(1)}" y="${LY}">${esc(e.lyrics[verse])}</text>`;
+        svg+=`<rect class="tl-hit" data-i="${idx}" x="${(cx).toFixed(1)}" y="0" width="${w.toFixed(1)}" height="${H}"><title>Escuchar desde aquí</title></rect>`;
         e.idx=idx++;t+=e.dur;cx+=w;
       });
       x+=m.w*k;
@@ -235,14 +236,15 @@ document.addEventListener('circulos:notation',()=>{if(song)render();});
 /* ───────── Escuchar ───────── */
 const tempo=$('tabTempo');tempo.value=prefs.tempo;$('tabTempoVal').textContent=prefs.tempo;
 tempo.addEventListener('input',()=>{$('tabTempoVal').textContent=tempo.value;store.set('tab-tempo',tempo.value);});
-let timer=0,playing=false;
+let timer=0,playing=false,soundReady=false;
 function stop(){playing=false;clearTimeout(timer);document.querySelectorAll('.tl-note.is-now').forEach(n=>n.classList.remove('is-now'));const b=$('tabPlay');b.classList.remove('is-on');b.querySelector('span').textContent='Escuchar';}
-function play(){
-  if(playing){stop();return;}
+function play(from){
+  if(playing&&from==null){stop();return;}
+  if(playing)stop();
   if(!window.CirculosPiano){toast('El sonido no está disponible');return;}
   window.CirculosPiano.unlock();
   playing=true;const b=$('tabPlay');b.classList.add('is-on');b.querySelector('span').textContent='Detener';
-  let i=0,lastLine=-1;
+  let i=from||0,lastLine=from!=null?(events[from]||{}).line:-1;
   const step=()=>{
     if(!playing)return;
     if(i>=events.length){stop();return;}
@@ -255,9 +257,11 @@ function play(){
     }
     i++;timer=setTimeout(step,ms);
   };
-  timer=setTimeout(step,450);                                       // deja cargar el sonido
+  timer=setTimeout(step,soundReady?60:450);soundReady=true;      // la primera vez deja cargar el sonido
 }
-$('tabPlay').addEventListener('click',play);
+$('tabPlay').addEventListener('click',()=>play());
+/* Tocar una nota de la tablatura: suena desde ahí (si ya estaba sonando, salta a esa nota) */
+$('tabSheet').addEventListener('click',e=>{const h=e.target.closest('.tl-hit');if(h)play(+h.dataset.i);});
 $('tabPrint').addEventListener('click',()=>{stop();print();});
 
 /* ───────── Inicio: abre el último PDF leído en este dispositivo ───────── */

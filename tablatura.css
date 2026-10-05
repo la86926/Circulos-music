@@ -57,6 +57,8 @@ html[data-theme=dark] .tl-chord{fill:#9dc4f5}
 .tl-dot,.tl-whole{fill:var(--text)}
 .tl-whole{fill:none;stroke:var(--text);stroke-width:1.2}
 .tl-rest{fill:var(--muted)}
+.tl-hit{fill:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tl-hit:hover{fill:rgba(91,143,219,.08)}
 .tl-tie{fill:none;stroke:var(--muted);stroke-width:1.2}
 @media(max-width:560px){.tab-mode-hint{margin:12px 16px 0}.tab-controls{padding:12px 16px}.tab-song-head{padding:18px 16px 6px}.tab-sheet{padding:8px 10px 22px}.tab-legend{margin:10px 16px 0}.tab-list{padding:10px 14px 18px}.tab-search{margin:14px 14px 4px}}
 @media print{
