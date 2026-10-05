@@ -15,7 +15,9 @@ if (!PAGE) return;
 
 /* ───────── Ajustes ───────── */
 const SHOW_EVERY_VISIT = false;               // true = aparece en cada visita (por defecto solo la primera vez)
-const STORAGE_KEY = `circulos-tutorial-${PAGE}`;
+let kind = PAGE;                                 // guía en curso: la de la página o la de "Mis acordes"
+const storageKey = k => `circulos-tutorial-${k}`;
+const favOpen = () => !!document.querySelector('#favSheet.open');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 
 /* ───────── Iconos ───────── */
@@ -38,8 +40,8 @@ const onScreenX = el => { const r = el.getBoundingClientRect(); return r.right >
 const pick    = q => typeof q === 'function' ? q() : (q ? $$(q).find(shown) || null : null);
 const pickAll = q => typeof q === 'function' ? (q() || []) : (q ? $$(q).filter(shown) : []);
 const inFixed = el => { for (let n = el; n && n !== document.body; n = n.parentElement) if (getComputedStyle(n).position === 'fixed') return true; return false; };
-const isDone  = () => { try { return localStorage.getItem(STORAGE_KEY) === 'done'; } catch (e) { return false; } };
-const saveDone = () => { try { localStorage.setItem(STORAGE_KEY, 'done'); } catch (e) {} };
+const isDone  = (k = PAGE) => { try { return localStorage.getItem(storageKey(k)) === 'done'; } catch (e) { return false; } };
+const saveDone = () => { try { localStorage.setItem(storageKey(kind), 'done'); } catch (e) {} };
 
 /* ───────── Pasos ─────────
    modal   : tarjeta centrada, sin elemento enfocado
@@ -62,6 +64,7 @@ const detailOpen  = () => { if (!$('#chordDetail.open')) $('.chord-catalog-card'
 const detailClose = () => setTimeout(() => { if (!(active && cur && cur.detail)) $('#chordDetail.open [data-detail-close]')?.click(); }, 0);
 const pianoOn = () => { const p = $('#instrumento [data-instrument="piano"]'); if (p && !p.classList.contains('active')) p.click(); };
 const guitarOn = () => { const g = $('#instrumento [data-instrument="guitar"]'); if (g && !g.classList.contains('active')) g.click(); };
+const guitarLib = () => { const g = $('[data-library-inst="guitar"]'); if (g && !g.classList.contains('active')) g.click(); };
 const menuOpen  = () => { if (!$('#sideMenu.open')) $('#menuBtn')?.click(); };
 const menuClose = () => { if ($('#sideMenu.open')) $('#menuCloseBtn')?.click(); };
 
@@ -99,7 +102,7 @@ const STEPS = {
       tap: { sel: '.harmony-wheel-node' }, ok: '¡Ese es tu acorde!' },
 
     { title: 'Guárdalo o compártelo',
-      text: 'Con el corazón lo guardas en «Mis acordes», tu cancionero. Con la flecha envías un enlace, por ejemplo «Mira el La menor».',
+      text: 'Con el corazón guardas el acorde en «Mis acordes», tu cancionero. Cada posición de abajo tiene su propio corazón para guardar solo esa. Con la flecha envías el enlace.',
       ring: '#chordActions .act-btn', ringAll: true, radius: 26, pad: 5, hop: '#chordActions .act-btn', hopY: '-5px',
       at: '#chordActions .act-fav', tap: { sel: '#chordActions .act-fav' }, ok: '¡Guardado en Mis acordes!' },
 
@@ -179,24 +182,29 @@ const STEPS = {
       ring: () => $('#chordFamilyFilter')?.closest('label'), radius: 20, hop: '#chordFamilyFilter', hopY: '-4px',
       at: '#chordFamilyFilter', tap: { sel: '#chordFamilyFilter', ev: 'change' }, ok: '¡Filtrado!' },
 
+    { title: 'Guitarra o piano',
+      text: 'Elige el instrumento: en piano ves las teclas de cada acorde y sus inversiones, y puedes escucharlas.',
+      ring: '.lib-inst', radius: 22, hop: '[data-library-inst]', hopY: '-4px',
+      at: '[data-library-inst]:not(.active)', tap: { sel: '[data-library-inst]' }, ok: '¡Instrumento cambiado!' },
+
     { title: 'Abre un acorde', text: 'Toca una tarjeta para ver todas sus posiciones en el diapasón.',
       ring: '.chord-catalog-card', radius: 24, hop: '.chord-catalog-card', hopY: '-6px',
       at: '.chord-catalog-card', tap: { sel: '.chord-catalog-card' }, ok: '¡Ahí están!' },
 
     { title: 'Todas las posiciones',
-      text: 'Cada tarjeta es una forma de tocarlo y arriba dice en qué traste va. Desliza hacia abajo para ver todas.',
+      text: 'Cada tarjeta es una forma de tocarlo. Desliza hacia abajo para ver todas.',
       ring: '#chordDetail .chord-position-card', radius: 22, hop: '#chordDetail .chord-position-card',
       gesture: 'swipey', at: '#chordDetail .chord-position-card', detail: true, onEnter: detailOpen, onExit: detailClose },
 
     { title: 'Los números de abajo', text: 'Es la tablatura: cada número es el traste que pisas en cada cuerda. El primero (izquierda) es la 1.ª cuerda, la más delgada, y el último (derecha) es la 6.ª, la más gruesa. 0 = cuerda al aire, × = no se toca.',
       ring: '#chordDetail .chord-position-card code', radius: 12, pad: 5,
       hop: '#chordDetail .chord-position-card code', hopY: '-4px',
-      at: '#chordDetail .chord-position-card code', gesture: 'tap', detail: true, onEnter: detailOpen, onExit: detailClose },
+      at: '#chordDetail .chord-position-card code', gesture: 'tap', detail: true, onEnter: () => { guitarLib(); detailOpen(); }, onExit: detailClose },
 
     { title: 'Guárdalo o compártelo',
-      text: 'Con el corazón lo guardas en «Mis acordes», tu cancionero. Con la flecha envías un enlace del acorde.',
-      ring: '#chordDetail .chord-actions .act-btn', ringAll: true, radius: 26, pad: 5, hop: '#chordDetail .chord-actions .act-btn', hopY: '-5px',
-      at: '#chordDetail .chord-actions .act-fav', tap: { sel: '#chordDetail .act-fav' }, ok: '¡Guardado en Mis acordes!',
+      text: 'Arriba a la derecha guardas o compartes el acorde completo. Cada posición tiene su propio corazón para guardar solo esa.',
+      ring: '#chordDetail .detail-title-row .act-btn', ringAll: true, radius: 26, pad: 5, hop: '#chordDetail .detail-title-row .act-btn, #chordDetail .pos-actions .act-fav', hopY: '-5px',
+      at: '#chordDetail .detail-title-row .act-fav', tap: { sel: '#chordDetail .act-fav' }, ok: '¡Guardado en Mis acordes!',
       detail: true, onEnter: detailOpen, onExit: detailClose },
 
     { title: 'Mis acordes',
@@ -212,6 +220,32 @@ const STEPS = {
 
     { modal: true, title: '¡Listo para buscar!',
       text: 'Cuando quieras repetir esta guía, toca el botón “?” o búscala en el menú.',
+      next: 'Terminar', keepFab: true, at: '.tuto-fab', hop: '.tuto-fab', hopY: '-6px', gesture: 'tap' }
+  ],
+
+  favoritos: [
+    { modal: true, title: 'Mis acordes',
+      text: 'Tu cancionero: aquí quedan los acordes, las posiciones y las formas de piano que guardaste con el corazón.',
+      next: 'Empezar', skip: 'Ahora no', at: '#tutoNext', gesture: 'tap' },
+
+    { title: 'Tu nick', ring: '#favAccount', radius: 20, pad: 5,
+      variant() {
+        const signed = !!$('#favAccount .fav-user');
+        return signed
+          ? { text: 'Estás conectado. Escribe este mismo nick en otro celular o computadora y verás tus acordes allí. «Salir» los deja solo en este dispositivo.', at: '#favAccount .fav-user', gesture: 'tap' }
+          : { text: 'Escribe un nick (letras y números, sin contraseña) y toca Entrar. En otro celular o computadora escribe el mismo nick y aparecerán tus acordes.', at: '#favNick', gesture: 'tap', hop: '#favAccount button[type="submit"]', hopY: '-4px' };
+      } },
+
+    { title: 'Tus guardados',
+      variant() {
+        if (pick('#favGrid .chord-catalog-card')) return {
+          text: 'Toca uno para abrirlo. Si guardaste una sola posición o forma de piano, se abre justo en esa. Para quitarlo, ábrelo y vuelve a tocar el corazón.',
+          ring: '#favGrid .chord-catalog-card', radius: 20, hop: '#favGrid .chord-catalog-card', hopY: '-5px', at: '#favGrid .chord-catalog-card', gesture: 'tap' };
+        return { text: 'Aún está vacío. Toca el corazón en un acorde, o en una sola posición, y aparecerá aquí.', ring: '#favGrid .chord-empty', radius: 20, at: '#favGrid .chord-empty', gesture: 'tap' };
+      } },
+
+    { modal: true, title: '¡Listo!',
+      text: 'Cuando quieras repetir esta guía, toca el botón “?” con «Mis acordes» abierto.',
       next: 'Terminar', keepFab: true, at: '.tuto-fab', hop: '.tuto-fab', hopY: '-6px', gesture: 'tap' }
   ],
 
@@ -286,7 +320,7 @@ function injectEntrypoints() {
   fab.className = 'tuto-fab'; fab.type = 'button';
   fab.setAttribute('aria-label', 'Ver tutorial'); fab.title = 'Ver tutorial';
   fab.innerHTML = ICON.help;
-  fab.addEventListener('click', () => start());
+  fab.addEventListener('click', () => start(favOpen() ? 'favoritos' : PAGE));
   document.body.appendChild(fab);
 
   const picker = $('.app-picker');
@@ -311,15 +345,16 @@ function setGesture(g) {
 }
 function gestureOf(s) { return (typeof s.gesture === 'function' ? s.gesture() : s.gesture) || 'tap'; }
 
-function start() {
+function start(which = PAGE) {
   if (active) return;
   build();
-  steps = STEPS[PAGE];
+  kind = STEPS[which] ? which : PAGE;
+  steps = STEPS[kind];
   active = true;
   menuClose();
   layer.hidden = false;
   document.body.classList.add('tuto-on');
-  if (PAGE === 'circulos') scrollTo({ top: 0, behavior: 'auto' });
+  if (kind === 'circulos') scrollTo({ top: 0, behavior: 'auto' });
   setBox(ringEl, innerWidth / 2, innerHeight / 2, 0, 0);
   enter(0);
   cancelAnimationFrame(raf);
@@ -506,6 +541,12 @@ addEventListener('keydown', e => {
 function init() {
   injectEntrypoints();
   window.circulosTutorial = { start, close: () => close(false) };
+  /* "Mis acordes": el botón "?" queda encima de la hoja y la guía aparece sola la primera vez */
+  document.addEventListener('circulos:favsheet', e => {
+    document.body.classList.toggle('favsheet-open', !!e.detail);
+    if (e.detail && !active && !isDone('favoritos')) setTimeout(() => { if (favOpen()) start('favoritos'); }, 500);
+    if (!e.detail && active && kind === 'favoritos') close(true);
+  });
   const forced = new URLSearchParams(location.search).has('tutorial');
   if (!forced && !SHOW_EVERY_VISIT && isDone()) return;
   const ready = { circulos: '#circuloArmonico .harmony-wheel-node', acordes: '.chord-catalog-card', afinador: '#tunerStrings .tuner-string' }[PAGE];

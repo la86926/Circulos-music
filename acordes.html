@@ -20,9 +20,9 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="stylesheet" href="style.css?v=12">
 <link rel="stylesheet" href="shell.css?v=3">
-<link rel="stylesheet" href="chords-library.css?v=14">
-<link rel="stylesheet" href="polish.css?v=14">
-<link rel="stylesheet" href="tutorial.css?v=3">
+<link rel="stylesheet" href="chords-library.css?v=15">
+<link rel="stylesheet" href="polish.css?v=15">
+<link rel="stylesheet" href="tutorial.css?v=4">
 </head>
 <body>
 <header class="app-header">
@@ -69,7 +69,7 @@
     </div>
   </section>
   <section class="chordlib-results" aria-labelledby="chordCatalogTitle">
-    <div class="chord-results-head"><div><h2 id="chordCatalogTitle">Acordes</h2></div><button class="chord-reset" id="chordResetFilters" type="button">Limpiar filtros</button></div>
+    <div class="chord-results-head"><div class="results-title"><h2 id="chordCatalogTitle">Acordes</h2><div class="segmented seg2 lib-inst" role="group" aria-label="Instrumento"><button class="seg-btn active" type="button" data-library-inst="guitar" aria-pressed="true">Guitarra</button><button class="seg-btn" type="button" data-library-inst="piano" aria-pressed="false">Piano</button></div></div><button class="chord-reset" id="chordResetFilters" type="button">Limpiar filtros</button></div>
     <div class="chord-catalog-grid" id="chordCatalogGrid" aria-live="polite"></div>
     <div class="chord-empty" id="chordEmpty" hidden><strong>Sin coincidencias</strong><span>Prueba otra nota, familia o búsqueda.</span></div>
     <button class="chord-load-more" id="chordLoadMore" type="button" hidden>Mostrar más</button>
@@ -77,11 +77,12 @@
 </main>
 <div class="toast" id="toast" role="status"></div>
 <script src="shell.js?v=2"></script>
-<script src="chords-library.js?v=21" defer></script>
+<script src="piano-sound.js?v=4" defer></script>
+<script src="chords-library.js?v=22" defer></script>
 <script src="gift-ui.js?v=6" defer></script>
-<script src="share.js?v=1" defer></script>
-<script src="favoritos.js?v=1" type="module"></script>
-<script src="tutorial.js?v=14" defer></script>
+<script src="share.js?v=2" defer></script>
+<script src="favoritos.js?v=2" type="module"></script>
+<script src="tutorial.js?v=15" defer></script>
 <script src="leave-guard.js?v=3" defer></script>
 </body>
 </html>

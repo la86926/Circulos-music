@@ -160,3 +160,7 @@ body.tuto-on.menu-open.tuto-show-fab .tuto-fab{opacity:1}
   .g-tap .tuto-ripple,.tuto-card{animation:none!important}
   .tuto-ring.is-moving,.tuto-hand.is-moving{transition:none}
 }
+
+/* Con "Mis acordes" abierto, el botón de ayuda queda encima de la hoja */
+body.favsheet-open .tuto-fab{z-index:95}
+body.favsheet-open.chord-detail-open .tuto-fab{z-index:30}

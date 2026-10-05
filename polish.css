@@ -178,8 +178,49 @@ html[data-theme="dark"] .act-fav.is-on{background:#1d2c44;border-color:#5b8fdb;c
 html[data-theme="dark"] .act-fav.is-on svg{fill:#7fb1e8;stroke:#7fb1e8}
 .act-fav.pop{animation:favPop .45s cubic-bezier(.34,1.56,.64,1)}
 @keyframes favPop{0%{transform:scale(1)}40%{transform:scale(1.25)}100%{transform:scale(1)}}
-/* En el detalle de Acordes, junto al título */
-.chord-detail-head .chord-actions{margin-top:12px}
+/* Corazón y compartir siempre a la derecha (a la mano para diestros) */
+.chord-actions{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.detail-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.detail-title-row h2{min-width:0;overflow-wrap:anywhere}
+.chord-position-card .position-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:34px;margin:-2px -2px 2px 0}
+.chord-position-card .position-card-head strong{margin:0;font-size:12px;color:var(--muted);font-weight:780}
+.act-btn.act-sm{width:34px;height:34px}
+.act-btn.act-sm svg{width:16px;height:16px}
+.pos-actions{gap:6px}
+.chord-position-card.is-focus{animation:cardFocus 1.6s ease}
+@keyframes cardFocus{0%,30%{box-shadow:0 0 0 3px #8bb7e6,0 10px 30px rgba(79,134,214,.25)}100%{box-shadow:0 0 0 0 rgba(139,183,230,0)}}
+#pianoPanel .visual-top{justify-content:flex-start}
+#pianoActions{order:9;margin-left:auto}
+.piano-actions .pos-actions{gap:8px}
+.piano-actions .act-btn.act-sm{width:40px;height:40px}
+.piano-actions .act-btn.act-sm svg{width:18px;height:18px}
+/* Variación guardada: subtítulo debajo del nombre */
+.chord-catalog-top small{display:block;margin-top:3px;color:var(--muted);font-size:10px;font-weight:760;letter-spacing:.01em}
+
+/* ───────── Piano de la biblioteca ───────── */
+.results-title{display:flex!important;align-items:center;gap:14px;flex-wrap:wrap}
+.lib-inst{width:auto;min-width:200px}
+.lib-piano{display:block;width:100%;max-width:440px;height:auto;margin:8px auto 4px;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.lib-piano-mini{max-width:158px;margin:9px auto 2px;pointer-events:none}
+.lib-piano rect{cursor:pointer;transition:fill .2s ease}
+.lib-piano-mini rect{cursor:inherit}
+.lp-w{fill:#fdfdff;stroke:#d8dee8;stroke-width:1}
+.lp-b{fill:#1b1f27}
+.lp-w.is-on{fill:var(--pk-note);stroke:var(--pk-note-edge)}
+.lp-w.is-root{fill:var(--pk-root);stroke:var(--pk-root-edge)}
+.lp-b.is-on{fill:var(--pk-note-edge)}
+.lp-b.is-root{fill:var(--pk-root-edge)}
+.lib-piano rect.is-press{fill:#a9c8ef}
+.lib-piano .lp-b.is-press{fill:#5b8fdb}
+.lp-t{font-size:8.5px;font-weight:820;text-anchor:middle;fill:var(--pk-note-text);pointer-events:none}
+.lp-t.is-root{fill:#fff}
+.lp-tb{font-size:6.6px;fill:#0f2c52}.lp-tb.is-root{fill:#fff}
+.piano-card-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;padding:8px 9px;border-radius:12px;background:var(--surface2)}
+.piano-card-foot span{font-size:12px;font-weight:760;letter-spacing:.01em}
+.piano-play{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 13px 0 10px;border:0;border-radius:999px;background:var(--accent);color:var(--contrast);font:inherit;font-size:12px;font-weight:760;cursor:pointer;transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.piano-play:active{transform:scale(.92)}
+.piano-play svg{width:14px;height:14px;fill:currentColor}
+@media(max-width:520px){.results-title{gap:10px}.lib-inst{min-width:0;flex:1 1 180px}}
 /* Marca de favorito en las tarjetas */
 .chord-catalog-card{position:relative}
 .chord-catalog-card.is-fav::after{content:"";position:absolute;top:12px;right:12px;width:16px;height:16px;background:#4f86d6;

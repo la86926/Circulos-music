@@ -4,12 +4,13 @@
 'use strict';
 const ICON='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v11"/><path d="m7.8 7.6 4.2-4.1 4.2 4.1"/><path d="M6.5 11.5H6a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2h-.5"/></svg>';
 const toast=m=>window.CirculosShell?.toast(m);
+/* El mensaje va en dos líneas: el texto y, debajo, el enlace */
 async function share(info){
   if(!info)return;
+  const text=`${info.text}\n${info.url}`;
   if(navigator.share){
-    try{await navigator.share(info);return;}catch(e){if(e&&e.name==='AbortError')return;}
+    try{await navigator.share({text});return;}catch(e){if(e&&e.name==='AbortError')return;}
   }
-  const text=`${info.text}: ${info.url}`;
   try{await navigator.clipboard.writeText(text);toast('Enlace copiado. Pégalo donde quieras.');}
   catch(e){
     const area=document.createElement('textarea');area.value=text;area.style.cssText='position:fixed;opacity:0';document.body.appendChild(area);area.select();
@@ -21,11 +22,14 @@ function button(getInfo){
   const b=document.createElement('button');b.type='button';b.className='act-btn act-share';b.setAttribute('aria-label','Compartir');b.title='Compartir';
   b.innerHTML=ICON;b.addEventListener('click',()=>share(getInfo()));return b;
 }
+/* Círculos: la tonalidad y el acorde elegidos */
 const head=document.getElementById('chordActions');
 if(head&&window.Circulos)head.appendChild(button(()=>window.Circulos.share()));
-document.addEventListener('circulos:detail',e=>{
-  const box=e.detail?.container;if(!box||box.querySelector('.act-share'))return;
-  box.appendChild(button(()=>window.CirculosChords.shareFor(e.detail.entry)));
+/* Acordes y variaciones: botones con data-share-key ("ch12" o "ch12:g3") */
+document.addEventListener('click',e=>{
+  const b=e.target.closest?.('[data-share-key]');if(!b)return;
+  const [id,k]=b.dataset.shareKey.split(':'),L=window.CirculosChords,entry=L?.byId(id);
+  if(entry)share(L.shareFor(entry,k));
 });
 window.CirculosShare={share};
 })();
